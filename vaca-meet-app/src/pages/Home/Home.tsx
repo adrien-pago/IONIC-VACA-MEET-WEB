@@ -5,152 +5,106 @@ import {
   IonPage, 
   IonTitle, 
   IonToolbar,
-  IonButton, 
-  IonCard, 
-  IonCardContent, 
-  IonCardHeader, 
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
   IonCardTitle,
+  IonCardContent,
   IonItem,
   IonLabel,
   IonList,
-  IonLoading,
-  IonToast
+  IonThumbnail,
+  useIonViewWillEnter
 } from '@ionic/react';
-import AuthService from '../../services/authService';
-import { handleLogout, fetchUserProfile } from './HomeEvents';
+import { add, logOut, personCircle } from 'ionicons/icons';
+import { authService, User } from '../../services/authService';
+import { useHistory } from 'react-router-dom';
 import './Home.css';
-import '../../styles/global.css';
 
 const Home: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [error, setError] = useState('');
-  const [showToast, setShowToast] = useState(false);
+  const history = useHistory();
+  const [user, setUser] = useState<User | null>(null);
 
-  // TEMPORAIRE: Désactivé pour éviter le chargement infini tant que l'API n'est pas disponible
-  /*
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      setLoading(true);
-      await fetchUserProfile(
-        (userData) => setUser(userData),
-        (errorMsg) => {
-          setError(errorMsg);
-          setShowToast(true);
-        }
-      );
-      setLoading(false);
-    };
+  useIonViewWillEnter(() => {
+    // Vérifier si l'utilisateur est connecté
+    if (!authService.isAuthenticated()) {
+      history.replace('/login');
+      return;
+    }
 
-    loadUserProfile();
-  }, []);
-  */
+    // Récupérer les informations de l'utilisateur connecté
+    const currentUser = authService.getCurrentUser();
+    setUser(currentUser);
+  });
 
-  // Simulation d'un chargement rapide
-  useEffect(() => {
-    setLoading(true);
-    // Simuler un délai court
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleLogoutSuccess = () => {
-    setUser(null);
-  };
-
-  // Fonction temporaire pour simuler une connexion - à supprimer quand l'API sera prête
-  const simulateLogin = () => {
-    setUser({
-      email: 'utilisateur@exemple.com',
-      firstName: 'John',
-      lastName: 'Doe'
-    });
+  const handleLogout = () => {
+    authService.logout();
+    history.replace('/login');
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Accueil - Vaca Meet</IonTitle>
+          <IonTitle>Accueil</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={handleLogout}>
+              <IonIcon slot="icon-only" icon={logOut} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className="ion-padding home-container">
-        <IonLoading isOpen={loading} message="Chargement..." />
-
-        {!AuthService.isAuthenticated() && !user ? (
-          <div className="text-center fade-in">
-            <h2 className="home-title">Bienvenue sur Vaca Meet!</h2>
-            <p className="home-subtitle">Connectez-vous ou inscrivez-vous pour commencer à organiser des rencontres.</p>
-            
-            <div className="home-button-container">
-              <IonButton routerLink="/login" expand="block" className="ion-margin-bottom">
-                Se connecter
-              </IonButton>
-              <IonButton routerLink="/register" expand="block" color="secondary">
-                S'inscrire
-              </IonButton>
-              
-              {/* Bouton temporaire pour tester l'interface sans backend */}
-              <IonButton expand="block" color="tertiary" onClick={simulateLogin} className="ion-margin-top">
-                Simuler une connexion
-              </IonButton>
-            </div>
-          </div>
-        ) : (
-          <div className="fade-in">
-            <IonCard className="home-welcome-card">
-              <IonCardHeader>
-                <IonCardTitle>Bonjour, {user?.firstName || 'utilisateur'} !</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <p>Bienvenue sur votre espace Vaca Meet.</p>
-                
-                {user && (
-                  <IonList className="home-user-info">
-                    <IonItem>
-                      <IonLabel>Email: {user.email}</IonLabel>
-                    </IonItem>
-                    {user.firstName && (
-                      <IonItem>
-                        <IonLabel>Prénom: {user.firstName}</IonLabel>
-                      </IonItem>
-                    )}
-                    {user.lastName && (
-                      <IonItem>
-                        <IonLabel>Nom: {user.lastName}</IonLabel>
-                      </IonItem>
-                    )}
-                  </IonList>
-                )}
-                
-                <IonButton 
-                  expand="block" 
-                  color="danger" 
-                  className="home-logout-button"
-                  onClick={(e) => {
-                    // Version simplifiée pour test sans backend
-                    e.preventDefault();
-                    setUser(null);
-                    AuthService.logout();
-                  }}
-                >
-                  Se déconnecter
-                </IonButton>
-              </IonCardContent>
-            </IonCard>
+      <IonContent className="ion-padding">
+        {user && (
+          <div className="welcome-container">
+            <IonIcon icon={personCircle} className="profile-icon" />
+            <h2>Bonjour, {user.firstName || user.email}</h2>
+            <p>Bienvenue sur Vaca Meet</p>
           </div>
         )}
 
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={error}
-          duration={3000}
-          color="danger"
-        />
+        <IonCard className="stats-card">
+          <IonCardHeader>
+            <IonCardTitle>Tableau de bord</IonCardTitle>
+            <IonCardSubtitle>Votre activité</IonCardSubtitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <div className="stats-container">
+              <div className="stat-item">
+                <div className="stat-value">0</div>
+                <div className="stat-label">Rencontres créées</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">0</div>
+                <div className="stat-label">Participants</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">0</div>
+                <div className="stat-label">À venir</div>
+              </div>
+            </div>
+          </IonCardContent>
+        </IonCard>
+
+        <div className="section-header">
+          <h3>Rencontres à venir</h3>
+          <IonButton fill="clear" routerLink="/meet-form">
+            <IonIcon slot="start" icon={add} />
+            Créer
+          </IonButton>
+        </div>
+
+        <IonList className="meetings-list">
+          <IonItem detail={true} lines="full" className="empty-list-message">
+            <IonLabel>
+              <h2>Aucune rencontre prévue</h2>
+              <p>Créez votre première rencontre pour commencer</p>
+            </IonLabel>
+          </IonItem>
+        </IonList>
       </IonContent>
     </IonPage>
   );

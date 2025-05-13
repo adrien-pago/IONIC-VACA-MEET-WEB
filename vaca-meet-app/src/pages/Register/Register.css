@@ -13,15 +13,60 @@
 .register-form {
   max-width: 500px;
   margin: 0 auto;
-  padding: var(--spacing-md);
+  padding: 20px;
 }
 
-.register-input {
-  margin-bottom: var(--spacing-md);
+.form-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-heading h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-heading p {
+  color: var(--ion-color-medium);
+  font-size: 1rem;
+}
+
+.form-input {
+  margin-bottom: 1rem;
+  --background: rgba(var(--ion-color-light-rgb), 0.7);
+  --border-radius: 8px;
 }
 
 .register-button {
-  margin-top: var(--spacing-lg);
+  margin-top: 2rem;
+  --border-radius: 8px;
+  font-weight: 600;
+  height: 48px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--ion-color-medium);
+}
+
+.login-link a {
+  font-weight: 600;
+}
+
+.error-message {
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-input {
+    --background: rgba(var(--ion-color-dark-rgb), 0.6);
+  }
 }
 
 .register-login-link {

@@ -1,139 +1,126 @@
-import api from './api';
+import axios from 'axios';
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
+// URL de base de l'API
+// Pour un émulateur Android, on utilise 10.0.2.2 au lieu de localhost
+const API_URL = 'http://10.0.2.2:8000/api';
 
-export interface RegisterData {
+// Types
+export interface User {
+  id: number;
   email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  createdAt: string;
 }
 
 export interface AuthResponse {
+  user: User;
   token: string;
-  user: {
-    id: number;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-  };
 }
 
-// TEMPORAIRE: Configuration pour une utilisation sans backend
-const MOCK_USER = {
-  id: 1,
-  email: "demo@exemple.com",
-  firstName: "Jean",
-  lastName: "Dupont"
-};
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 
-const MOCK_TOKEN = "mock_jwt_token_for_development_only";
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
 
-const AuthService = {
-  /**
-   * Connecte un utilisateur avec ses identifiants
-   */
-  login: async (credentials: LoginCredentials) => {
+// Stockage du token dans le localStorage
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'user_data';
+
+// Service d'authentification
+export const authService = {
+  // Test simple de l'API
+  testApi: async (): Promise<any> => {
     try {
-      // TEMPORAIRE: Version locale sans appel API
-      console.log("Connexion avec:", credentials);
-      
-      // Simulation d'une vérification basique
-      if (credentials.email && credentials.password) {
-        // Stocker le token fictif
-        localStorage.setItem('token', MOCK_TOKEN);
-        localStorage.setItem('user', JSON.stringify(MOCK_USER));
-        
-        return {
-          token: MOCK_TOKEN,
-          user: MOCK_USER
-        };
-      } else {
-        throw new Error("Email ou mot de passe manquant");
-      }
-      
-      /* Version réelle avec API (à décommenter une fois l'API prête)
-      const response = await api.post<AuthResponse>('/login_check', credentials);
-      localStorage.setItem('token', response.data.token);
+      const response = await axios.get(`${API_URL}/test`);
       return response.data;
-      */
     } catch (error) {
-      console.error("Erreur de connexion:", error);
+      console.error('Erreur lors du test de l\'API:', error);
       throw error;
     }
   },
 
-  /**
-   * Inscrit un nouvel utilisateur
-   */
-  register: async (userData: RegisterData) => {
-    try {
-      // TEMPORAIRE: Version locale sans appel API
-      console.log("Inscription avec:", userData);
-      
-      // Simulation de succès
-      const mockResponse = {
-        token: MOCK_TOKEN,
-        user: {
-          id: 1,
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName
-        }
-      };
-      
-      return mockResponse;
-      
-      /* Version réelle avec API (à décommenter une fois l'API prête)
-      const response = await api.post<AuthResponse>('/register', userData);
-      return response.data;
-      */
-    } catch (error) {
-      console.error("Erreur d'inscription:", error);
-      throw error;
+  // Inscription
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const response = await axios.post(`${API_URL}/register`, data);
+    return response.data;
+  },
+
+  // Connexion
+  login: async (data: LoginRequest): Promise<AuthResponse> => {
+    const response = await axios.post(`${API_URL}/login`, data);
+    
+    // Stockage du token et des données utilisateur
+    if (response.data.token) {
+      localStorage.setItem(TOKEN_KEY, response.data.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
     }
+    
+    return response.data;
   },
 
-  /**
-   * Déconnecte l'utilisateur en supprimant son token
-   */
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  // Déconnexion
+  logout: (): void => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   },
 
-  /**
-   * Vérifie si l'utilisateur est actuellement connecté
-   */
+  // Récupération du token
+  getToken: (): string | null => {
+    return localStorage.getItem(TOKEN_KEY);
+  },
+
+  // Récupération des données utilisateur
+  getCurrentUser: (): User | null => {
+    const userJson = localStorage.getItem(USER_KEY);
+    if (userJson) {
+      return JSON.parse(userJson);
+    }
+    return null;
+  },
+
+  // Vérification si l'utilisateur est connecté
   isAuthenticated: (): boolean => {
-    return localStorage.getItem('token') !== null;
+    return !!localStorage.getItem(TOKEN_KEY);
   },
 
-  /**
-   * Récupère le profil de l'utilisateur actuel
-   */
-  getUserProfile: async () => {
-    try {
-      // TEMPORAIRE: Version locale sans appel API
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        return JSON.parse(userData);
-      }
-      
-      return MOCK_USER;
-      
-      /* Version réelle avec API (à décommenter une fois l'API prête)
-      const response = await api.get('/user/profile');
-      return response.data;
-      */
-    } catch (error) {
-      console.error("Erreur de récupération du profil:", error);
-      throw error;
+  // Récupération du profil utilisateur depuis l'API
+  getProfile: async (): Promise<User> => {
+    const token = authService.getToken();
+    
+    if (!token) {
+      throw new Error('Utilisateur non authentifié');
     }
+    
+    const response = await axios.get(`${API_URL}/user/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    return response.data.user;
   }
 };
 
-export default AuthService; 
+// Intercepteur pour ajouter le token aux requêtes
+axios.interceptors.request.use(
+  (config) => {
+    const token = authService.getToken();
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export default authService; 

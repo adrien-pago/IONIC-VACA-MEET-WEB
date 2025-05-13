@@ -1,41 +1,39 @@
-# Vaca Meet - Application Mobile
+# Vaca Meet - Application Mobile avec API Backend
 
 ## Architecture du Projet
 
-L'application Vaca Meet est une application mobile hybride développée avec Ionic et React. Elle est conçue pour communiquer avec une API backend développée avec Symfony.
+L'application Vaca Meet est une application mobile hybride développée avec Ionic et React, connectée à une API backend développée avec Symfony 6.4.
 
 ### Structure du Projet
+
+Le projet est divisé en deux parties principales :
+
+1. **Frontend (vaca-meet-app)** : Application mobile Ionic/React
+2. **Backend (vaca-meet-api)** : API REST développée avec Symfony
+
+#### Structure du Frontend (vaca-meet-app)
 
 ```
 vaca-meet-app/
 ├── public/                 # Ressources statiques
 ├── src/                    # Code source de l'application
 │   ├── components/         # Composants React réutilisables
+│   │   └── PrivateRoute.tsx # Composant pour la protection des routes
 │   ├── pages/              # Pages de l'application
 │   │   ├── Home/           # Organisation par dossiers pour chaque page
 │   │   │   ├── Home.tsx    # Logique et structure de la page
-│   │   │   ├── Home.css    # Styles spécifiques à la page
-│   │   │   └── HomeEvents.ts # Gestionnaires d'événements pour la page
+│   │   │   └── Home.css    # Styles spécifiques à la page
 │   │   ├── Login/          
 │   │   │   ├── Login.tsx
-│   │   │   ├── Login.css
-│   │   │   └── LoginEvents.ts
+│   │   │   └── Login.css
 │   │   └── Register/
 │   │       ├── Register.tsx
-│   │       ├── Register.css
-│   │       └── RegisterEvents.ts
+│   │       └── Register.css
 │   ├── services/           # Services pour la communication avec l'API
-│   │   ├── api.ts          # Configuration de base pour les requêtes API
 │   │   └── authService.ts  # Service pour l'authentification
-│   ├── hooks/              # Hooks React personnalisés
-│   │   ├── useForm.ts      # Hook pour gérer les formulaires
-│   │   └── useAuth.ts      # Hook pour gérer l'authentification
 │   ├── styles/             # Styles globaux et variables CSS
 │   │   ├── global.css      # Styles appliqués globalement
 │   │   └── variables.css   # Variables CSS pour les couleurs, polices, etc.
-│   ├── utils/              # Fonctions utilitaires
-│   │   ├── validators.ts   # Validateurs de formulaires
-│   │   └── formatters.ts   # Fonctions de formatage (dates, devises...)
 │   ├── theme/              # Configuration des thèmes Ionic
 │   ├── App.tsx             # Point d'entrée de l'application React
 │   └── main.tsx            # Point d'entrée pour le rendu de l'application
@@ -45,125 +43,80 @@ vaca-meet-app/
 └── tsconfig.json           # Configuration TypeScript
 ```
 
+#### Structure du Backend (vaca-meet-api)
+
+```
+vaca-meet-api/
+├── bin/                    # Fichiers binaires, dont la console Symfony
+├── config/                 # Configuration de l'application
+│   ├── packages/           # Configuration des bundles
+│   │   ├── security.yaml   # Configuration de la sécurité
+│   │   └── lexik_jwt_authentication.yaml # Configuration JWT
+│   ├── routes/             # Configuration des routes
+│   └── jwt/                # Clés JWT (private.pem, public.pem)
+├── migrations/             # Migrations de base de données
+├── src/                    # Code source de l'API
+│   ├── Controller/         # Contrôleurs
+│   │   ├── AuthController.php # Gestion de l'authentification
+│   │   └── UserController.php # Gestion des utilisateurs
+│   ├── Entity/             # Entités (modèles de données)
+│   │   └── User.php        # Entité utilisateur
+│   └── Repository/         # Repositories pour accéder aux données
+│       └── UserRepository.php # Repository pour l'entité User
+├── .env                    # Variables d'environnement par défaut
+├── .env.local              # Variables d'environnement locales (non commité)
+├── composer.json           # Dépendances PHP
+└── symfony.lock            # Verrouillage des versions des dépendances
+```
+
 ### Technologies Utilisées
 
-- **Ionic Framework**: Framework UI pour le développement d'applications mobiles hybrides
-- **React**: Bibliothèque JavaScript pour construire l'interface utilisateur
-- **TypeScript**: Langage de programmation typé, superset de JavaScript
-- **Axios**: Client HTTP pour les requêtes API
-- **Capacitor**: Pour transformer l'application web en application mobile native
+#### Frontend
+- **Ionic Framework** : Framework UI pour le développement d'applications mobiles hybrides
+- **React** : Bibliothèque JavaScript pour construire l'interface utilisateur
+- **TypeScript** : Langage de programmation typé, superset de JavaScript
+- **Axios** : Client HTTP pour les requêtes API
+- **Capacitor** : Pour transformer l'application web en application mobile native
 
-### Flux de Données
+#### Backend
+- **Symfony 6.4** : Framework PHP pour le développement d'API
+- **Doctrine ORM** : ORM pour la gestion des données
+- **Lexik JWT Authentication Bundle** : Pour l'authentification par token JWT
+- **MySQL** : Base de données relationnelle
 
-1. **Services API**: Les services (`api.ts` et `authService.ts`) gèrent la communication avec le backend Symfony
-2. **Pages**: Les composants React qui représentent les différentes vues de l'application
-3. **État de l'application**: Géré localement dans les composants React avec useState et useEffect
+### Flux d'Authentification
 
-### Gestion des Styles CSS
+1. **Inscription** : L'utilisateur s'inscrit via la page Register
+2. **Connexion** : L'utilisateur se connecte via la page Login
+3. **Token JWT** : Le serveur renvoie un token JWT en cas de connexion réussie
+4. **Stockage** : Le token est stocké dans le localStorage du navigateur
+5. **Autorisation** : Toutes les requêtes API incluent ce token dans les en-têtes HTTP
+6. **Protection** : Les routes sensibles sont protégées côté frontend (PrivateRoute) et backend (security.yaml)
 
-Pour une meilleure organisation, les styles sont structurés de la manière suivante:
+### Endpoints API
 
-1. **Styles globaux**: Dans le dossier `src/styles/`, pour les styles communs à toute l'application
-2. **Styles par composant**: Chaque page ou composant a son propre fichier CSS dans le même dossier que le composant
-3. **Variables CSS**: Définies dans `src/styles/variables.css` pour maintenir la cohérence du design
+#### Authentification
+- **POST /api/register** : Inscription d'un nouvel utilisateur
+  - Corps : `{ email, password, firstName, lastName }`
+  - Réponse : `{ user, message }`
 
-Exemple d'utilisation:
-```css
-/* Dans src/styles/variables.css */
-:root {
-  --primary-color: #3880ff;
-  --secondary-color: #3dc2ff;
-  --text-color: #333333;
-}
+- **POST /api/login** : Authentification
+  - Corps : `{ email, password }`
+  - Réponse : `{ user, token }`
 
-/* Dans src/pages/Home/Home.css */
-.home-container {
-  background-color: var(--primary-color);
-  color: var(--text-color);
-}
-```
-
-### Gestion des Événements avec React
-
-Dans React, les événements sont gérés de manière déclarative. Pour une meilleure organisation, vous pouvez:
-
-1. **Définir les gestionnaires d'événements** dans des fichiers séparés par page (ex: `HomeEvents.ts`)
-2. **Utiliser des hooks personnalisés** pour la logique réutilisable
-3. **Passer les événements via les props** des composants
-
-Exemple d'implémentation:
-
-```typescript
-// src/pages/Login/LoginEvents.ts
-import { FormEvent } from 'react';
-import AuthService from '../../services/authService';
-
-export const handleSubmit = async (
-  event: FormEvent, 
-  credentials: { email: string; password: string },
-  onSuccess: () => void,
-  onError: (message: string) => void
-) => {
-  event.preventDefault();
-  
-  try {
-    await AuthService.login(credentials);
-    onSuccess();
-  } catch (error) {
-    onError('Échec de la connexion');
-  }
-};
-
-// Dans src/pages/Login/Login.tsx
-import { handleSubmit } from './LoginEvents';
-
-const Login: React.FC = () => {
-  // ...
-  
-  const onLoginSuccess = () => {
-    router.push('/home');
-  };
-  
-  const onLoginError = (message: string) => {
-    setErrorMessage(message);
-    setShowAlert(true);
-  };
-  
-  return (
-    <form onSubmit={(e) => handleSubmit(e, credentials, onLoginSuccess, onLoginError)}>
-      {/* Contenu du formulaire */}
-    </form>
-  );
-};
-```
-
-### Authentification
-
-Le système d'authentification utilise un flux classique basé sur les tokens JWT :
-
-1. L'utilisateur s'authentifie via la page de connexion ou s'inscrit via la page d'inscription
-2. Le serveur renvoie un token JWT en cas de succès
-3. Le token est stocké dans le localStorage du navigateur
-4. Toutes les requêtes ultérieures incluent ce token dans les en-têtes HTTP
-5. Le service `api.ts` utilise un intercepteur Axios pour ajouter automatiquement le token
-
-### Routes Principales
-
-- `/home` : Page d'accueil affichant un message de bienvenue ou les informations de l'utilisateur connecté
-- `/login` : Page de connexion utilisateur
-- `/register` : Page d'inscription utilisateur
-
-### Communication avec l'API Symfony
-
-L'application communique avec le backend Symfony via les endpoints suivants :
-
-- `/api/login_check` : Authentification (POST)
-- `/api/register` : Inscription (POST)
-- `/api/user/profile` : Récupération du profil utilisateur (GET)
+#### Utilisateur
+- **GET /api/user/profile** : Récupération du profil utilisateur
+  - En-tête : `Authorization: Bearer {token}`
+  - Réponse : `{ user }`
 
 ### Installation et Démarrage
 
+#### Frontend (Ionic/React)
+
 ```bash
+# Se positionner dans le dossier du frontend
+cd vaca-meet-app
+
 # Installation des dépendances
 npm install
 
@@ -173,27 +126,70 @@ ionic serve
 # Construction pour la production
 ionic build
 
-# Ajout des plateformes natives
+# Ajout des plateformes natives (optionnel)
 ionic capacitor add android
 ionic capacitor add ios
+```
 
-# Construction et copie des assets pour mobile
-ionic capacitor copy
+#### Backend (Symfony API)
 
-# Ouverture des projets natifs
-ionic capacitor open android
-ionic capacitor open ios
+```bash
+# Se positionner dans le dossier du backend
+cd vaca-meet-api
+
+# Installation des dépendances
+composer install
+
+# Configuration de la base de données dans .env.local
+# DATABASE_URL="mysql://user:password@127.0.0.1:3306/vaca_meet"
+
+# Création de la base de données
+php bin/console doctrine:database:create
+
+# Exécution des migrations
+php bin/console doctrine:migrations:migrate
+
+# Génération des clés JWT
+php bin/console lexik:jwt:generate-keypair
+
+# Démarrage du serveur de développement
+symfony server:start
+
+cd vaca-meet-api
+symfony server:start --port=8000 --no-tls --allow-all-ip
 ```
 
 ## Personnalisation et Extension
 
-Pour étendre l'application :
+### Ajout de fonctionnalités côté Frontend
 
-1. Créez de nouveaux services dans le dossier `services/` pour communiquer avec différentes parties de votre API
-2. Ajoutez de nouvelles pages dans le dossier `pages/` en suivant la structure dossier/composant/CSS/événements
+1. Créez de nouveaux services dans le dossier `services/`
+2. Ajoutez de nouvelles pages dans le dossier `pages/`
 3. Créez des composants réutilisables dans le dossier `components/`
 4. Mettez à jour les routes dans `App.tsx`
 
-## Configuration de l'API Backend
+### Ajout de fonctionnalités côté Backend
 
-Assurez-vous de configurer correctement l'URL de base de votre API Symfony dans le fichier `src/services/api.ts`. 
+1. Créez de nouvelles entités avec `php bin/console make:entity`
+2. Créez des contrôleurs avec `php bin/console make:controller`
+3. Générez des migrations avec `php bin/console make:migration`
+4. Appliquez les migrations avec `php bin/console doctrine:migrations:migrate`
+
+## Configuration
+
+### Configuration Frontend
+
+Assurez-vous de configurer correctement l'URL de base de votre API Symfony dans le fichier `src/services/authService.ts`.
+
+```typescript
+// URL de base de l'API
+const API_URL = 'http://localhost:8000/api';
+```
+
+### Configuration Backend
+
+Les principales configurations se trouvent dans :
+
+1. `.env.local` : Configuration de la base de données et clés JWT
+2. `config/packages/security.yaml` : Configuration de sécurité
+3. `config/packages/lexik_jwt_authentication.yaml` : Configuration JWT 
