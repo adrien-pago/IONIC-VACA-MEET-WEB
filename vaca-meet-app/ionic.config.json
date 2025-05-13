@@ -1,0 +1,7 @@
+{
+  "name": "vaca-meet-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

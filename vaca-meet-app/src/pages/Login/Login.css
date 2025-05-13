@@ -1,0 +1,38 @@
+/* Styles spécifiques à la page Login */
+.login-container {
+  padding: var(--spacing-md);
+}
+
+.login-title {
+  color: var(--primary-color);
+  font-size: var(--font-size-xxlarge);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.login-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+.login-input {
+  margin-bottom: var(--spacing-md);
+}
+
+.login-button {
+  margin-top: var(--spacing-lg);
+}
+
+.login-register-link {
+  margin-top: var(--spacing-md);
+  text-align: center;
+}
+
+.login-form-container {
+  background-color: var(--light-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--box-shadow);
+  margin-top: var(--spacing-xl);
+} 

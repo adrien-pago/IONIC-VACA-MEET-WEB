@@ -1,0 +1,45 @@
+/* Styles spécifiques à la page Home */
+.home-container {
+  padding: var(--spacing-md);
+}
+
+.home-title {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xxlarge);
+}
+
+.home-subtitle {
+  color: var(--text-color-secondary);
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-large);
+}
+
+.home-welcome-card {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  background-color: var(--light-color);
+}
+
+.home-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.home-user-info {
+  margin-top: var(--spacing-md);
+}
+
+.home-user-info ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 40px;
+}
+
+.home-logout-button {
+  margin-top: var(--spacing-lg);
+} 
