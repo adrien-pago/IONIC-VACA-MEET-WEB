@@ -1,6 +1,17 @@
 /* Styles spécifiques à la page Login */
 .login-container {
-  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.login-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: var(--ion-color-primary);
 }
 
 .login-title {
@@ -47,13 +58,8 @@
 }
 
 .register-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--ion-color-medium);
-}
-
-.register-link a {
-  font-weight: 600;
+  margin-left: 5px;
+  font-weight: 500;
 }
 
 .error-message {
@@ -75,4 +81,34 @@
   padding: var(--spacing-lg);
   box-shadow: var(--box-shadow);
   margin-top: var(--spacing-xl);
+}
+
+/* Animation pour le bouton de connexion */
+ion-button[type="submit"] {
+  --background: var(--ion-color-primary);
+  --background-hover: var(--ion-color-primary-shade);
+  --box-shadow: 0 4px 6px rgba(var(--ion-color-primary-rgb), 0.3);
+  transition: transform 0.2s ease;
+}
+
+ion-button[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+/* Style pour les appareils mobiles en mode portrait */
+@media (max-width: 576px), (max-height: 576px) {
+  .login-container {
+    padding: 0 15px;
+  }
+  
+  .login-icon {
+    font-size: 48px;
+  }
+}
+
+/* Style pour les dispositifs plus petits */
+@media (max-height: 400px) {
+  .login-icon {
+    display: none;
+  }
 } 

@@ -14,7 +14,23 @@ api_register:
     controller: App\Controller\AuthController::register
     methods: ['POST']
 
-api_user_profile:
-    path: /api/user/profile
-    controller: App\Controller\UserController::profile
+# Routes pour l'API mobile
+api_mobile_login:
+    path: /api/mobile/login_check
+    controller: App\Controller\MobileAuthController::login
+    methods: ['POST']
+
+api_mobile_register:
+    path: /api/mobile/register
+    controller: App\Controller\MobileAuthController::register
+    methods: ['POST']
+
+api_mobile_test:
+    path: /api/mobile/test
+    controller: App\Controller\MobileAuthController::test
+    methods: ['GET']
+
+api_mobile_user:
+    path: /api/mobile/user
+    controller: App\Controller\MobileAuthController::userProfile
     methods: ['GET'] 

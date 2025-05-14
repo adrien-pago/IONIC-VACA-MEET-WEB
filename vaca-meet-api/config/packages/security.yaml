@@ -9,6 +9,13 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+        app_user_mobile_provider:
+            entity:
+                class: App\Entity\UserMobile
+                property: username
+        all_users:
+            chain:
+                providers: ['app_user_provider', 'app_user_mobile_provider']
     
     firewalls:
         dev:
@@ -22,20 +29,34 @@ security:
                 check_path: /api/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                provider: app_user_provider
+        
+        mobile_login:
+            pattern: ^/api/mobile/login_check
+            stateless: true
+            json_login:
+                check_path: /api/mobile/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                provider: app_user_mobile_provider
         
         api:
             pattern: ^/api
             stateless: true
+            provider: all_users
             jwt: ~
         
         main:
             lazy: true
-            provider: app_user_provider
+            provider: all_users
 
     # Note : l'ordre des access_control est important car ils sont vérifiés dans l'ordre
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/test, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

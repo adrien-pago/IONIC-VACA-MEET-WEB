@@ -1,10 +1,10 @@
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home/Home';
-import Login from './pages/Login/Login';
-import Register from './pages/Register/Register';
-import PrivateRoute from './components/PrivateRoute';
+
+/* Pages */
+import ApiTest from './pages/ApiTest/ApiTest';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -45,11 +45,9 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <PrivateRoute exact path="/home" component={Home} />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/register" component={Register} />
+        <Route path="/api-test" component={ApiTest} exact />
         <Route exact path="/">
-          <Redirect to="/home" />
+          <Redirect to="/api-test" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>

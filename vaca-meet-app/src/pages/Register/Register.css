@@ -1,6 +1,11 @@
 /* Styles spécifiques à la page Register */
 .register-container {
-  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px 15px;
 }
 
 .register-title {
@@ -85,4 +90,51 @@
 .register-name-row {
   display: flex;
   gap: var(--spacing-md);
+}
+
+.register-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: var(--ion-color-primary);
+}
+
+/* Style des champs de formulaire */
+ion-item {
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+  margin-bottom: 12px;
+}
+
+/* Animation pour le bouton d'inscription */
+ion-button[type="submit"] {
+  --background: var(--ion-color-primary);
+  --background-hover: var(--ion-color-primary-shade);
+  --box-shadow: 0 4px 6px rgba(var(--ion-color-primary-rgb), 0.3);
+  transition: transform 0.2s ease;
+}
+
+ion-button[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+/* Style pour les appareils mobiles en mode portrait */
+@media (max-width: 576px) {
+  .register-container {
+    padding: 10px;
+  }
+  
+  .register-icon {
+    font-size: 48px;
+  }
+}
+
+/* Style pour les dispositifs plus petits */
+@media (max-height: 600px) {
+  .register-icon {
+    display: none;
+  }
+  
+  ion-card-header {
+    padding-bottom: 0;
+  }
 } 

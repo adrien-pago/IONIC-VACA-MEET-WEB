@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Entity\UserMobile;
+use App\Repository\UserMobileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,32 +14,20 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class AuthController extends AbstractController
+class MobileAuthController extends AbstractController
 {
     public function __construct(
-        private UserRepository $userRepository,
+        private UserMobileRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
-        private JWTTokenManagerInterface $jwtManager,
-        private TokenStorageInterface $tokenStorage
+        private JWTTokenManagerInterface $jwtManager
     ) {
     }
 
-    #[Route('/api/test', name: 'api_test', methods: ['GET'])]
-    public function test(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'API fonctionne correctement',
-            'status' => 'ok',
-            'timestamp' => new \DateTime()
-        ]);
-    }
-
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/api/mobile/register', name: 'api_mobile_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -48,13 +36,13 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Vérifier si l'email existe déjà
-        if ($this->userRepository->findOneBy(['email' => $data['email']])) {
-            return $this->json(['message' => 'Cet email est déjà utilisé'], Response::HTTP_CONFLICT);
+        // Vérifier si l'username existe déjà
+        if ($this->userRepository->findOneBy(['username' => $data['username']])) {
+            return $this->json(['message' => 'Ce nom d\'utilisateur est déjà utilisé'], Response::HTTP_CONFLICT);
         }
 
-        $user = new User();
-        $user->setEmail($data['email']);
+        $user = new UserMobile();
+        $user->setUsername($data['username']);
         
         // Hachage du mot de passe
         $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
@@ -80,26 +68,30 @@ class AuthController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        // Générer le token JWT pour connexion automatique
+        $token = $this->jwtManager->create($user);
+
         return $this->json(
             [
-                'message' => 'Utilisateur créé avec succès',
-                'user' => $this->serializer->normalize($user, null, ['groups' => 'user:read'])
+                'message' => 'Utilisateur mobile créé avec succès',
+                'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
+                'token' => $token
             ],
             Response::HTTP_CREATED
         );
     }
 
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    #[Route('/api/mobile/login_check', name: 'api_mobile_login_check', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!$data || !isset($data['email']) || !isset($data['password'])) {
+        if (!$data || !isset($data['username']) || !isset($data['password'])) {
             return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Rechercher l'utilisateur par email
-        $user = $this->userRepository->findOneBy(['email' => $data['email']]);
+        // Rechercher l'utilisateur par username
+        $user = $this->userRepository->findOneBy(['username' => $data['username']]);
 
         if (!$user) {
             return $this->json(['message' => 'Identifiants invalides'], Response::HTTP_UNAUTHORIZED);
@@ -114,8 +106,32 @@ class AuthController extends AbstractController
         $token = $this->jwtManager->create($user);
 
         return $this->json([
-            'user' => $this->serializer->normalize($user, null, ['groups' => 'user:read']),
+            'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
             'token' => $token
+        ]);
+    }
+
+    #[Route('/api/mobile/test', name: 'api_mobile_test', methods: ['GET'])]
+    public function test(): JsonResponse
+    {
+        return $this->json([
+            'message' => 'API mobile fonctionne correctement',
+            'status' => 'ok',
+            'timestamp' => new \DateTime()
+        ]);
+    }
+
+    #[Route('/api/mobile/user', name: 'api_mobile_user_profile', methods: ['GET'])]
+    public function userProfile(): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        if (!$user instanceof UserMobile) {
+            return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read'])
         ]);
     }
 } 
