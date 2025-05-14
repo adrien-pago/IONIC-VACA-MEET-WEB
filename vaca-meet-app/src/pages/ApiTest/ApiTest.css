@@ -32,4 +32,34 @@ ion-badge {
 
 .loading-indicator {
   animation: pulse 1.5s infinite;
+}
+
+.api-response {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.api-response.success {
+  background-color: rgba(57, 197, 187, 0.1);
+  border: 1px solid #39c5bb;
+}
+
+.api-response.error {
+  background-color: rgba(235, 68, 90, 0.1);
+  border: 1px solid #eb445a;
+}
+
+.api-response h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 } 
