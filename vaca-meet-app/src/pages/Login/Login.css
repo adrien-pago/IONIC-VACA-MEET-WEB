@@ -6,6 +6,12 @@
   height: 100%;
   max-width: 500px;
   margin: 0 auto;
+  padding: 20px;
+}
+
+.login-container h2 {
+  margin-bottom: 24px;
+  color: var(--ion-color-primary);
 }
 
 .login-icon {
@@ -110,5 +116,37 @@ ion-button[type="submit"]:active {
 @media (max-height: 400px) {
   .login-icon {
     display: none;
+  }
+}
+
+ion-item {
+  margin-bottom: 15px;
+  --border-radius: 8px;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+ion-button[expand="block"] {
+  margin-top: 30px;
+  --border-radius: 8px;
+  height: 48px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.auth-toggle {
+  margin-top: 20px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .login-container {
+    margin-top: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
   }
 } 
