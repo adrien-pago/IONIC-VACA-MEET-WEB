@@ -25,7 +25,8 @@ import {
   IonMenuButton,
   IonMenuToggle,
   IonBadge,
-  useIonRouter
+  useIonRouter,
+  IonAlert
 } from '@ionic/react';
 import { personCircleOutline, menu, logOutOutline, homeOutline, personOutline, peopleOutline, informationCircleOutline, calendarOutline, arrowBackOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
@@ -47,6 +48,7 @@ const HomeCamping: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [animation, setAnimation] = useState('');
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   const router = useIonRouter();
   const authService = new AuthService();
@@ -82,12 +84,20 @@ const HomeCamping: React.FC = () => {
   }, [id]);
 
   const handleLogout = () => {
+    setShowLogoutAlert(true);
+  };
+
+  const confirmLogout = () => {
     authService.logout();
     router.push('/login', 'root', 'replace');
   };
 
   const navigateToProfile = () => {
     setToastMessage('La page de profil sera disponible prochainement');
+    setShowToast(true);
+  };
+  const navigateToInfoCamping = () => {
+    setToastMessage('La page d\'informations du camping sera disponible prochainement');
     setShowToast(true);
   };
 
@@ -97,10 +107,10 @@ const HomeCamping: React.FC = () => {
 
   return (
     <>
-      <IonMenu contentId="camping-content">
+      <IonMenu contentId="camping-content" menuId="camping-menu">
         <IonHeader>
-          <IonToolbar>
-            <IonTitle>Menu</IonTitle>
+          <IonToolbar className="menu-toolbar">
+            <IonTitle className="ion-text-center">Menu</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="menu-content">
@@ -113,28 +123,28 @@ const HomeCamping: React.FC = () => {
           </div>
           
           <IonList>
-            <IonMenuToggle>
-              <IonItem routerLink="/home" detail={false}>
+            <IonMenuToggle menu="camping-menu">
+              <IonItem routerLink="/home" button detail={false}>
                 <IonIcon slot="start" icon={homeOutline} />
-                <IonLabel>Accueil</IonLabel>
+                <IonLabel>Accueil Vaca Meet</IonLabel>
               </IonItem>
             </IonMenuToggle>
             
-            <IonMenuToggle>
-              <IonItem routerLink={`/camping/${id}`} detail={false} className="active">
+            <IonMenuToggle menu="camping-menu">
+            <IonItem button onClick={navigateToInfoCamping} detail={false}>
                 <IonIcon slot="start" icon={informationCircleOutline} />
                 <IonLabel>Infos Camping</IonLabel>
               </IonItem>
             </IonMenuToggle>
             
-            <IonMenuToggle>
+            <IonMenuToggle menu="camping-menu">
               <IonItem button onClick={navigateToProfile} detail={false}>
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>
             </IonMenuToggle>
             
-            <IonMenuToggle>
+            <IonMenuToggle menu="camping-menu">
               <IonItem button onClick={handleLogout} detail={false} color="danger">
                 <IonIcon slot="start" icon={logOutOutline} />
                 <IonLabel>Déconnexion</IonLabel>
@@ -150,16 +160,13 @@ const HomeCamping: React.FC = () => {
         <IonHeader className="ion-no-border transparent-header">
           <IonToolbar>
             <IonButtons slot="start">
-              <IonButton onClick={navigateBack}>
-                <IonIcon slot="icon-only" icon={arrowBackOutline} />
-              </IonButton>
-              <IonMenuButton></IonMenuButton>
+              <IonMenuButton menu="camping-menu"></IonMenuButton>
             </IonButtons>
             <IonTitle className="camping-title">
-              {campingInfo?.camping.name || 'Infos Camping'}
+              {campingInfo && <div className="camping-subtitle">{campingInfo.camping.name}</div>}
             </IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={handleLogout} color="light">
+              <IonButton onClick={handleLogout} color="danger">
                 <IonIcon slot="icon-only" icon={logOutOutline} />
               </IonButton>
             </IonButtons>
@@ -287,6 +294,24 @@ const HomeCamping: React.FC = () => {
             message={toastMessage}
             duration={3000}
             position="top"
+          />
+          
+          <IonAlert
+            isOpen={showLogoutAlert}
+            onDidDismiss={() => setShowLogoutAlert(false)}
+            header="Déconnexion"
+            message="Voulez-vous vraiment vous déconnecter ?"
+            buttons={[
+              {
+                text: 'Non',
+                role: 'cancel',
+                cssClass: 'secondary'
+              },
+              {
+                text: 'Oui',
+                handler: confirmLogout
+              }
+            ]}
           />
         </IonContent>
       </IonPage>

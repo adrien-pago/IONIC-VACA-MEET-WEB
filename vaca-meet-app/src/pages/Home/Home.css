@@ -920,4 +920,8 @@ ion-grid.full-height {
   .welcome-container {
     margin-bottom: 20px;
   }
+}
+
+.menu-toolbar ion-title {
+  text-align: center;
 } 

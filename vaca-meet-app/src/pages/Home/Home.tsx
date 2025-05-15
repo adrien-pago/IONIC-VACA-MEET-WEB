@@ -56,6 +56,7 @@ const Home: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [animation, setAnimation] = useState('');
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   const router = useIonRouter();
   const authService = new AuthService();
@@ -149,6 +150,10 @@ const Home: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
+    setShowLogoutAlert(true);
+  };
+
+  const confirmLogout = () => {
     authService.logout();
     router.push('/login', 'root', 'replace');
   };
@@ -212,10 +217,10 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <IonMenu contentId="main-content">
+      <IonMenu contentId="main-content" menuId="home-menu">
         <IonHeader>
-          <IonToolbar>
-            <IonTitle>Menu</IonTitle>
+          <IonToolbar className="menu-toolbar">
+            <IonTitle className="ion-text-center">Menu</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="menu-content">
@@ -228,21 +233,21 @@ const Home: React.FC = () => {
           </div>
           
           <IonList>
-            <IonMenuToggle>
-              <IonItem routerLink="/home" detail={false} className="active">
+            <IonMenuToggle menu="home-menu">
+              <IonItem routerLink="/home" detail={false}>
                 <IonIcon slot="start" icon={homeOutline} />
-                <IonLabel>Accueil</IonLabel>
+                <IonLabel>Accueil Vaca Meet</IonLabel>
               </IonItem>
             </IonMenuToggle>
             
-            <IonMenuToggle>
+            <IonMenuToggle menu="home-menu">
               <IonItem button onClick={navigateToProfile} detail={false}>
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>
             </IonMenuToggle>
             
-            <IonMenuToggle>
+            <IonMenuToggle menu="home-menu">
               <IonItem button onClick={handleLogout} detail={false} color="danger">
                 <IonIcon slot="start" icon={logOutOutline} />
                 <IonLabel>Déconnexion</IonLabel>
@@ -258,13 +263,13 @@ const Home: React.FC = () => {
         <IonHeader className="ion-no-border transparent-header">
           <IonToolbar>
             <IonButtons slot="start">
-              <IonMenuButton></IonMenuButton>
+              <IonMenuButton menu="home-menu"></IonMenuButton>
             </IonButtons>
             <IonTitle className="user-name-title">
               {user?.firstName} {user?.lastName}
             </IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={handleLogout} color="light">
+              <IonButton onClick={handleLogout} color="danger">
                 <IonIcon slot="icon-only" icon={logOutOutline} />
               </IonButton>
             </IonButtons>
@@ -349,7 +354,32 @@ const Home: React.FC = () => {
             duration={3000}
             position="top"
           />
-   
+          
+          <IonAlert
+            isOpen={showAlert}
+            onDidDismiss={() => setShowAlert(false)}
+            header="Attention"
+            message={alertMessage}
+            buttons={['OK']}
+          />
+          
+          <IonAlert
+            isOpen={showLogoutAlert}
+            onDidDismiss={() => setShowLogoutAlert(false)}
+            header="Déconnexion"
+            message="Voulez-vous vraiment vous déconnecter ?"
+            buttons={[
+              {
+                text: 'Non',
+                role: 'cancel',
+                cssClass: 'secondary'
+              },
+              {
+                text: 'Oui',
+                handler: confirmLogout
+              }
+            ]}
+          />
         </IonContent>
       </IonPage>
     </>

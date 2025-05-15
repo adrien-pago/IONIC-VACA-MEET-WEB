@@ -22,6 +22,14 @@
   font-size: 1.3rem;
 }
 
+.camping-subtitle {
+  font-size: 1.1rem;
+  font-weight: normal;
+  color: white;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
 /* Styles pour les cartes */
 .animations-card,
 .services-card,
@@ -248,4 +256,24 @@
   .activity-header ion-badge {
     margin-top: 0.25rem;
   }
+}
+
+.menu-toolbar ion-title {
+  text-align: center;
+}
+
+/* Style spécial pour le bouton actif dans le menu */
+ion-item.active {
+  --background: rgba(var(--ion-color-primary-rgb), 0.3) !important;
+  border-left: 3px solid var(--ion-color-primary) !important;
+  font-weight: bold;
+}
+
+ion-item.active ion-icon {
+  color: var(--ion-color-primary);
+}
+
+ion-item.active ion-label {
+  color: white;
+  font-weight: bold;
 } 
