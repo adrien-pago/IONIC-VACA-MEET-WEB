@@ -123,6 +123,11 @@ class MobileProfileController extends AbstractController
             if (isset($data['theme'])) {
                 $user->setTheme($data['theme']);
                 $this->logger->info('Mise à jour du thème: ' . $oldValues['theme'] . ' -> ' . $data['theme']);
+                
+                // S'assurer que le thème est enregistré même s'il est identique
+                if ($oldValues['theme'] === $data['theme']) {
+                    $this->logger->info('Thème inchangé, mais forçage de la mise à jour');
+                }
             }
             
             // Valider l'utilisateur
@@ -133,19 +138,31 @@ class MobileProfileController extends AbstractController
                 return $this->json(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
             }
             
+            // Forcer la mise à jour même si les valeurs sont identiques
+            $this->entityManager->getUnitOfWork()->scheduleForUpdate($user);
+            
             // Enregistrer les modifications
             $this->logger->info('Tentative de flush des modifications en base de données');
             $this->entityManager->persist($user); // Ajout explicite de persist
             $this->entityManager->flush();
+            
+            // Récupérer l'utilisateur directement depuis la base pour vérifier
+            $refreshedUser = $this->userRepository->find($user->getId());
+            $this->logger->info('Vérification des données après flush: ' . 
+                'firstName=' . $refreshedUser->getFirstName() . ', ' . 
+                'lastName=' . $refreshedUser->getLastName() . ', ' . 
+                'username=' . $refreshedUser->getUsername() . ', ' . 
+                'theme=' . $refreshedUser->getTheme());
+                
             $this->logger->info('Profil utilisateur mis à jour avec succès en base de données');
             
             // Renvoyer les données mises à jour
             $updatedData = [
-                'id' => $user->getId(),
-                'username' => $user->getUsername(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'theme' => $user->getTheme()
+                'id' => $refreshedUser->getId(),
+                'username' => $refreshedUser->getUsername(),
+                'firstName' => $refreshedUser->getFirstName(),
+                'lastName' => $refreshedUser->getLastName(),
+                'theme' => $refreshedUser->getTheme()
             ];
             
             $this->logger->info('Données renvoyées au client: ' . json_encode($updatedData));
