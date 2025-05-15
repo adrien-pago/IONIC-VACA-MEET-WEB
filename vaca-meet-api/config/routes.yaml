@@ -6,12 +6,12 @@ controllers:
 
 api_login:
     path: /api/login
-    controller: App\Controller\AuthController::login
+    controller: App\Controller\MobileAuthController::login
     methods: ['POST']
 
 api_register:
     path: /api/register
-    controller: App\Controller\AuthController::register
+    controller: App\Controller\MobileAuthController::register
     methods: ['POST']
 
 # Routes pour l'API mobile
