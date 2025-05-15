@@ -58,7 +58,7 @@ security:
         - { path: ^/api/mobile/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/mobile/test, roles: PUBLIC_ACCESS }
         - { path: ^/api/test, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api$, roles: PUBLIC_ACCESS } # Notez le $ qui signifie "fin de chaîne"
 
 when@test:
     security:
