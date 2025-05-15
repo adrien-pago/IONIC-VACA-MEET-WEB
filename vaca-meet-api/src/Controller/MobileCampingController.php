@@ -49,13 +49,76 @@ class MobileCampingController extends AbstractController
                 return $this->json(['message' => 'Camping non trouvé'], Response::HTTP_NOT_FOUND);
             }
             
-            // Pour l'instant, créons des données factices pour les animations, services et activités
-            // Ces données seront remplacées par de vraies données de base de données plus tard
-            $animations = [];
-            $services = [];
-            $activities = [];
+            // Données de test pour les animations
+            $animations = [
+                [
+                    'id' => 1,
+                    'title' => 'Soirée Dansante',
+                    'description' => 'Venez profiter d\'une soirée dansante sur la plage',
+                    'day' => 'Vendredi',
+                    'time' => '20h00'
+                ],
+                [
+                    'id' => 2,
+                    'title' => 'Tournoi de Pétanque',
+                    'description' => 'Participez à notre tournoi hebdomadaire de pétanque',
+                    'day' => 'Samedi',
+                    'time' => '15h00'
+                ],
+                [
+                    'id' => 3,
+                    'title' => 'Aquagym',
+                    'description' => 'Séance d\'aquagym dans la piscine du camping',
+                    'day' => 'Mardi',
+                    'time' => '10h00'
+                ]
+            ];
             
-            // Créer la réponse
+            // Données de test pour les services
+            $services = [
+                [
+                    'id' => 1,
+                    'name' => 'Piscine',
+                    'description' => 'Grande piscine chauffée avec toboggan',
+                    'hours' => '9h00 - 19h00'
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Restaurant',
+                    'description' => 'Restaurant avec spécialités locales',
+                    'hours' => '12h00 - 22h00'
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'Mini-market',
+                    'description' => 'Épicerie avec produits de première nécessité',
+                    'hours' => '8h00 - 20h00'
+                ]
+            ];
+            
+            // Données de test pour les activités
+            $activities = [
+                [
+                    'id' => 1,
+                    'title' => 'Randonnée en groupe',
+                    'description' => 'Organisée par la famille Martin',
+                    'day' => 'Dimanche',
+                    'time' => '9h00',
+                    'location' => 'Départ accueil',
+                    'participants' => 8
+                ],
+                [
+                    'id' => 2,
+                    'title' => 'Barbecue partagé',
+                    'description' => 'Apportez vos grillades et boissons',
+                    'day' => 'Samedi',
+                    'time' => '19h00',
+                    'location' => 'Espace pique-nique',
+                    'participants' => 15
+                ]
+            ];
+            
+            // Créer la réponse avec les données de test
             $response = [
                 'camping' => [
                     'id' => $campingData['id'],
@@ -67,7 +130,10 @@ class MobileCampingController extends AbstractController
                 'activities' => $activities
             ];
             
-            $this->logger->info('Informations du camping récupérées avec succès', ['id' => $id]);
+            $this->logger->info('Informations du camping récupérées avec succès', [
+                'id' => $id,
+                'nom' => $campingData['nom_camping'] ?? 'Camping ' . $campingData['username']
+            ]);
             
             return $this->json($response);
         } catch (\Exception $e) {
