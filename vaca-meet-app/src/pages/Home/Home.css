@@ -574,16 +574,23 @@ ion-item.profile-item {
 .welcome-title {
   font-size: 2.2rem;
   font-weight: 700;
-  color: white;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   line-height: 1.2;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b, #ffcb80);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  padding-bottom: 5px;
+  position: relative;
 }
 
 .welcome-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .destination-card {
@@ -817,16 +824,23 @@ ion-menu ion-item ion-icon {
 .welcome-title {
   font-size: 2.2rem;
   font-weight: 700;
-  color: white;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   line-height: 1.2;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b, #ffcb80);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  padding-bottom: 5px;
+  position: relative;
 }
 
 .welcome-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .destination-card {
@@ -922,4 +936,24 @@ ion-menu ion-item ion-icon {
   .menu-avatar ion-icon {
     font-size: 40px;
   }
+}
+
+/* Styles pour le message quand il n'y a pas de destinations */
+.no-destinations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.no-data-message {
+  margin-bottom: 20px;
+  color: var(--ion-color-medium);
+  font-size: 16px;
+}
+
+/* Amélioration du style du bouton de déconnexion */
+ion-button[color="medium"] ion-icon {
+  font-size: 20px;
 } 

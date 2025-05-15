@@ -30,7 +30,7 @@ class MobileHomeController extends AbstractController
         
         try {
             // Récupération uniquement des destinations (id, username) depuis la table user
-            $sql = "SELECT id, username FROM user WHERE active = 1 ORDER BY username ASC";
+            $sql = "SELECT id, username FROM user ORDER BY username ASC";
             $stmt = $this->connection->prepare($sql);
             $result = $stmt->executeQuery();
             $destinations = $result->fetchAllAssociative();
@@ -68,7 +68,7 @@ class MobileHomeController extends AbstractController
         
         try {
             // Vérification simple du mot de passe dans la table user
-            $sql = "SELECT id FROM user WHERE id = :id AND mdp_vacancier = :password AND active = 1";
+            $sql = "SELECT id FROM user WHERE id = :id AND mdp_vacancier = :password";
             $stmt = $this->connection->prepare($sql);
             $stmt->bindValue('id', $destinationId);
             $stmt->bindValue('password', $password);

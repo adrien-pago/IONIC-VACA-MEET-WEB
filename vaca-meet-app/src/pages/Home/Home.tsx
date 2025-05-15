@@ -60,6 +60,69 @@ const Home: React.FC = () => {
   const router = useIonRouter();
   const authService = new AuthService();
 
+  // Définir fetchDestinations en dehors du useEffect pour pouvoir l'appeler ailleurs
+  const fetchDestinations = async () => {
+    try {
+      setShowLoading(true);
+      console.log('Chargement des destinations...');
+      
+      const response = await api.get(config.api.endpoints.destinations);
+      console.log('Réponse API destinations brute:', response);
+      
+      if (response.data && Array.isArray(response.data.destinations)) {
+        // Vérifier que chaque destination a un id et un username
+        const validDestinations = response.data.destinations.filter(
+          (dest: any) => dest && dest.id && dest.username
+        );
+        
+        if (validDestinations.length === 0) {
+          console.warn('Aucune destination valide trouvée dans la réponse:', response.data.destinations);
+          throw new Error('Aucune destination valide trouvée');
+        }
+        
+        console.log('Destinations valides:', validDestinations);
+        setDestinations(validDestinations);
+        
+        if (validDestinations.length !== response.data.destinations.length) {
+          console.warn(
+            `Attention: ${response.data.destinations.length - validDestinations.length} destinations invalides ont été filtrées`
+          );
+        }
+      } else {
+        console.error('Format de réponse invalide ou aucune destination:', response.data);
+        throw new Error('Format de réponse invalide ou aucune destination trouvée');
+      }
+    } catch (error: any) {
+      console.error('Erreur lors du chargement des destinations:', error);
+      
+      // Afficher un message d'erreur à l'utilisateur
+      let errorMessage = 'Impossible de charger les destinations. Veuillez vérifier votre connexion et réessayer.';
+      
+      if (error.response) {
+        console.error('Détails de l\'erreur de réponse:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data
+        });
+        
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      } else if (error.request) {
+        console.error('Erreur de requête (pas de réponse):', error.request);
+        errorMessage = 'Le serveur n\'a pas répondu. Veuillez vérifier votre connexion internet.';
+      } else if (error.message) {
+        errorMessage = `Erreur: ${error.message}`;
+      }
+      
+      setToastMessage(errorMessage);
+      setShowToast(true);
+      setDestinations([]);
+    } finally {
+      setShowLoading(false);
+    }
+  };
+
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
@@ -71,47 +134,6 @@ const Home: React.FC = () => {
         console.error('Erreur lors du chargement du profil:', error);
         setToastMessage('Impossible de charger votre profil');
         setShowToast(true);
-      } finally {
-        setShowLoading(false);
-      }
-    };
-
-    const fetchDestinations = async () => {
-      try {
-        setShowLoading(true);
-        console.log('Chargement des destinations...');
-        
-        const response = await api.get(config.api.endpoints.destinations);
-        console.log('Réponse API destinations:', response.data);
-        
-        if (response.data && response.data.destinations) {
-          setDestinations(response.data.destinations);
-          console.log('Destinations chargées:', response.data.destinations);
-        } else {
-          throw new Error('Format de réponse invalide');
-        }
-      } catch (error: any) {
-        console.error('Erreur lors du chargement des destinations:', error);
-        
-        // Afficher un message d'erreur à l'utilisateur
-        let errorMessage = 'Impossible de charger les destinations';
-        if (error.response && error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.message) {
-          errorMessage = `Erreur: ${error.message}`;
-        }
-        
-        setToastMessage(errorMessage);
-        setShowToast(true);
-        
-        // En cas d'erreur, utiliser des données d'exemple temporaires
-        const tempDestinations = [
-          { id: 1, username: 'Camping Les Flots Bleus' },
-          { id: 2, username: 'Camping Le Paradis' },
-          { id: 3, username: 'Camping Les Pins' }
-        ];
-        setDestinations(tempDestinations);
-        console.log('Utilisation de destinations temporaires:', tempDestinations);
       } finally {
         setShowLoading(false);
       }
@@ -221,7 +243,7 @@ const Home: React.FC = () => {
             </IonMenuToggle>
             
             <IonMenuToggle>
-              <IonItem button onClick={handleLogout} detail={false}>
+              <IonItem button onClick={handleLogout} detail={false} color="danger">
                 <IonIcon slot="start" icon={logOutOutline} />
                 <IonLabel>Déconnexion</IonLabel>
               </IonItem>
@@ -241,6 +263,11 @@ const Home: React.FC = () => {
             <IonTitle className="user-name-title">
               {user?.firstName} {user?.lastName}
             </IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={handleLogout} color="medium">
+                <IonIcon slot="icon-only" icon={logOutOutline} />
+              </IonButton>
+            </IonButtons>
           </IonToolbar>
         </IonHeader>
         
@@ -261,37 +288,48 @@ const Home: React.FC = () => {
                   <h2 className="section-title">Choisissez votre destination</h2>
                   
                   <div className="destination-form">
-                    <IonItem className="custom-select" lines="none">
-                      <IonLabel position="stacked">Destination</IonLabel>
-                      <IonSelect 
-                        interface="action-sheet" 
-                        cancelText="Annuler"
-                        placeholder="Sélectionnez une destination"
-                        onIonChange={handleDestinationSelection}
-                      >
-                        {destinations.map((destination) => (
-                          <IonSelectOption key={destination.id} value={destination.id}>
-                            {destination.username}
-                          </IonSelectOption>
-                        ))}
-                      </IonSelect>
-                    </IonItem>
-                    
-                    <AnimatedInput
-                      label="Mot de passe pour cette destination"
-                      name="vacationPassword"
-                      type="password"
-                      value={vacationPassword}
-                      onChange={handlePasswordChange}
-                      required
-                      errorMessage={passwordError}
-                    />
-                    
-                    <div className="form-actions">
-                      <AnimatedButton onClick={verifyVacationPassword} icon={arrowForwardOutline}>
-                        Let's Go
-                      </AnimatedButton>
-                    </div>
+                    {destinations.length > 0 ? (
+                      <>
+                        <IonItem className="custom-select" lines="none">
+                          <IonLabel position="stacked">Destination</IonLabel>
+                          <IonSelect 
+                            interface="action-sheet" 
+                            cancelText="Annuler"
+                            placeholder="Sélectionnez une destination"
+                            onIonChange={handleDestinationSelection}
+                          >
+                            {destinations.map((destination) => (
+                              <IonSelectOption key={destination.id} value={destination.id}>
+                                {destination.username}
+                              </IonSelectOption>
+                            ))}
+                          </IonSelect>
+                        </IonItem>
+                        
+                        <AnimatedInput
+                          label="Mot de passe pour cette destination"
+                          name="vacationPassword"
+                          type="password"
+                          value={vacationPassword}
+                          onChange={handlePasswordChange}
+                          required
+                          errorMessage={passwordError}
+                        />
+                        
+                        <div className="form-actions">
+                          <AnimatedButton onClick={verifyVacationPassword} icon={arrowForwardOutline}>
+                            Let's Go
+                          </AnimatedButton>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="no-destinations">
+                        <p className="no-data-message">Aucune destination disponible pour le moment.</p>
+                        <AnimatedButton onClick={() => fetchDestinations()} color="primary">
+                          Actualiser
+                        </AnimatedButton>
+                      </div>
+                    )}
                   </div>
                 </GlassCard>
               </IonCol>
