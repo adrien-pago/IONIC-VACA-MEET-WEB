@@ -130,10 +130,24 @@ const Account: React.FC = () => {
   };
 
   const handleInputChange = (e: CustomEvent) => {
+    console.log('Événement de changement reçu:', e.detail);
+    
+    // Vérifier que le nom est bien défini
+    if (!e.detail.name) {
+      console.error('ERREUR: Nom de champ manquant dans l\'événement!', e);
+      return;
+    }
+    
     const { name, value } = e.detail;
-    setFormData({
-      ...formData,
-      [name]: value
+    console.log(`Champ ${name} modifié: "${formData[name as keyof ProfileUpdateData]}" -> "${value}"`);
+    
+    setFormData(prevData => {
+      const newData = {
+        ...prevData,
+        [name]: value
+      };
+      console.log('Nouveau formData après mise à jour:', newData);
+      return newData;
     });
     
     // Réinitialiser l'erreur pour ce champ
@@ -158,6 +172,7 @@ const Account: React.FC = () => {
   };
 
   const handleThemeChange = (theme: ThemeType) => {
+    console.log(`Thème sélectionné: ${selectedTheme} -> ${theme}`);
     setSelectedTheme(theme);
   };
 
@@ -231,15 +246,45 @@ const Account: React.FC = () => {
 
     try {
       setShowLoading(true);
-      console.log('Envoi des données pour mise à jour du profil:', formData);
-      const updatedUser = await profileService.updateProfile(formData);
+      console.log('Données actuelles avant envoi:', formData);
+      
+      // S'assurer que les données sont bien différentes de celles en base
+      if (user) {
+        const hasChanges = 
+          formData.firstName !== user.firstName || 
+          formData.lastName !== user.lastName || 
+          formData.username !== user.username;
+          
+        console.log('Détection de changements:', hasChanges, {
+          'firstName (form/user)': `${formData.firstName}/${user.firstName}`,
+          'lastName (form/user)': `${formData.lastName}/${user.lastName}`,
+          'username (form/user)': `${formData.username}/${user.username}`
+        });
+        
+        if (!hasChanges) {
+          console.warn('Aucun changement détecté dans les données!');
+        }
+      }
+      
+      // Créer une copie explicite des données à envoyer
+      const dataToSend = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username
+      };
+      
+      console.log('Envoi des données pour mise à jour du profil:', dataToSend);
+      const updatedUser = await profileService.updateProfile(dataToSend);
       console.log('Réponse reçue après mise à jour:', updatedUser);
+      
+      // Mettre à jour l'état avec les données reçues du serveur
       setUser(updatedUser);
       setFormData({
         firstName: updatedUser.firstName || '',
         lastName: updatedUser.lastName || '',
         username: updatedUser.username || ''
       });
+      
       setToastMessage('Profil mis à jour avec succès');
       setShowToast(true);
       setIsEditMode(false); // Quitter le mode édition après la sauvegarde
@@ -292,12 +337,26 @@ const Account: React.FC = () => {
     try {
       setShowLoading(true);
       
+      console.log(`Sauvegarde du thème: ${user?.theme || 'default'} -> ${selectedTheme}`);
+      
+      // Si le thème n'a pas changé, forcer quand même la mise à jour
+      if (user?.theme === selectedTheme) {
+        console.warn('Le thème sélectionné est identique au thème actuel, mais on force la mise à jour');
+      }
+      
       // Mettre à jour le thème dans le contexte React
       changeTheme(selectedTheme);
       console.log('Envoi du thème pour mise à jour dans la BD:', selectedTheme);
       
       // Enregistrer le thème dans la base de données
-      await profileService.updateTheme(selectedTheme);
+      const updatedUser = await profileService.updateTheme(selectedTheme);
+      console.log('Réponse du serveur après mise à jour du thème:', updatedUser);
+      
+      // Mettre à jour l'utilisateur local avec les données du serveur
+      setUser(prev => ({
+        ...(prev || {}),
+        theme: updatedUser.theme || selectedTheme
+      }) as UserProfile);
       
       setToastMessage('Thème mis à jour avec succès');
       setShowToast(true);
@@ -358,7 +417,15 @@ const Account: React.FC = () => {
         <IonInput
           name="firstName"
           value={formData.firstName}
-          onIonChange={handleInputChange}
+          onIonChange={(e) => {
+            console.log('Changement de prénom:', e.detail);
+            if (e.detail.value !== undefined) {
+              setFormData({
+                ...formData,
+                firstName: e.detail.value || ''
+              });
+            }
+          }}
           className="edit-input"
         />
         {errors.firstName && (
@@ -371,7 +438,15 @@ const Account: React.FC = () => {
         <IonInput
           name="lastName"
           value={formData.lastName}
-          onIonChange={handleInputChange}
+          onIonChange={(e) => {
+            console.log('Changement de nom:', e.detail);
+            if (e.detail.value !== undefined) {
+              setFormData({
+                ...formData,
+                lastName: e.detail.value || ''
+              });
+            }
+          }}
           className="edit-input"
         />
         {errors.lastName && (
@@ -384,7 +459,15 @@ const Account: React.FC = () => {
         <IonInput
           name="username"
           value={formData.username}
-          onIonChange={handleInputChange}
+          onIonChange={(e) => {
+            console.log('Changement d\'email:', e.detail);
+            if (e.detail.value !== undefined) {
+              setFormData({
+                ...formData,
+                username: e.detail.value || ''
+              });
+            }
+          }}
           className="edit-input"
         />
         {errors.username && (
@@ -470,7 +553,17 @@ const Account: React.FC = () => {
                   </h2>
                   
                   <div className="theme-selector">
-                    <IonRadioGroup value={selectedTheme} onIonChange={e => handleThemeChange(e.detail.value)}>
+                    <IonRadioGroup 
+                      value={selectedTheme} 
+                      onIonChange={e => {
+                        console.log('Changement de thème détecté:', e.detail.value);
+                        
+                        // S'assurer que la valeur est valide
+                        if (e.detail.value) {
+                          handleThemeChange(e.detail.value);
+                        }
+                      }}
+                    >
                       <IonItem className="theme-option">
                         <IonLabel>
                           <h2>Thème par défaut</h2>
@@ -509,7 +602,10 @@ const Account: React.FC = () => {
                     </IonRadioGroup>
                     
                     <div className="form-actions">
-                      <IonButton expand="block" onClick={saveTheme}>
+                      <IonButton expand="block" onClick={() => {
+                        console.log('Bouton de sauvegarde du thème cliqué, valeur: ', selectedTheme);
+                        saveTheme();
+                      }}>
                         <IonIcon slot="start" icon={saveOutline} />
                         Appliquer ce thème
                       </IonButton>

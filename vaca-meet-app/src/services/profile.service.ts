@@ -190,4 +190,63 @@ export class ProfileService {
       throw error;
     }
   }
+
+  /**
+   * Mettre à jour les informations du profil utilisateur (SQL direct)
+   * @param data Les données à mettre à jour
+   */
+  async updateProfileDirect(data: ProfileUpdateData): Promise<UserProfile> {
+    try {
+      // Vérifier si le token existe
+      const token = localStorage.getItem(config.storage.tokenKey);
+      if (!token) {
+        throw new Error('Non authentifié');
+      }
+      
+      // Configurer les en-têtes avec le token
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      console.log('Données brutes reçues pour mise à jour directe du profil:', data);
+      
+      // Préparation des données à envoyer (ne garder que les champs nécessaires)
+      const cleanData: Record<string, string> = {
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        username: data.username || ''
+      };
+      
+      if (data.theme) {
+        cleanData['theme'] = data.theme;
+      }
+      
+      console.log('Données nettoyées pour mise à jour directe du profil:', cleanData);
+      const directUrl = `${config.api.endpoints.updateProfile}/direct`;
+      console.log('URL complète de mise à jour directe du profil:', `${config.api.baseUrl}${directUrl}`);
+      console.log('Token d\'authentification utilisé:', token.substring(0, 15) + '...');
+      
+      const response = await api.put(directUrl, cleanData);
+      console.log('Réponse brute du serveur (méthode directe):', response);
+      console.log('Réponse mise à jour directe profil (data):', response.data);
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la mise à jour directe du profil:', error);
+      
+      // Afficher plus de détails sur l'erreur
+      if (error.response) {
+        console.error('Détails de l\'erreur (méthode directe):', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      } else if (error.request) {
+        console.error('Erreur de requête (pas de réponse):', error.request);
+      } else {
+        console.error('Erreur:', error.message);
+      }
+      
+      throw error;
+    }
+  }
 } 

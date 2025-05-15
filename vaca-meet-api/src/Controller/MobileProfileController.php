@@ -68,6 +68,7 @@ class MobileProfileController extends AbstractController
     {
         $this->logger->info('Début de la mise à jour du profil utilisateur');
         $this->logger->info('Contenu de la requête: ' . $request->getContent());
+        $this->logger->info('En-têtes de la requête: ' . json_encode($request->headers->all()));
         
         try {
             // Récupérer l'utilisateur connecté
@@ -97,13 +98,21 @@ class MobileProfileController extends AbstractController
                 'theme' => $user->getTheme()
             ];
             
+            $hasChanges = false;
+            
             // Mettre à jour les informations de l'utilisateur si elles sont présentes
             if (isset($data['firstName'])) {
+                if ($data['firstName'] !== $oldValues['firstName']) {
+                    $hasChanges = true;
+                }
                 $user->setFirstName($data['firstName']);
                 $this->logger->info('Mise à jour du prénom: ' . $oldValues['firstName'] . ' -> ' . $data['firstName']);
             }
             
             if (isset($data['lastName'])) {
+                if ($data['lastName'] !== $oldValues['lastName']) {
+                    $hasChanges = true;
+                }
                 $user->setLastName($data['lastName']);
                 $this->logger->info('Mise à jour du nom: ' . $oldValues['lastName'] . ' -> ' . $data['lastName']);
             }
@@ -116,11 +125,17 @@ class MobileProfileController extends AbstractController
                     return $this->json(['message' => 'Ce nom d\'utilisateur est déjà utilisé'], Response::HTTP_CONFLICT);
                 }
                 
+                if ($data['username'] !== $oldValues['username']) {
+                    $hasChanges = true;
+                }
                 $user->setUsername($data['username']);
                 $this->logger->info('Mise à jour du nom d\'utilisateur: ' . $oldValues['username'] . ' -> ' . $data['username']);
             }
             
             if (isset($data['theme'])) {
+                if ($data['theme'] !== $oldValues['theme']) {
+                    $hasChanges = true;
+                }
                 $user->setTheme($data['theme']);
                 $this->logger->info('Mise à jour du thème: ' . $oldValues['theme'] . ' -> ' . $data['theme']);
                 
@@ -139,6 +154,9 @@ class MobileProfileController extends AbstractController
             }
             
             // Forcer la mise à jour même si les valeurs sont identiques
+            if (!$hasChanges) {
+                $this->logger->warning('Aucun changement détecté, mais forçage de la mise à jour');
+            }
             $this->entityManager->getUnitOfWork()->scheduleForUpdate($user);
             
             // Enregistrer les modifications
@@ -170,6 +188,111 @@ class MobileProfileController extends AbstractController
             return $this->json($updatedData);
         } catch (\Exception $e) {
             $this->logger->error('Exception lors de la mise à jour du profil: ' . $e->getMessage());
+            $this->logger->error('Trace: ' . $e->getTraceAsString());
+            
+            return $this->json([
+                'message' => 'Erreur lors de la mise à jour du profil',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/api/mobile/user/profile/direct', name: 'api_mobile_update_profile_direct', methods: ['PUT'])]
+    public function updateProfileDirect(Request $request): JsonResponse
+    {
+        $this->logger->info('Mise à jour directe du profil utilisateur (SQL)');
+        $this->logger->info('Contenu de la requête: ' . $request->getContent());
+        
+        try {
+            // Récupérer l'utilisateur connecté
+            $user = $this->getUser();
+            $this->logger->info('Utilisateur récupéré: ID=' . ($user ? $user->getId() : 'null'));
+            
+            if (!$user instanceof UserMobile) {
+                $this->logger->error('Utilisateur non authentifié ou invalide');
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Décoder les données JSON
+            $data = json_decode($request->getContent(), true);
+            
+            if (!$data) {
+                $this->logger->error('Données JSON invalides');
+                return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $this->logger->info('Données décodées: ' . json_encode($data));
+            
+            // Utiliser SQL direct via DBAL
+            $connection = $this->entityManager->getConnection();
+            
+            // Construire la requête SQL
+            $queryBuilder = $connection->createQueryBuilder();
+            $queryBuilder->update('user_mobile')
+                ->where('id = :userId')
+                ->setParameter('userId', $user->getId());
+            
+            // Ajouter les champs à mettre à jour
+            if (isset($data['firstName'])) {
+                $queryBuilder->set('first_name', ':firstName')
+                    ->setParameter('firstName', $data['firstName']);
+                $this->logger->info('Ajout à la requête: first_name = ' . $data['firstName']);
+            }
+            
+            if (isset($data['lastName'])) {
+                $queryBuilder->set('last_name', ':lastName')
+                    ->setParameter('lastName', $data['lastName']);
+                $this->logger->info('Ajout à la requête: last_name = ' . $data['lastName']);
+            }
+            
+            if (isset($data['username'])) {
+                // Vérifier si le nom d'utilisateur est déjà utilisé par un autre utilisateur
+                $existingUser = $this->userRepository->findOneBy(['username' => $data['username']]);
+                if ($existingUser && $existingUser->getId() !== $user->getId()) {
+                    $this->logger->error('Nom d\'utilisateur déjà utilisé: ' . $data['username']);
+                    return $this->json(['message' => 'Ce nom d\'utilisateur est déjà utilisé'], Response::HTTP_CONFLICT);
+                }
+                
+                $queryBuilder->set('username', ':username')
+                    ->setParameter('username', $data['username']);
+                $this->logger->info('Ajout à la requête: username = ' . $data['username']);
+            }
+            
+            if (isset($data['theme'])) {
+                $queryBuilder->set('theme', ':theme')
+                    ->setParameter('theme', $data['theme']);
+                $this->logger->info('Ajout à la requête: theme = ' . $data['theme']);
+            }
+            
+            // Exécuter la requête
+            $sql = $queryBuilder->getSQL();
+            $params = $queryBuilder->getParameters();
+            $this->logger->info('Requête SQL: ' . $sql);
+            $this->logger->info('Paramètres: ' . json_encode($params));
+            
+            $rowCount = $queryBuilder->executeStatement();
+            $this->logger->info('Nombre de lignes mises à jour: ' . $rowCount);
+            
+            if ($rowCount === 0) {
+                $this->logger->warning('La requête SQL n\'a mis à jour aucune ligne!');
+            }
+            
+            // Récupérer l'utilisateur mis à jour
+            $updatedUser = $this->userRepository->find($user->getId());
+            $updatedData = [
+                'id' => $updatedUser->getId(),
+                'username' => $updatedUser->getUsername(),
+                'firstName' => $updatedUser->getFirstName(),
+                'lastName' => $updatedUser->getLastName(),
+                'theme' => $updatedUser->getTheme()
+            ];
+            
+            $this->logger->info('Données renvoyées au client après mise à jour directe: ' . json_encode($updatedData));
+            
+            return $this->json($updatedData);
+        } catch (\Exception $e) {
+            $this->logger->error('Exception lors de la mise à jour directe du profil: ' . $e->getMessage());
             $this->logger->error('Trace: ' . $e->getTraceAsString());
             
             return $this->json([
