@@ -30,9 +30,10 @@ import {
   IonChip,
   IonAvatar,
   IonAlert,
-  IonText
+  IonText,
+  IonBackButton
 } from '@ionic/react';
-import { personCircleOutline, saveOutline, lockClosedOutline, checkmarkCircleOutline, colorPaletteOutline } from 'ionicons/icons';
+import { personCircleOutline, saveOutline, lockClosedOutline, checkmarkCircleOutline, colorPaletteOutline, arrowBackOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService, ProfileUpdateData, UserProfile } from '../../services/profile.service';
 import { useTheme, ThemeType } from '../../context/ThemeContext';
@@ -53,6 +54,7 @@ const Account: React.FC = () => {
     lastName: '',
     username: ''
   });
+  const [isEditMode, setIsEditMode] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -88,17 +90,35 @@ const Account: React.FC = () => {
   const loadUserProfile = async () => {
     try {
       setShowLoading(true);
-      const userData = await profileService.getFullProfile();
-      setUser(userData);
-      setFormData({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        username: userData.username || ''
-      });
+      console.log('Chargement du profil utilisateur...');
       
-      // Si l'utilisateur a un thème enregistré, on l'utilise
-      if (userData.theme) {
-        setSelectedTheme(userData.theme);
+      // Essayer d'abord avec le service de profil dédié
+      try {
+        const userData = await profileService.getFullProfile();
+        console.log('Données utilisateur reçues:', userData);
+        setUser(userData);
+        setFormData({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          username: userData.username || ''
+        });
+        
+        // Si l'utilisateur a un thème enregistré, on l'utilise
+        if (userData.theme) {
+          setSelectedTheme(userData.theme);
+        }
+      } catch (profileError) {
+        console.error('Erreur avec getFullProfile, fallback sur getUserProfile:', profileError);
+        
+        // Fallback sur le service auth si le service de profil échoue
+        const userData = await authService.getUserProfile();
+        console.log('Données utilisateur reçues du fallback:', userData);
+        setUser(userData);
+        setFormData({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          username: userData.username || ''
+        });
       }
     } catch (error: any) {
       console.error('Erreur lors du chargement du profil:', error);
@@ -139,6 +159,19 @@ const Account: React.FC = () => {
 
   const handleThemeChange = (theme: ThemeType) => {
     setSelectedTheme(theme);
+  };
+
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    
+    // Si on quitte le mode édition, réinitialiser le formulaire aux valeurs utilisateur
+    if (isEditMode && user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        username: user.username || ''
+      });
+    }
   };
 
   const validateProfileForm = () => {
@@ -198,10 +231,18 @@ const Account: React.FC = () => {
 
     try {
       setShowLoading(true);
+      console.log('Envoi des données pour mise à jour du profil:', formData);
       const updatedUser = await profileService.updateProfile(formData);
+      console.log('Réponse reçue après mise à jour:', updatedUser);
       setUser(updatedUser);
+      setFormData({
+        firstName: updatedUser.firstName || '',
+        lastName: updatedUser.lastName || '',
+        username: updatedUser.username || ''
+      });
       setToastMessage('Profil mis à jour avec succès');
       setShowToast(true);
+      setIsEditMode(false); // Quitter le mode édition après la sauvegarde
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du profil:', error);
       setToastMessage(error.message || 'Impossible de mettre à jour le profil');
@@ -253,6 +294,7 @@ const Account: React.FC = () => {
       
       // Mettre à jour le thème dans le contexte React
       changeTheme(selectedTheme);
+      console.log('Envoi du thème pour mise à jour dans la BD:', selectedTheme);
       
       // Enregistrer le thème dans la base de données
       await profileService.updateTheme(selectedTheme);
@@ -261,7 +303,8 @@ const Account: React.FC = () => {
       setShowToast(true);
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du thème:', error);
-      setToastMessage(error.message || 'Impossible de mettre à jour le thème');
+      // On garde le thème mis à jour localement même si l'API échoue
+      setToastMessage('Le thème a été appliqué localement, mais n\'a pas pu être enregistré sur le serveur');
       setShowToast(true);
     } finally {
       setShowLoading(false);
@@ -270,7 +313,96 @@ const Account: React.FC = () => {
 
   const handleSegmentChange = (e: CustomEvent) => {
     setActiveSegment(e.detail.value);
+    // Réinitialiser le mode d'édition si on change de section
+    setIsEditMode(false);
   };
+  
+  const navigateBack = () => {
+    router.push('/home');
+  };
+
+  // Rendu des informations utilisateur en mode lecture
+  const renderUserInfoReadOnly = () => (
+    <div className="user-info-readonly">
+      <div className="info-card">
+        <div className="info-item">
+          <div className="info-label">Prénom</div>
+          <div className="info-value">{formData.firstName || '-'}</div>
+        </div>
+        
+        <div className="info-item">
+          <div className="info-label">Nom</div>
+          <div className="info-value">{formData.lastName || '-'}</div>
+        </div>
+        
+        <div className="info-item">
+          <div className="info-label">Email</div>
+          <div className="info-value">{formData.username || '-'}</div>
+        </div>
+      </div>
+      
+      <div className="form-actions">
+        <IonButton expand="block" onClick={toggleEditMode} className="edit-button">
+          <IonIcon slot="start" icon={personCircleOutline} />
+          Modifier mes informations
+        </IonButton>
+      </div>
+    </div>
+  );
+
+  // Rendu du formulaire de modification
+  const renderUserInfoEditForm = () => (
+    <div className="form-container modern-form">
+      <div className="edit-form-item">
+        <div className="edit-label">Prénom</div>
+        <IonInput
+          name="firstName"
+          value={formData.firstName}
+          onIonChange={handleInputChange}
+          className="edit-input"
+        />
+        {errors.firstName && (
+          <IonText color="danger" className="error-message">{errors.firstName}</IonText>
+        )}
+      </div>
+      
+      <div className="edit-form-item">
+        <div className="edit-label">Nom</div>
+        <IonInput
+          name="lastName"
+          value={formData.lastName}
+          onIonChange={handleInputChange}
+          className="edit-input"
+        />
+        {errors.lastName && (
+          <IonText color="danger" className="error-message">{errors.lastName}</IonText>
+        )}
+      </div>
+      
+      <div className="edit-form-item">
+        <div className="edit-label">Nom d'utilisateur</div>
+        <IonInput
+          name="username"
+          value={formData.username}
+          onIonChange={handleInputChange}
+          className="edit-input"
+        />
+        {errors.username && (
+          <IonText color="danger" className="error-message">{errors.username}</IonText>
+        )}
+      </div>
+      
+      <div className="form-actions">
+        <IonButton expand="block" onClick={saveProfile} color="primary" className="save-button">
+          <IonIcon slot="start" icon={saveOutline} />
+          Enregistrer
+        </IonButton>
+        <IonButton expand="block" onClick={toggleEditMode} fill="outline" color="medium" className="cancel-button">
+          Annuler
+        </IonButton>
+      </div>
+    </div>
+  );
 
   return (
     <IonPage>
@@ -281,7 +413,12 @@ const Account: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton menu="account-menu"></IonMenuButton>
           </IonButtons>
-          <IonTitle className="account-title">Mon Compte</IonTitle>
+          <IonTitle className="ion-text-center account-title">Mon Compte</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={navigateBack}>
+              <IonIcon slot="icon-only" icon={arrowBackOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       
@@ -296,10 +433,10 @@ const Account: React.FC = () => {
                   </IonAvatar>
                 </div>
                 <h1 className="account-welcome-title">
-                  {user?.firstName} {user?.lastName}
+                  {formData.firstName} {formData.lastName}
                 </h1>
                 <IonChip color="primary" className="username-chip">
-                  @{user?.username}
+                  {formData.username}
                 </IonChip>
               </div>
               
@@ -324,50 +461,7 @@ const Account: React.FC = () => {
                     <IonIcon icon={personCircleOutline} /> Informations personnelles
                   </h2>
                   
-                  <div className="form-container">
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Prénom</IonLabel>
-                      <IonInput
-                        name="firstName"
-                        value={formData.firstName}
-                        onIonChange={handleInputChange}
-                      />
-                      {errors.firstName && (
-                        <IonText color="danger" className="error-message">{errors.firstName}</IonText>
-                      )}
-                    </IonItem>
-                    
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Nom</IonLabel>
-                      <IonInput
-                        name="lastName"
-                        value={formData.lastName}
-                        onIonChange={handleInputChange}
-                      />
-                      {errors.lastName && (
-                        <IonText color="danger" className="error-message">{errors.lastName}</IonText>
-                      )}
-                    </IonItem>
-                    
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Nom d'utilisateur</IonLabel>
-                      <IonInput
-                        name="username"
-                        value={formData.username}
-                        onIonChange={handleInputChange}
-                      />
-                      {errors.username && (
-                        <IonText color="danger" className="error-message">{errors.username}</IonText>
-                      )}
-                    </IonItem>
-                    
-                    <div className="form-actions">
-                      <IonButton expand="block" onClick={saveProfile}>
-                        <IonIcon slot="start" icon={saveOutline} />
-                        Enregistrer
-                      </IonButton>
-                    </div>
-                  </div>
+                  {isEditMode ? renderUserInfoEditForm() : renderUserInfoReadOnly()}
                 </GlassCard>
               )}
               
