@@ -66,14 +66,12 @@ class MobileProfileController extends AbstractController
     #[Route('/api/mobile/user/profile', name: 'api_mobile_update_profile', methods: ['PUT'])]
     public function updateProfile(Request $request): JsonResponse
     {
-        $this->logger->info('Début de la mise à jour du profil utilisateur');
+        $this->logger->info('Début de la mise à jour du profil utilisateur - méthode simplifiée');
         $this->logger->info('Contenu de la requête: ' . $request->getContent());
-        $this->logger->info('En-têtes de la requête: ' . json_encode($request->headers->all()));
         
         try {
             // Récupérer l'utilisateur connecté
             $user = $this->getUser();
-            $this->logger->info('Utilisateur récupéré: ID=' . ($user ? $user->getId() : 'null'));
             
             if (!$user instanceof UserMobile) {
                 $this->logger->error('Utilisateur non authentifié ou invalide');
@@ -98,33 +96,14 @@ class MobileProfileController extends AbstractController
                 'theme' => $user->getTheme()
             ];
             
-            // Utiliser SQL direct via DBAL
-            $connection = $this->entityManager->getConnection();
-            
-            // Construire la requête SQL
-            $queryBuilder = $connection->createQueryBuilder();
-            $queryBuilder->update('user_mobile')
-                ->where('id = :userId')
-                ->setParameter('userId', $user->getId());
-            
-            $hasChanges = false;
-            
-            // Ajouter les champs à mettre à jour
+            // Mettre à jour les données de l'utilisateur
             if (isset($data['firstName'])) {
-                if ($data['firstName'] !== $oldValues['firstName']) {
-                    $hasChanges = true;
-                }
-                $queryBuilder->set('first_name', ':firstName')
-                    ->setParameter('firstName', $data['firstName']);
+                $user->setFirstName($data['firstName']);
                 $this->logger->info('Mise à jour du prénom: ' . $oldValues['firstName'] . ' -> ' . $data['firstName']);
             }
             
             if (isset($data['lastName'])) {
-                if ($data['lastName'] !== $oldValues['lastName']) {
-                    $hasChanges = true;
-                }
-                $queryBuilder->set('last_name', ':lastName')
-                    ->setParameter('lastName', $data['lastName']);
+                $user->setLastName($data['lastName']);
                 $this->logger->info('Mise à jour du nom: ' . $oldValues['lastName'] . ' -> ' . $data['lastName']);
             }
             
@@ -136,85 +115,34 @@ class MobileProfileController extends AbstractController
                     return $this->json(['message' => 'Ce nom d\'utilisateur est déjà utilisé'], Response::HTTP_CONFLICT);
                 }
                 
-                if ($data['username'] !== $oldValues['username']) {
-                    $hasChanges = true;
-                }
-                $queryBuilder->set('username', ':username')
-                    ->setParameter('username', $data['username']);
+                $user->setUsername($data['username']);
                 $this->logger->info('Mise à jour du nom d\'utilisateur: ' . $oldValues['username'] . ' -> ' . $data['username']);
             }
             
             if (isset($data['theme'])) {
-                if ($data['theme'] !== $oldValues['theme']) {
-                    $hasChanges = true;
-                }
-                $queryBuilder->set('theme', ':theme')
-                    ->setParameter('theme', $data['theme']);
-                $this->logger->info('Mise à jour du thème: ' . $oldValues['theme'] . ' -> ' . $data['theme']);
-                
-                // S'assurer que le thème est enregistré même s'il est identique
-                if ($oldValues['theme'] === $data['theme']) {
-                    $this->logger->info('Thème inchangé, mais forçage de la mise à jour');
-                }
-            }
-            
-            // Forcer la mise à jour même si les valeurs sont identiques
-            if (!$hasChanges) {
-                // On ajoute un champ qui se met à jour lui-même pour forcer l'UPDATE
-                $queryBuilder->set('username', ':forcedUsername')
-                    ->setParameter('forcedUsername', $oldValues['username']);
-                $this->logger->warning('Aucun changement détecté, mais forçage de la mise à jour par requête SQL directe');
-            }
-            
-            // Exécuter la requête
-            $sql = $queryBuilder->getSQL();
-            $params = $queryBuilder->getParameters();
-            $this->logger->info('Requête SQL: ' . $sql);
-            $this->logger->info('Paramètres: ' . json_encode($params));
-            
-            $rowCount = $queryBuilder->executeStatement();
-            $this->logger->info('Nombre de lignes mises à jour: ' . $rowCount);
-            
-            if ($rowCount === 0) {
-                $this->logger->warning('La requête SQL n\'a mis à jour aucune ligne!');
-            }
-            
-            // Actualiser l'objet utilisateur avec les nouvelles valeurs
-            if (isset($data['firstName'])) {
-                $user->setFirstName($data['firstName']);
-            }
-            
-            if (isset($data['lastName'])) {
-                $user->setLastName($data['lastName']);
-            }
-            
-            if (isset($data['username'])) {
-                $user->setUsername($data['username']);
-            }
-            
-            if (isset($data['theme'])) {
                 $user->setTheme($data['theme']);
+                $this->logger->info('Mise à jour du thème: ' . $oldValues['theme'] . ' -> ' . $data['theme']);
             }
+            
+            // Enregistrer les modifications - MÉTHODE SIMPLE COMME POUR LE MOT DE PASSE
+            $this->logger->info('Persistance des modifications avec Doctrine');
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            $this->logger->info('Modifications enregistrées avec succès');
             
             // Récupérer l'utilisateur mis à jour pour vérification
-            $sql = "SELECT id, username, first_name, last_name, theme FROM user_mobile WHERE id = :id";
-            $stmt = $connection->prepare($sql);
-            $stmt->bindValue('id', $user->getId());
-            $result = $stmt->executeQuery();
-            $userData = $result->fetchAssociative();
-            
-            $this->logger->info('Données récupérées directement depuis la base après mise à jour: ' . json_encode($userData));
+            $updatedUser = $this->userRepository->find($user->getId());
             
             // Préparer les données de réponse
             $updatedData = [
-                'id' => $user->getId(),
-                'username' => $userData['username'] ?? $user->getUsername(),
-                'firstName' => $userData['first_name'] ?? $user->getFirstName(),
-                'lastName' => $userData['last_name'] ?? $user->getLastName(),
-                'theme' => $userData['theme'] ?? $user->getTheme()
+                'id' => $updatedUser->getId(),
+                'username' => $updatedUser->getUsername(),
+                'firstName' => $updatedUser->getFirstName(),
+                'lastName' => $updatedUser->getLastName(),
+                'theme' => $updatedUser->getTheme()
             ];
             
-            $this->logger->info('Profil utilisateur mis à jour avec succès en base de données');
+            $this->logger->info('Profil utilisateur mis à jour avec succès');
             $this->logger->info('Données renvoyées au client: ' . json_encode($updatedData));
             
             return $this->json($updatedData);
