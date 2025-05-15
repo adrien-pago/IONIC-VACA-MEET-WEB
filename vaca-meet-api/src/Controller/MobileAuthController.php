@@ -124,15 +124,27 @@ class MobileAuthController extends AbstractController
 
         $this->logger->info('Connexion réussie pour l\'utilisateur: ' . $data['username']);
         
-        // Générer le token JWT
+        // Solution temporaire : créer un pseudo-token sans utiliser JWT
+        // Ce n'est pas sécurisé pour la production, mais permet de débloquer le développement
         try {
-            $token = $this->jwtManager->create($user);
+            // Créer un pseudo-token simple (base64 de username + timestamp)
+            $timestamp = time();
+            $pseudoToken = base64_encode(json_encode([
+                'user' => $user->getUsername(),
+                'id' => $user->getId(),
+                'exp' => $timestamp + 3600, // Expire dans 1 heure
+                'iat' => $timestamp,
+            ]));
+            
+            $this->logger->info('Pseudo-token généré avec succès');
+            
             return $this->json([
                 'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
-                'token' => $token
+                'token' => $pseudoToken,
+                'message' => 'Connexion réussie'
             ]);
         } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la génération du token JWT: ' . $e->getMessage());
+            $this->logger->error('Erreur lors de la génération du pseudo-token: ' . $e->getMessage());
             return $this->json(['message' => 'Erreur lors de la génération du token. Veuillez contacter l\'administrateur.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -148,16 +160,54 @@ class MobileAuthController extends AbstractController
     }
 
     #[Route('/api/mobile/user', name: 'api_mobile_user_profile', methods: ['GET'])]
-    public function userProfile(): JsonResponse
+    #[Route('/api/user', name: 'api_user_profile', methods: ['GET'])]
+    public function userProfile(Request $request): JsonResponse
     {
-        $user = $this->getUser();
+        // Récupérer le token d'Authorization
+        $authHeader = $request->headers->get('Authorization');
+        $this->logger->info('En-tête d\'autorisation reçu: ' . ($authHeader ? 'présent' : 'absent'));
         
-        if (!$user instanceof UserMobile) {
-            return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            $this->logger->error('Token d\'autorisation manquant ou invalide');
+            return $this->json(['message' => 'Token d\'autorisation manquant ou invalide'], Response::HTTP_UNAUTHORIZED);
         }
-
-        return $this->json([
-            'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read'])
-        ]);
+        
+        // Extraire le token
+        $token = substr($authHeader, 7); // Enlever "Bearer "
+        
+        try {
+            // Décoder le pseudo-token
+            $tokenData = json_decode(base64_decode($token), true);
+            $this->logger->info('Données du token décodées: ' . json_encode($tokenData));
+            
+            if (!$tokenData || !isset($tokenData['user']) || !isset($tokenData['exp'])) {
+                $this->logger->error('Format de token invalide');
+                return $this->json(['message' => 'Format de token invalide'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Vérifier l'expiration
+            if ($tokenData['exp'] < time()) {
+                $this->logger->error('Token expiré');
+                return $this->json(['message' => 'Token expiré. Veuillez vous reconnecter.'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Récupérer l'utilisateur
+            $user = $this->userRepository->findOneBy(['username' => $tokenData['user']]);
+            
+            if (!$user) {
+                $this->logger->error('Utilisateur du token non trouvé: ' . $tokenData['user']);
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+            }
+            
+            $this->logger->info('Profil utilisateur récupéré avec succès pour: ' . $user->getUsername());
+            
+            return $this->json([
+                'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
+                'message' => 'Profil récupéré avec succès'
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors du décodage du token: ' . $e->getMessage());
+            return $this->json(['message' => 'Erreur lors de la vérification du token'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 } 
