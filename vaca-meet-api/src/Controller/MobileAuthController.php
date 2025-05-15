@@ -97,11 +97,14 @@ class MobileAuthController extends AbstractController
     }
 
     #[Route('/api/mobile/login_check', name: 'api_mobile_login_check', methods: ['POST'])]
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        $this->logger->info('Tentative de connexion: ' . json_encode(['username' => $data['username'] ?? 'non défini']));
 
         if (!$data || !isset($data['username']) || !isset($data['password'])) {
+            $this->logger->error('Données de connexion invalides ou incomplètes', ['fields' => array_keys($data ?? [])]);
             return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -109,21 +112,29 @@ class MobileAuthController extends AbstractController
         $user = $this->userRepository->findOneBy(['username' => $data['username']]);
 
         if (!$user) {
+            $this->logger->info('Utilisateur non trouvé: ' . $data['username']);
             return $this->json(['message' => 'Identifiants invalides'], Response::HTTP_UNAUTHORIZED);
         }
 
         // Vérifier le mot de passe
         if (!$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+            $this->logger->info('Mot de passe invalide pour l\'utilisateur: ' . $data['username']);
             return $this->json(['message' => 'Identifiants invalides'], Response::HTTP_UNAUTHORIZED);
         }
 
+        $this->logger->info('Connexion réussie pour l\'utilisateur: ' . $data['username']);
+        
         // Générer le token JWT
-        $token = $this->jwtManager->create($user);
-
-        return $this->json([
-            'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
-            'token' => $token
-        ]);
+        try {
+            $token = $this->jwtManager->create($user);
+            return $this->json([
+                'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
+                'token' => $token
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors de la génération du token JWT: ' . $e->getMessage());
+            return $this->json(['message' => 'Erreur lors de la génération du token. Veuillez contacter l\'administrateur.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/api/mobile/test', name: 'api_mobile_test', methods: ['GET'])]

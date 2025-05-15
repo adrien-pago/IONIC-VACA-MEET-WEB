@@ -5,17 +5,19 @@ security:
     
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
+        # Nous pouvons supprimer ce provider puisque User n'existe pas
+        # app_user_provider:
+        #     entity:
+        #         class: App\Entity\User
+        #         property: email
         app_user_mobile_provider:
             entity:
                 class: App\Entity\UserMobile
                 property: username
+        # Simplifier le provider chain pour n'utiliser que app_user_mobile_provider
         all_users:
             chain:
-                providers: ['app_user_provider', 'app_user_mobile_provider']
+                providers: ['app_user_mobile_provider']
     
     firewalls:
         dev:
@@ -29,7 +31,7 @@ security:
                 check_path: /api/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-                provider: app_user_provider
+                provider: app_user_mobile_provider
         
         mobile_login:
             pattern: ^/api/mobile/login_check
