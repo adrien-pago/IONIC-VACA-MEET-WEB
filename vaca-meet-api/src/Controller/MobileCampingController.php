@@ -38,7 +38,7 @@ class MobileCampingController extends AbstractController
             }
             
             // Récupérer les informations du camping à partir de la base de données
-            $sql = "SELECT id, username  FROM user WHERE id = :id";
+            $sql = "SELECT id, username, nom_camping FROM user WHERE id = :id";
             $stmt = $this->connection->prepare($sql);
             $stmt->bindValue('id', $id);
             $result = $stmt->executeQuery();
@@ -49,6 +49,25 @@ class MobileCampingController extends AbstractController
                 return $this->json(['message' => 'Camping non trouvé'], Response::HTTP_NOT_FOUND);
             }
             
+            // Pour l'instant, créons des données factices pour les animations, services et activités
+            // Ces données seront remplacées par de vraies données de base de données plus tard
+            $animations = [];
+            $services = [];
+            $activities = [];
+            
+            // Créer la réponse
+            $response = [
+                'camping' => [
+                    'id' => $campingData['id'],
+                    'name' => $campingData['nom_camping'] ?? 'Camping ' . $campingData['username'],
+                    'username' => $campingData['username']
+                ],
+                'animations' => $animations,
+                'services' => $services,
+                'activities' => $activities
+            ];
+            
+            $this->logger->info('Informations du camping récupérées avec succès', ['id' => $id]);
             
             return $this->json($response);
         } catch (\Exception $e) {
