@@ -149,4 +149,25 @@ ion-button[expand="block"] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
   }
+}
+
+/* Ajout des styles pour la carte de débogage des erreurs */
+.error-debug-card {
+  margin-top: 20px;
+  background-color: rgba(var(--ion-color-light-rgb), 0.8);
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.error-details {
+  white-space: pre-wrap;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.error-details pre {
+  margin: 0;
+  padding: 8px;
+  background-color: rgba(var(--ion-color-medium-rgb), 0.1);
+  border-radius: 4px;
 } 

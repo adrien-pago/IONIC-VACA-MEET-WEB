@@ -3,6 +3,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .home-title {
@@ -150,9 +151,9 @@ ion-card-title {
 }
 
 .api-message {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: rgba(var(--ion-color-success-rgb), 0.1);
+  margin-top: 15px;
+  padding: 10px;
+  background-color: var(--ion-color-light);
   border-radius: 8px;
 }
 
@@ -170,4 +171,79 @@ ion-card-title {
   .home-container {
     padding-top: 40px;
   }
+}
+
+/* Style pour la carte de profil */
+.profile-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* En-tête du profil avec avatar et nom */
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* Avatar de profil */
+.profile-avatar {
+  width: 60px;
+  height: 60px;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ion-color-light);
+}
+
+.profile-avatar ion-icon {
+  font-size: 2.5rem;
+  color: var(--ion-color-primary);
+}
+
+/* Media queries pour la responsive */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 10px;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .profile-avatar {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+/* Bouton de déconnexion */
+ion-button.logout-button {
+  margin-right: 8px;
+}
+
+/* Étiquettes et valeurs de profil */
+ion-item.profile-item {
+  --padding-start: 0;
+}
+
+.profile-item p {
+  margin: 8px 0;
+}
+
+/* Animation de chargement */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-container {
+  animation: fadeIn 0.3s ease-in-out;
 } 

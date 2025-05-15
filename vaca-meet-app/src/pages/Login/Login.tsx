@@ -14,8 +14,13 @@ import {
   IonCol,
   IonLoading,
   IonAlert,
+  IonCard,
+  IonCardContent,
+  IonText,
+  IonIcon,
   useIonRouter
 } from '@ionic/react';
+import { settings, construct } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import './Login.css';
 
@@ -28,6 +33,7 @@ const Login: React.FC = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   
   const router = useIonRouter();
   const authService = new AuthService();
@@ -40,18 +46,21 @@ const Login: React.FC = () => {
     }
 
     setShowLoading(true);
+    setErrorDetails(null);
 
     try {
       if (isRegister) {
         const userData = {
           username,
           password,
-          firstName: firstName || undefined,
-          lastName: lastName || undefined
+          firstName: firstName.trim() || undefined,
+          lastName: lastName.trim() || undefined
         };
+        console.log("Envoi des données d'inscription:", userData);
         await authService.register(userData);
         setAlertMessage('Inscription réussie !');
       } else {
+        console.log("Envoi des identifiants de connexion:", { username, password });
         await authService.login({ username, password });
         setAlertMessage('Connexion réussie !');
       }
@@ -61,13 +70,46 @@ const Login: React.FC = () => {
       setTimeout(() => {
         router.push('/home', 'forward', 'replace');
       }, 1000);
-    } catch (error) {
-      console.error('Erreur d\'authentification:', error);
-      setAlertMessage(
-        isRegister 
-          ? 'Erreur lors de l\'inscription. Veuillez réessayer.' 
-          : 'Identifiants incorrects. Veuillez réessayer.'
-      );
+    } catch (error: any) {
+      console.error('Erreur d\'authentification complète:', error);
+      
+      // Récupérer le message d'erreur de l'API si disponible
+      let errorMessage = isRegister 
+        ? 'Erreur lors de l\'inscription. Veuillez réessayer.' 
+        : 'Identifiants incorrects. Veuillez réessayer.';
+      
+      // Création d'un message d'erreur détaillé pour le débogage
+      let detailedError = '';
+      
+      if (error.response) {
+        // La requête a été faite et le serveur a répondu avec un code d'état hors de la plage 2xx
+        detailedError = `Erreur serveur: ${error.response.status} ${error.response.statusText}\n`;
+        
+        if (error.response.data) {
+          if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+            detailedError += `Message: ${error.response.data.message}\n`;
+          }
+          
+          if (error.response.data.errors) {
+            detailedError += `Erreurs: ${JSON.stringify(error.response.data.errors)}\n`;
+          }
+          
+          detailedError += `Données: ${JSON.stringify(error.response.data)}`;
+        }
+      } else if (error.request) {
+        // La requête a été faite mais aucune réponse n'a été reçue
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
+        detailedError = 'La requête a été envoyée mais aucune réponse n\'a été reçue du serveur.\n';
+        detailedError += 'Cela peut être dû à une connexion internet instable ou à un problème de configuration du serveur.';
+      } else {
+        // Une erreur s'est produite lors de la configuration de la requête
+        errorMessage = `Erreur lors de la configuration de la requête: ${error.message}`;
+        detailedError = `Erreur lors de la configuration: ${error.message}`;
+      }
+      
+      setAlertMessage(errorMessage);
+      setErrorDetails(detailedError);
       setShowAlert(true);
     } finally {
       setShowLoading(false);
@@ -76,6 +118,7 @@ const Login: React.FC = () => {
 
   const toggleAuthMode = () => {
     setIsRegister(!isRegister);
+    setErrorDetails(null);
   };
 
   return (
@@ -83,6 +126,9 @@ const Login: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>{isRegister ? 'Inscription' : 'Connexion'}</IonTitle>
+          <IonButton slot="end" fill="clear" routerLink="/api-test">
+            <IonIcon slot="icon-only" icon={construct} />
+          </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -144,6 +190,25 @@ const Login: React.FC = () => {
                     {isRegister ? 'Déjà un compte ? Se connecter' : 'Pas de compte ? S\'inscrire'}
                   </IonButton>
                 </div>
+                
+                {errorDetails && (
+                  <>
+                    <IonCard className="error-debug-card">
+                      <IonCardContent>
+                        <div className="ion-margin-bottom ion-text-center">
+                          <IonButton fill="outline" size="small" routerLink="/api-test" color="medium">
+                            <IonIcon slot="start" icon={settings} />
+                            Diagnostiquer la connexion API
+                          </IonButton>
+                        </div>
+                        <h3>Détails de l'erreur (Debug):</h3>
+                        <IonText color="danger" className="error-details">
+                          <pre>{errorDetails}</pre>
+                        </IonText>
+                      </IonCardContent>
+                    </IonCard>
+                  </>
+                )}
               </div>
             </IonCol>
           </IonRow>

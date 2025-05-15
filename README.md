@@ -129,12 +129,19 @@ ionic build
 # Ajout des plateformes natives (optionnel)
 ionic capacitor add android
 ionic capacitor add ios
+
+# Reconstruire et redéployer l'application :
+npm run build
+npx cap copy android
+npx cap open android
+
 ```
 
 #### Backend (Symfony API)
 
 ```bash
 # Se positionner dans le dossier du backend
+cd /var/www/vhosts/vaca-meet.fr/mobile.vaca-meet.fr/vaca-meet-api
 cd vaca-meet-api
 
 # Installation des dépendances

@@ -83,4 +83,227 @@ pre {
 
 .error-details li {
   margin-bottom: 5px;
+}
+
+/* Styles pour la page de diagnostic API */
+
+/* Carte de statut du backend */
+.backend-status-card {
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.backend-status-card.online {
+  border-left: 4px solid var(--ion-color-success);
+  background: rgba(var(--ion-color-success-rgb), 0.05);
+}
+
+.backend-status-card.offline {
+  border-left: 4px solid var(--ion-color-danger);
+  background: rgba(var(--ion-color-danger-rgb), 0.05);
+}
+
+.backend-status-card.unknown {
+  border-left: 4px solid var(--ion-color-warning);
+  background: rgba(var(--ion-color-warning-rgb), 0.05);
+}
+
+.backend-status-card.ssl_error {
+  border-left: 4px solid var(--ion-color-warning);
+  background-color: rgba(var(--ion-color-warning-rgb), 0.1);
+}
+
+.backend-status-card.network_error {
+  border-left: 4px solid var(--ion-color-danger);
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+}
+
+.backend-status-card.timeout {
+  border-left: 4px solid var(--ion-color-warning);
+  background-color: rgba(var(--ion-color-warning-rgb), 0.1);
+}
+
+.status-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Animation de rotation pour l'icône de chargement */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-icon {
+  animation: spin 1.5s linear infinite;
+}
+
+/* Affichage de texte qui peut contenir du texte long */
+.wrap-text {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Pour les réponses JSON formatées */
+.response-data {
+  margin-top: 10px;
+  background-color: rgba(var(--ion-color-light-rgb), 0.7);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.response-data pre {
+  font-size: 11px;
+  overflow-x: auto;
+  margin: 4px 0 0 0;
+  padding: 8px;
+  background-color: rgba(var(--ion-color-dark-rgb), 0.05);
+  border-radius: 4px;
+}
+
+/* Style pour le guide de dépannage */
+ion-accordion {
+  margin: 10px 0;
+}
+
+ion-accordion-group {
+  margin-bottom: 20px;
+}
+
+ion-accordion ion-item {
+  --background: rgba(var(--ion-color-warning-rgb), 0.1);
+}
+
+ion-accordion div[slot="content"] {
+  background-color: rgba(var(--ion-color-light-rgb), 0.8);
+  padding: 10px 15px;
+}
+
+ion-accordion div[slot="content"] h3 {
+  color: var(--ion-color-dark);
+  font-size: 16px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+ion-accordion div[slot="content"] ul, 
+ion-accordion div[slot="content"] ol {
+  padding-left: 20px;
+}
+
+ion-accordion div[slot="content"] li {
+  margin-bottom: 8px;
+}
+
+ion-accordion div[slot="content"] code {
+  background-color: rgba(var(--ion-color-medium-rgb), 0.2);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* Styles généraux pour la page de diagnostic API */
+.empty-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  color: var(--ion-color-medium);
+}
+
+.empty-results ion-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+ion-badge {
+  font-weight: normal;
+  padding: 6px 10px;
+}
+
+ion-item ion-button[slot="end"] {
+  margin-right: 0;
+}
+
+/* Carte de test personnalisée */
+ion-input {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --background: rgba(var(--ion-color-light-rgb), 0.8);
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* Animation de chargement */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.empty-results p {
+  animation: pulse 2s infinite;
+}
+
+/* Format des résultats */
+ion-item h2 {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ion-color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+ion-item p {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin: 2px 0;
+}
+
+/* Mise en évidence des éléments importants */
+.highlight {
+  font-weight: 500;
+  color: var(--ion-color-primary);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  ion-card {
+    margin: 10px 0;
+    border-radius: 10px;
+  }
+  
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+  
+  ion-card-content {
+    padding-top: 0;
+  }
+}
+
+/* Boîte d'erreur */
+.last-error {
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+  border: 1px solid var(--ion-color-danger);
+  text-align: left;
+}
+
+.last-error p {
+  margin: 0;
+  font-size: 14px;
 } 
