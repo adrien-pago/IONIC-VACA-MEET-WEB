@@ -5,16 +5,10 @@ security:
     
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        # Nous pouvons supprimer ce provider puisque User n'existe pas
-        # app_user_provider:
-        #     entity:
-        #         class: App\Entity\User
-        #         property: email
         app_user_mobile_provider:
             entity:
                 class: App\Entity\UserMobile
                 property: username
-        # Simplifier le provider chain pour n'utiliser que app_user_mobile_provider
         all_users:
             chain:
                 providers: ['app_user_mobile_provider']
@@ -24,30 +18,19 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         
-        login:
-            pattern: ^/api/login
-            stateless: true
-            json_login:
-                check_path: /api/login
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-                provider: app_user_mobile_provider
+        # Endpoints publics
+        api_public:
+            pattern: ^/api/(login|register)
+            security: false
         
-        mobile_login:
-            pattern: ^/api/mobile/login_check
-            stateless: true
-            json_login:
-                check_path: /api/mobile/login_check
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-                provider: app_user_mobile_provider
-        
+        # Endpoints sécurisés
         api:
             pattern: ^/api
+            security: true
             stateless: true
-            provider: all_users
+            provider: app_user_mobile_provider
             jwt: ~
-        
+
         main:
             lazy: true
             provider: all_users
@@ -56,11 +39,7 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/mobile/login_check, roles: PUBLIC_ACCESS }
-        - { path: ^/api/mobile/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/mobile/test, roles: PUBLIC_ACCESS }
-        - { path: ^/api/test, roles: PUBLIC_ACCESS }
-        - { path: ^/api$, roles: PUBLIC_ACCESS } # Notez le $ qui signifie "fin de chaîne"
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
