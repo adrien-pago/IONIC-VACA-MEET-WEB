@@ -57,6 +57,7 @@ security:
         - { path: ^/api/mobile/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/mobile/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/mobile/test, roles: PUBLIC_ACCESS }
+        - { path: ^/api/test, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

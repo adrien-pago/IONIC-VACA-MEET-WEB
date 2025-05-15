@@ -5,10 +5,12 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted; // Ajoutez cette ligne
 
 class TestController extends AbstractController
 {
     #[Route('/api', name: 'api_index', methods: ['GET'])]
+    #[IsGranted('PUBLIC_ACCESS')] 
     public function index(): JsonResponse
     {
         return $this->json([
@@ -26,6 +28,7 @@ class TestController extends AbstractController
     }
     
     #[Route('/api/test', name: 'api_test', methods: ['GET'])]
+    #[IsGranted('PUBLIC_ACCESS')] // Ajoutez cette ligne
     public function test(): JsonResponse
     {
         return $this->json([
