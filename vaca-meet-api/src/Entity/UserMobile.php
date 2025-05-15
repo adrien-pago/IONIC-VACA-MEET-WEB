@@ -38,6 +38,10 @@ class UserMobile implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user_mobile:read'])]
     private ?string $lastName = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['user_mobile:read'])]
+    private ?string $theme = 'default';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -128,6 +132,18 @@ class UserMobile implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getTheme(): ?string
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(?string $theme): static
+    {
+        $this->theme = $theme;
 
         return $this;
     }

@@ -158,12 +158,6 @@ const Home: React.FC = () => {
     router.push('/login', 'root', 'replace');
   };
 
-  const navigateToProfile = () => {
-    // Comme la page Profile n'existe pas encore, affichons un message à l'utilisateur
-    setToastMessage('La page de profil sera disponible prochainement');
-    setShowToast(true);
-  };
-
   const handleDestinationSelection = (event: CustomEvent) => {
     setSelectedDestination(event.detail.value);
     setPasswordError('');
@@ -241,7 +235,7 @@ const Home: React.FC = () => {
             </IonMenuToggle>
             
             <IonMenuToggle menu="home-menu">
-              <IonItem button onClick={navigateToProfile} detail={false}>
+              <IonItem routerLink="/account" detail={false}>
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>

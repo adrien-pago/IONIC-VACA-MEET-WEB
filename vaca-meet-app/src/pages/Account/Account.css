@@ -1,0 +1,244 @@
+/* Styles spécifiques à la page Compte */
+.account-content {
+  --padding-top: 1rem;
+  --padding-bottom: 3rem;
+  --background: transparent;
+}
+
+.account-welcome-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  text-align: center;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.account-title {
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.welcome-container.animate-slide-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.account-avatar {
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.account-avatar ion-icon {
+  width: 100%;
+  height: 100%;
+  color: white;
+  padding: 10px;
+}
+
+.username-chip {
+  margin-top: 0.5rem;
+  --background: rgba(var(--ion-color-primary-rgb), 0.3);
+  --color: white;
+  font-weight: 500;
+}
+
+/* Segment selector */
+.segment-container {
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-delay: 0.1s;
+}
+
+.segment-container.animate-slide-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+ion-segment {
+  --background: rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 3px;
+}
+
+ion-segment-button {
+  --background-checked: var(--ion-color-primary);
+  --color-checked: white;
+  --color: rgba(255, 255, 255, 0.8);
+  --indicator-color: transparent;
+  border-radius: 12px;
+  min-height: 40px;
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Card styles */
+.profile-form-card,
+.theme-card,
+.password-card {
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.profile-form-card.animate-slide-up,
+.theme-card.animate-slide-up,
+.password-card.animate-slide-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: var(--ion-color-dark);
+}
+
+.section-title ion-icon {
+  margin-right: 0.5rem;
+  font-size: 1.3rem;
+}
+
+/* Form styles */
+.form-container {
+  margin-top: 1rem;
+}
+
+.form-item {
+  --background: transparent;
+  --border-color: rgba(var(--ion-color-medium-rgb), 0.2);
+  --highlight-color-focused: var(--ion-color-primary);
+  --padding-start: 0;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.form-item ion-label {
+  color: var(--ion-color-dark);
+  font-weight: 500;
+}
+
+.form-item ion-input {
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  color: var(--ion-color-dark);
+}
+
+.error-message {
+  font-size: 12px;
+  padding: 5px 0;
+  display: block;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+}
+
+/* Theme selector */
+.theme-selector {
+  margin-top: 1rem;
+}
+
+.theme-option {
+  --background: rgba(255, 255, 255, 0.1);
+  --background-hover: rgba(255, 255, 255, 0.2);
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.theme-option h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.theme-option p {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.theme-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.theme-preview-default {
+  background: linear-gradient(135deg, #6c63ff 0%, #ff6584 100%);
+}
+
+.theme-preview-blue {
+  background: linear-gradient(135deg, #4a90e2 0%, #56CCF2 100%);
+}
+
+.theme-preview-green {
+  background: linear-gradient(135deg, #27ae60 0%, #6fcf97 100%);
+}
+
+.theme-preview-minimal {
+  background: linear-gradient(135deg, #333333 0%, #888888 100%);
+}
+
+/* Media Queries */
+@media (max-width: 576px) {
+  .account-welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .account-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .section-title {
+    color: var(--ion-color-light);
+  }
+  
+  .form-item ion-label,
+  .form-item ion-input {
+    color: var(--ion-color-light);
+  }
+  
+  .theme-option h2 {
+    color: var(--ion-color-light);
+  }
+} 

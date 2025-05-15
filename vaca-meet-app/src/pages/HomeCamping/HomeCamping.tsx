@@ -138,7 +138,7 @@ const HomeCamping: React.FC = () => {
             </IonMenuToggle>
             
             <IonMenuToggle menu="camping-menu">
-              <IonItem button onClick={navigateToProfile} detail={false}>
+              <IonItem routerLink="/account" detail={false}>
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>

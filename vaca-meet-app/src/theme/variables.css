@@ -153,3 +153,219 @@ http://ionicframework.com/docs/theming/ */
     --box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 }
+
+/* Système de thèmes pour Vaca Meet */
+
+:root {
+  /* Thème par défaut (actualité avec couleur primaire violet/bleu) */
+  --theme-primary: #6c63ff;
+  --theme-primary-rgb: 108, 99, 255;
+  --theme-primary-contrast: #ffffff;
+  --theme-primary-contrast-rgb: 255, 255, 255;
+  --theme-primary-shade: #5f57e0;
+  --theme-primary-tint: #7b73ff;
+
+  --theme-secondary: #ff6584;
+  --theme-secondary-rgb: 255, 101, 132;
+  --theme-secondary-contrast: #ffffff;
+  --theme-secondary-contrast-rgb: 255, 255, 255;
+  --theme-secondary-shade: #e05874;
+  --theme-secondary-tint: #ff7490;
+
+  --theme-tertiary: #5260ff;
+  --theme-tertiary-rgb: 82, 96, 255;
+  --theme-tertiary-contrast: #ffffff;
+  --theme-tertiary-contrast-rgb: 255, 255, 255;
+  --theme-tertiary-shade: #4854e0;
+  --theme-tertiary-tint: #6370ff;
+
+  --theme-background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(255, 101, 132, 0.15) 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.2);
+  --theme-card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --theme-text-main: #333333;
+  --theme-text-light: #666666;
+  
+  /* Variables communes à tous les thèmes */
+  --ion-color-success: #2fdf75;
+  --ion-color-success-rgb: 47, 223, 117;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #29c467;
+  --ion-color-success-tint: #44e283;
+
+  --ion-color-warning: #ffd534;
+  --ion-color-warning-rgb: 255, 213, 52;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0bb2e;
+  --ion-color-warning-tint: #ffd948;
+
+  --ion-color-danger: #ff4961;
+  --ion-color-danger-rgb: 255, 73, 97;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #e04055;
+  --ion-color-danger-tint: #ff5b71;
+
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3e;
+
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+}
+
+/* Thème Bleu Ciel */
+.theme-blue {
+  --theme-primary: #4a90e2;
+  --theme-primary-rgb: 74, 144, 226;
+  --theme-primary-contrast: #ffffff;
+  --theme-primary-contrast-rgb: 255, 255, 255;
+  --theme-primary-shade: #417fc7;
+  --theme-primary-tint: #5c9ce5;
+
+  --theme-secondary: #56CCF2;
+  --theme-secondary-rgb: 86, 204, 242;
+  --theme-secondary-contrast: #ffffff;
+  --theme-secondary-contrast-rgb: 255, 255, 255;
+  --theme-secondary-shade: #4cb4d5;
+  --theme-secondary-tint: #67d1f3;
+
+  --theme-tertiary: #2D9CDB;
+  --theme-tertiary-rgb: 45, 156, 219;
+  --theme-tertiary-contrast: #ffffff;
+  --theme-tertiary-contrast-rgb: 255, 255, 255;
+  --theme-tertiary-shade: #2889c1;
+  --theme-tertiary-tint: #42a6df;
+
+  --theme-background: linear-gradient(135deg, rgba(74, 144, 226, 0.2) 0%, rgba(86, 204, 242, 0.15) 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.25);
+  --theme-card-shadow: 0 8px 20px rgba(74, 144, 226, 0.15);
+  --theme-text-main: #333333;
+  --theme-text-light: #555555;
+}
+
+/* Thème Vert Nature */
+.theme-green {
+  --theme-primary: #27ae60;
+  --theme-primary-rgb: 39, 174, 96;
+  --theme-primary-contrast: #ffffff;
+  --theme-primary-contrast-rgb: 255, 255, 255;
+  --theme-primary-shade: #229954;
+  --theme-primary-tint: #3eb670;
+
+  --theme-secondary: #6fcf97;
+  --theme-secondary-rgb: 111, 207, 151;
+  --theme-secondary-contrast: #ffffff;
+  --theme-secondary-contrast-rgb: 255, 255, 255;
+  --theme-secondary-shade: #62b685;
+  --theme-secondary-tint: #7dd4a1;
+
+  --theme-tertiary: #219653;
+  --theme-tertiary-rgb: 33, 150, 83;
+  --theme-tertiary-contrast: #ffffff;
+  --theme-tertiary-contrast-rgb: 255, 255, 255;
+  --theme-tertiary-shade: #1d8449;
+  --theme-tertiary-tint: #37a164;
+
+  --theme-background: linear-gradient(135deg, rgba(39, 174, 96, 0.2) 0%, rgba(111, 207, 151, 0.15) 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.25);
+  --theme-card-shadow: 0 8px 20px rgba(39, 174, 96, 0.15);
+  --theme-text-main: #333333;
+  --theme-text-light: #555555;
+}
+
+/* Thème Minimaliste */
+.theme-minimal {
+  --theme-primary: #333333;
+  --theme-primary-rgb: 51, 51, 51;
+  --theme-primary-contrast: #ffffff;
+  --theme-primary-contrast-rgb: 255, 255, 255;
+  --theme-primary-shade: #2d2d2d;
+  --theme-primary-tint: #474747;
+
+  --theme-secondary: #888888;
+  --theme-secondary-rgb: 136, 136, 136;
+  --theme-secondary-contrast: #ffffff;
+  --theme-secondary-contrast-rgb: 255, 255, 255;
+  --theme-secondary-shade: #787878;
+  --theme-secondary-tint: #949494;
+
+  --theme-tertiary: #555555;
+  --theme-tertiary-rgb: 85, 85, 85;
+  --theme-tertiary-contrast: #ffffff;
+  --theme-tertiary-contrast-rgb: 255, 255, 255;
+  --theme-tertiary-shade: #4b4b4b;
+  --theme-tertiary-tint: #666666;
+
+  --theme-background: linear-gradient(135deg, rgba(240, 240, 240, 0.9) 0%, rgba(250, 250, 250, 0.95) 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.95);
+  --theme-card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --theme-text-main: #333333;
+  --theme-text-light: #666666;
+}
+
+/* Application des variables de thème aux couleurs Ionic */
+:root, .theme-default, .theme-blue, .theme-green, .theme-minimal {
+  --ion-color-primary: var(--theme-primary);
+  --ion-color-primary-rgb: var(--theme-primary-rgb);
+  --ion-color-primary-contrast: var(--theme-primary-contrast);
+  --ion-color-primary-contrast-rgb: var(--theme-primary-contrast-rgb);
+  --ion-color-primary-shade: var(--theme-primary-shade);
+  --ion-color-primary-tint: var(--theme-primary-tint);
+
+  --ion-color-secondary: var(--theme-secondary);
+  --ion-color-secondary-rgb: var(--theme-secondary-rgb);
+  --ion-color-secondary-contrast: var(--theme-secondary-contrast);
+  --ion-color-secondary-contrast-rgb: var(--theme-secondary-contrast-rgb);
+  --ion-color-secondary-shade: var(--theme-secondary-shade);
+  --ion-color-secondary-tint: var(--theme-secondary-tint);
+
+  --ion-color-tertiary: var(--theme-tertiary);
+  --ion-color-tertiary-rgb: var(--theme-tertiary-rgb);
+  --ion-color-tertiary-contrast: var(--theme-tertiary-contrast);
+  --ion-color-tertiary-contrast-rgb: var(--theme-tertiary-contrast-rgb);
+  --ion-color-tertiary-shade: var(--theme-tertiary-shade);
+  --ion-color-tertiary-tint: var(--theme-tertiary-tint);
+}
+
+/* Spécifier les background personnalisés pour chaque thème */
+body {
+  --ion-background-color: transparent;
+}
+
+.background-gradient {
+  background: var(--theme-background);
+}
+
+.theme-card {
+  background: var(--theme-card-bg);
+  box-shadow: var(--theme-card-shadow);
+}
+
+/* Styles de texte */
+.theme-text-primary {
+  color: var(--theme-primary);
+}
+
+.theme-text-main {
+  color: var(--theme-text-main);
+}
+
+.theme-text-light {
+  color: var(--theme-text-light);
+}
