@@ -71,18 +71,26 @@ export class ProfileService {
       // Configurer les en-têtes avec le token
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      console.log('Mise à jour du profil:', data);
-      console.log('URL de mise à jour du profil:', `${config.api.baseUrl}${config.api.endpoints.updateProfile}`);
+      console.log('Données brutes reçues pour mise à jour du profil:', data);
       
       // Préparation des données à envoyer (ne garder que les champs nécessaires)
-      const cleanData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        username: data.username
+      const cleanData: Record<string, string> = {
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        username: data.username || ''
       };
       
+      if (data.theme) {
+        cleanData['theme'] = data.theme;
+      }
+      
+      console.log('Données nettoyées pour mise à jour du profil:', cleanData);
+      console.log('URL complète de mise à jour du profil:', `${config.api.baseUrl}${config.api.endpoints.updateProfile}`);
+      console.log('Token d\'authentification utilisé:', token.substring(0, 15) + '...');
+      
       const response = await api.put(config.api.endpoints.updateProfile, cleanData);
-      console.log('Réponse mise à jour profil:', response.data);
+      console.log('Réponse brute du serveur:', response);
+      console.log('Réponse mise à jour profil (data):', response.data);
       
       return response.data;
     } catch (error: any) {
@@ -92,8 +100,14 @@ export class ProfileService {
       if (error.response) {
         console.error('Détails de l\'erreur:', {
           status: error.response.status,
-          data: error.response.data
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
         });
+      } else if (error.request) {
+        console.error('Erreur de requête (pas de réponse):', error.request);
+      } else {
+        console.error('Erreur:', error.message);
       }
       
       throw error;

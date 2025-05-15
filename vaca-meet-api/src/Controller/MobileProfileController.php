@@ -66,12 +66,13 @@ class MobileProfileController extends AbstractController
     #[Route('/api/mobile/user/profile', name: 'api_mobile_update_profile', methods: ['PUT'])]
     public function updateProfile(Request $request): JsonResponse
     {
-        $this->logger->info('Mise à jour du profil utilisateur');
+        $this->logger->info('Début de la mise à jour du profil utilisateur');
         $this->logger->info('Contenu de la requête: ' . $request->getContent());
         
         try {
             // Récupérer l'utilisateur connecté
             $user = $this->getUser();
+            $this->logger->info('Utilisateur récupéré: ID=' . ($user ? $user->getId() : 'null'));
             
             if (!$user instanceof UserMobile) {
                 $this->logger->error('Utilisateur non authentifié ou invalide');
@@ -86,15 +87,25 @@ class MobileProfileController extends AbstractController
                 return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
             }
             
+            $this->logger->info('Données décodées: ' . json_encode($data));
+            
+            // Sauvegarder les valeurs actuelles pour la journalisation
+            $oldValues = [
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'username' => $user->getUsername(),
+                'theme' => $user->getTheme()
+            ];
+            
             // Mettre à jour les informations de l'utilisateur si elles sont présentes
             if (isset($data['firstName'])) {
                 $user->setFirstName($data['firstName']);
-                $this->logger->info('Mise à jour du prénom: ' . $data['firstName']);
+                $this->logger->info('Mise à jour du prénom: ' . $oldValues['firstName'] . ' -> ' . $data['firstName']);
             }
             
             if (isset($data['lastName'])) {
                 $user->setLastName($data['lastName']);
-                $this->logger->info('Mise à jour du nom: ' . $data['lastName']);
+                $this->logger->info('Mise à jour du nom: ' . $oldValues['lastName'] . ' -> ' . $data['lastName']);
             }
             
             if (isset($data['username'])) {
@@ -106,12 +117,12 @@ class MobileProfileController extends AbstractController
                 }
                 
                 $user->setUsername($data['username']);
-                $this->logger->info('Mise à jour du nom d\'utilisateur: ' . $data['username']);
+                $this->logger->info('Mise à jour du nom d\'utilisateur: ' . $oldValues['username'] . ' -> ' . $data['username']);
             }
             
             if (isset($data['theme'])) {
                 $user->setTheme($data['theme']);
-                $this->logger->info('Mise à jour du thème: ' . $data['theme']);
+                $this->logger->info('Mise à jour du thème: ' . $oldValues['theme'] . ' -> ' . $data['theme']);
             }
             
             // Valider l'utilisateur
@@ -123,8 +134,10 @@ class MobileProfileController extends AbstractController
             }
             
             // Enregistrer les modifications
+            $this->logger->info('Tentative de flush des modifications en base de données');
+            $this->entityManager->persist($user); // Ajout explicite de persist
             $this->entityManager->flush();
-            $this->logger->info('Profil utilisateur mis à jour avec succès');
+            $this->logger->info('Profil utilisateur mis à jour avec succès en base de données');
             
             // Renvoyer les données mises à jour
             $updatedData = [
@@ -135,13 +148,17 @@ class MobileProfileController extends AbstractController
                 'theme' => $user->getTheme()
             ];
             
+            $this->logger->info('Données renvoyées au client: ' . json_encode($updatedData));
+            
             return $this->json($updatedData);
         } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la mise à jour du profil: ' . $e->getMessage());
+            $this->logger->error('Exception lors de la mise à jour du profil: ' . $e->getMessage());
+            $this->logger->error('Trace: ' . $e->getTraceAsString());
             
             return $this->json([
                 'message' => 'Erreur lors de la mise à jour du profil',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -380,7 +380,7 @@ const Account: React.FC = () => {
       </div>
       
       <div className="edit-form-item">
-        <div className="edit-label">Nom d'utilisateur</div>
+        <div className="edit-label">Email</div>
         <IonInput
           name="username"
           value={formData.username}
@@ -435,9 +435,6 @@ const Account: React.FC = () => {
                 <h1 className="account-welcome-title">
                   {formData.firstName} {formData.lastName}
                 </h1>
-                <IonChip color="primary" className="username-chip">
-                  {formData.username}
-                </IonChip>
               </div>
               
               <div className={`segment-container ${animation}`}>
