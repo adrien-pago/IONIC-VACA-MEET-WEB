@@ -320,19 +320,20 @@ const ApiTest: React.FC = () => {
     setLoading(true);
     try {
       const url = customUrl;
+      const urlToTest = useProxy ? `${CORS_PROXY}${encodeURIComponent(url)}` : url;
       
       setResults(prev => [...prev, {
-        url,
+        url: `${url}${useProxy ? ' (via proxy)' : ''}`,
         success: false,
         details: 'Test en cours...',
         isLoading: true
       }]);
       
       try {
-        console.log(`Test d'accès à l'URL personnalisée: ${url}`);
+        console.log(`Test d'accès à l'URL personnalisée: ${urlToTest}`);
         
         const startTime = Date.now();
-        const response = await axios.get(url, {
+        const response = await axios.get(urlToTest, {
           timeout: 15000,
           headers: {
             'Accept': 'application/json',
@@ -344,9 +345,9 @@ const ApiTest: React.FC = () => {
         
         // Mettre à jour le résultat
         setResults(prev => prev.map(item => 
-          item.url === url && item.isLoading
+          item.url === `${url}${useProxy ? ' (via proxy)' : ''}` && item.isLoading
             ? {
-                url,
+                url: `${url}${useProxy ? ' (via proxy)' : ''}`,
                 success: response.status < 400,
                 status: response.status,
                 time: endTime - startTime,
@@ -358,9 +359,9 @@ const ApiTest: React.FC = () => {
         ));
       } catch (error: any) {
         setResults(prev => prev.map(item => 
-          item.url === url && item.isLoading
+          item.url === `${url}${useProxy ? ' (via proxy)' : ''}` && item.isLoading
             ? {
-                url,
+                url: `${url}${useProxy ? ' (via proxy)' : ''}`,
                 success: false,
                 details: `Erreur: ${error.message}`,
                 code: error.code,
