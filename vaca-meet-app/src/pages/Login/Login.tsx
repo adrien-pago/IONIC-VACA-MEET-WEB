@@ -17,10 +17,8 @@ import {
   IonCard,
   IonCardContent,
   IonText,
-  IonIcon,
   useIonRouter
 } from '@ionic/react';
-import { settings, construct } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import './Login.css';
 
@@ -131,9 +129,6 @@ const Login: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>{isRegister ? 'Inscription' : 'Connexion'}</IonTitle>
-          <IonButton slot="end" fill="clear" routerLink="/api-test">
-            <IonIcon slot="icon-only" icon={construct} />
-          </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -144,7 +139,7 @@ const Login: React.FC = () => {
                 <h2 className="ion-text-center">{isRegister ? 'Créer un compte' : 'Se connecter'}</h2>
                 
                 <IonItem>
-                  <IonLabel position="floating">Nom d'utilisateur</IonLabel>
+                  <IonLabel position="floating">Adresse email</IonLabel>
                   <IonInput 
                     value={username} 
                     onIonChange={e => setUsername(e.detail.value!)} 
@@ -200,13 +195,7 @@ const Login: React.FC = () => {
                   <>
                     <IonCard className="error-debug-card">
                       <IonCardContent>
-                        <div className="ion-margin-bottom ion-text-center">
-                          <IonButton fill="outline" size="small" routerLink="/api-test" color="medium">
-                            <IonIcon slot="start" icon={settings} />
-                            Diagnostiquer la connexion API
-                          </IonButton>
-                        </div>
-                        <h3>Détails de l'erreur (Debug):</h3>
+                        <h3>Détails de l'erreur :</h3>
                         <IonText color="danger" className="error-details">
                           <pre>{errorDetails}</pre>
                         </IonText>
