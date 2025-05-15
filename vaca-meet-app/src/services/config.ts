@@ -22,7 +22,7 @@ const config = {
       register: '/api/register',
       profile: '/api/mobile/user',
       userProfile: '/api/mobile/user/profile',
-      updateProfile: '/api/mobile/user/profile',
+      updateProfile: '/api/mobile/user/profile/direct',
       updatePassword: '/api/mobile/user/password',
       test: '/api/mobile/test',
       destinations: '/api/mobile/destinations',
