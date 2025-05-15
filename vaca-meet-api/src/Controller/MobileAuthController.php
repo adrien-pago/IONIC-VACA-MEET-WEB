@@ -85,14 +85,12 @@ class MobileAuthController extends AbstractController
         $this->entityManager->flush();
         $this->logger->info('Utilisateur créé avec succès: ' . $data['username']);
 
-        // Générer le token JWT pour connexion automatique
-        $token = $this->jwtManager->create($user);
-
+        // Ne pas générer de token JWT pour éviter l'erreur de clé manquante
+        // Au lieu de cela, retourner simplement un message de succès et demander à l'utilisateur de se connecter
         return $this->json(
             [
-                'message' => 'Utilisateur mobile créé avec succès',
-                'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
-                'token' => $token
+                'message' => 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+                'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read'])
             ],
             Response::HTTP_CREATED
         );

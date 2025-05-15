@@ -57,19 +57,24 @@ const Login: React.FC = () => {
           lastName: lastName.trim() || undefined
         };
         console.log("Envoi des données d'inscription:", userData);
-        await authService.register(userData);
-        setAlertMessage('Inscription réussie !');
+        const response = await authService.register(userData);
+        setAlertMessage(response.message || 'Inscription réussie ! Veuillez vous connecter.');
+        setShowAlert(true);
+        
+        // Passer en mode connexion après inscription réussie
+        setIsRegister(false);
+        // Ne pas rediriger vers la page d'accueil, attendre que l'utilisateur se connecte
       } else {
         console.log("Envoi des identifiants de connexion:", { username, password });
         await authService.login({ username, password });
         setAlertMessage('Connexion réussie !');
+        
+        // Rediriger vers la page d'accueil après connexion
+        setShowAlert(true);
+        setTimeout(() => {
+          router.push('/home', 'forward', 'replace');
+        }, 1000);
       }
-      
-      setShowAlert(true);
-      // Rediriger vers la page d'accueil après connexion
-      setTimeout(() => {
-        router.push('/home', 'forward', 'replace');
-      }, 1000);
     } catch (error: any) {
       console.error('Erreur d\'authentification complète:', error);
       

@@ -40,9 +40,12 @@ export class AuthService {
       
       console.log('Réponse API register:', response.data);
       
+      // Stocker le token seulement s'il est présent dans la réponse
       if (response.data && response.data.token) {
         this.storeToken(response.data.token);
       }
+      
+      // Retourner toutes les données de la réponse
       return response.data;
     } catch (error: any) {
       console.error('Erreur d\'inscription détaillée:', {
