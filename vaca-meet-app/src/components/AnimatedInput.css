@@ -1,0 +1,187 @@
+/* Styles pour le composant AnimatedInput avec disposition horizontale */
+.animated-input-container {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Nouveau style pour la disposition horizontale */
+.animated-input-horizontal {
+  display: flex;
+  align-items: center;
+  background: rgba(var(--ion-color-light-rgb), 0.7);
+  border-radius: var(--border-radius-md);
+  padding: 6px 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.animated-input-horizontal.is-focused {
+  background: rgba(var(--ion-color-light-rgb), 0.9);
+  box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.15);
+  transform: translateY(-2px);
+}
+
+.animated-input-horizontal.has-value {
+  background: rgba(var(--ion-color-light-rgb), 0.85);
+}
+
+/* Côté gauche avec l'icône et le libellé */
+.input-left-side {
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  width: 35%;
+  padding-right: 16px;
+  position: relative;
+}
+
+.input-left-side::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(var(--ion-color-medium-rgb), 0.2);
+  transition: all 0.3s ease;
+}
+
+.animated-input-horizontal.is-focused .input-left-side::after {
+  background: rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
+/* Style de l'icône */
+.input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  color: var(--ion-color-medium);
+  transition: color 0.3s ease;
+  font-size: 20px;
+}
+
+.input-icon.is-focused {
+  color: var(--ion-color-primary);
+}
+
+/* Style du libellé */
+.input-label {
+  flex: 1;
+}
+
+.input-label-text {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.input-label-text.is-focused {
+  color: var(--ion-color-primary);
+}
+
+.input-label-text.has-value {
+  font-weight: 600;
+}
+
+.required-mark {
+  color: var(--ion-color-danger);
+  margin-left: 2px;
+}
+
+/* Côté droit avec l'entrée */
+.input-right-side {
+  flex: 1;
+  position: relative;
+  padding-left: 12px;
+}
+
+/* Style du champ de saisie */
+.custom-input {
+  --padding-start: 0;
+  --padding-end: 8px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --placeholder-color: var(--ion-color-medium);
+  --placeholder-opacity: 0.6;
+  font-size: 15px;
+}
+
+/* Ligne d'animation sous le champ */
+.focus-line {
+  position: absolute;
+  bottom: -2px;
+  left: 12px;
+  right: 0;
+  height: 2px;
+  background: var(--ion-color-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.animated-input-horizontal.is-focused .focus-line {
+  transform: scaleX(1);
+}
+
+/* Message d'erreur */
+.error-message {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  padding-left: 16px;
+  font-size: 12px;
+  color: var(--ion-color-danger);
+}
+
+.error-message ion-icon {
+  margin-right: 5px;
+  font-size: 16px;
+}
+
+.animated-input-container.has-error .animated-input-horizontal {
+  border: 1px solid rgba(var(--ion-color-danger-rgb), 0.3);
+}
+
+/* Animation en cas de rotation du téléphone */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .animated-input-horizontal {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+}
+
+/* Adaptation pour les petits écrans */
+@media (max-width: 360px) {
+  .input-left-side {
+    min-width: 90px;
+  }
+  
+  .input-label-text {
+    font-size: 13px;
+  }
+}
+
+/* Styles pour le mode sombre */
+@media (prefers-color-scheme: dark) {
+  .animated-input-horizontal {
+    background: rgba(45, 45, 45, 0.7);
+  }
+  
+  .animated-input-horizontal.is-focused {
+    background: rgba(55, 55, 55, 0.9);
+    box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.25);
+  }
+  
+  .animated-input-horizontal.has-value {
+    background: rgba(50, 50, 50, 0.85);
+  }
+  
+  .input-left-side::after {
+    background: rgba(var(--ion-color-medium-rgb), 0.15);
+  }
+} 

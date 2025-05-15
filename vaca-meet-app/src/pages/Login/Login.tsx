@@ -1,48 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   IonContent, 
   IonHeader, 
   IonPage, 
-  IonTitle, 
-  IonToolbar, 
-  IonItem, 
-  IonLabel, 
-  IonInput, 
-  IonButton, 
+  IonAlert,
+  IonLoading,
+  IonImg,
+  IonText,
+  IonCol,
   IonGrid,
   IonRow,
-  IonCol,
-  IonLoading,
-  IonAlert,
-  IonCard,
-  IonCardContent,
-  IonText,
-  useIonRouter
+  IonIcon,
+  isPlatform
 } from '@ionic/react';
+import { personCircleOutline, mailOutline, lockClosedOutline, arrowForwardOutline, personOutline } from 'ionicons/icons';
+import { useIonRouter } from '@ionic/react';
 import { AuthService } from '../../services/auth.service';
+import AnimatedInput from '../../components/AnimatedInput';
+import AnimatedButton from '../../components/AnimatedButton';
+import GlassCard from '../../components/GlassCard';
+import BackgroundEffects from '../../components/BackgroundEffects';
 import './Login.css';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showLoading, setShowLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isRegister, setIsRegister] = useState(false);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [animation, setAnimation] = useState<string>('');
+  // Vérifier si nous sommes en mode développement ou production
+  const isProduction = process.env.NODE_ENV === 'production';
   
   const router = useIonRouter();
   const authService = new AuthService();
+  
+  useEffect(() => {
+    // Animation de démarrage
+    setAnimation('animate-slide-up');
+  }, []);
+  
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+    
+    if (!username.trim()) {
+      newErrors.username = 'Veuillez entrer votre email';
+    } else if (!/\S+@\S+\.\S+/.test(username) && isRegister) {
+      newErrors.username = 'Veuillez entrer un email valide';
+    }
+    
+    if (!password.trim()) {
+      newErrors.password = 'Veuillez entrer votre mot de passe';
+    } else if (password.length < 6 && isRegister) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleAuth = async () => {
-    if (!username.trim() || !password.trim()) {
-      setAlertMessage('Veuillez remplir tous les champs obligatoires.');
-      setShowAlert(true);
-      return;
-    }
-
+    if (!validateForm()) return;
+    
     setShowLoading(true);
     setErrorDetails(null);
 
@@ -54,38 +78,33 @@ const Login: React.FC = () => {
           firstName: firstName.trim() || undefined,
           lastName: lastName.trim() || undefined
         };
-        console.log("Envoi des données d'inscription:", userData);
+        
         const response = await authService.register(userData);
         setAlertMessage(response.message || 'Inscription réussie ! Veuillez vous connecter.');
         setShowAlert(true);
         
         // Passer en mode connexion après inscription réussie
         setIsRegister(false);
-        // Ne pas rediriger vers la page d'accueil, attendre que l'utilisateur se connecte
       } else {
-        console.log("Envoi des identifiants de connexion:", { username, password });
         await authService.login({ username, password });
         setAlertMessage('Connexion réussie !');
+        setShowAlert(true);
         
         // Rediriger vers la page d'accueil après connexion
-        setShowAlert(true);
         setTimeout(() => {
           router.push('/home', 'forward', 'replace');
-        }, 1000);
+        }, 800);
       }
     } catch (error: any) {
       console.error('Erreur d\'authentification complète:', error);
       
-      // Récupérer le message d'erreur de l'API si disponible
       let errorMessage = isRegister 
         ? 'Erreur lors de l\'inscription. Veuillez réessayer.' 
         : 'Identifiants incorrects. Veuillez réessayer.';
       
-      // Création d'un message d'erreur détaillé pour le débogage
       let detailedError = '';
       
       if (error.response) {
-        // La requête a été faite et le serveur a répondu avec un code d'état hors de la plage 2xx
         detailedError = `Erreur serveur: ${error.response.status} ${error.response.statusText}\n`;
         
         if (error.response.data) {
@@ -101,14 +120,11 @@ const Login: React.FC = () => {
           detailedError += `Données: ${JSON.stringify(error.response.data)}`;
         }
       } else if (error.request) {
-        // La requête a été faite mais aucune réponse n'a été reçue
         errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
         detailedError = 'La requête a été envoyée mais aucune réponse n\'a été reçue du serveur.\n';
-        detailedError += 'Cela peut être dû à une connexion internet instable ou à un problème de configuration du serveur.';
       } else {
-        // Une erreur s'est produite lors de la configuration de la requête
-        errorMessage = `Erreur lors de la configuration de la requête: ${error.message}`;
-        detailedError = `Erreur lors de la configuration: ${error.message}`;
+        errorMessage = `Erreur de configuration: ${error.message}`;
+        detailedError = `Erreur: ${error.message}`;
       }
       
       setAlertMessage(errorMessage);
@@ -120,99 +136,146 @@ const Login: React.FC = () => {
   };
 
   const toggleAuthMode = () => {
-    setIsRegister(!isRegister);
-    setErrorDetails(null);
+    // Animation lors du changement de mode
+    setAnimation('');
+    setTimeout(() => {
+      setIsRegister(!isRegister);
+      setErrors({});
+      setErrorDetails(null);
+      setAnimation('animate-slide-up');
+    }, 10);
   };
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>{isRegister ? 'Inscription' : 'Connexion'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonGrid>
-          <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeMd="8" sizeLg="6">
-              <div className="login-container">
-                <h2 className="ion-text-center">{isRegister ? 'Créer un compte' : 'Se connecter'}</h2>
-                
-                <IonItem>
-                  <IonLabel position="floating">Adresse email</IonLabel>
-                  <IonInput 
-                    value={username} 
-                    onIonChange={e => setUsername(e.detail.value!)} 
-                    required
-                  />
-                </IonItem>
-
-                <IonItem>
-                  <IonLabel position="floating">Mot de passe</IonLabel>
-                  <IonInput 
-                    type="password" 
-                    value={password} 
-                    onIonChange={e => setPassword(e.detail.value!)} 
-                    required
-                  />
-                </IonItem>
-
-                {isRegister && (
-                  <>
-                    <IonItem>
-                      <IonLabel position="floating">Prénom (optionnel)</IonLabel>
-                      <IonInput 
-                        value={firstName} 
-                        onIonChange={e => setFirstName(e.detail.value!)}
-                      />
-                    </IonItem>
-
-                    <IonItem>
-                      <IonLabel position="floating">Nom (optionnel)</IonLabel>
-                      <IonInput 
-                        value={lastName} 
-                        onIonChange={e => setLastName(e.detail.value!)}
-                      />
-                    </IonItem>
-                  </>
-                )}
-
-                <IonButton 
-                  expand="block" 
-                  className="ion-margin-top" 
-                  onClick={handleAuth}
-                >
-                  {isRegister ? 'S\'inscrire' : 'Se connecter'}
-                </IonButton>
-
-                <div className="ion-text-center ion-margin-top">
-                  <IonButton fill="clear" onClick={toggleAuthMode}>
-                    {isRegister ? 'Déjà un compte ? Se connecter' : 'Pas de compte ? S\'inscrire'}
-                  </IonButton>
-                </div>
-                
-                {errorDetails && (
-                  <>
-                    <IonCard className="error-debug-card">
-                      <IonCardContent>
-                        <h3>Détails de l'erreur :</h3>
-                        <IonText color="danger" className="error-details">
-                          <pre>{errorDetails}</pre>
-                        </IonText>
-                      </IonCardContent>
-                    </IonCard>
-                  </>
-                )}
+      <BackgroundEffects variant="gradient" density="medium" />
+      
+      <IonContent fullscreen className="ion-padding auth-content">
+        <IonGrid className="full-height">
+          <IonRow className="full-height ion-justify-content-center ion-align-items-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="5">
+              <div className={`logo-container ${animation}`}>
+                <IonIcon 
+                  icon={personCircleOutline} 
+                  className="auth-logo"
+                />
+                <h1 className="app-title">Vaca Meet</h1>
               </div>
+              
+              <GlassCard 
+                color="tertiary"
+                className={`auth-card ${animation}`}
+                animated={false}
+              >
+                <h2 className="auth-title">
+                  {isRegister ? 'Créer un compte' : 'Connexion'}
+                </h2>
+                
+                <p className="auth-subtitle">
+                  {isRegister 
+                    ? 'Inscrivez-vous pour rejoindre la communauté' 
+                    : 'Connectez-vous à votre compte'
+                  }
+                </p>
+                
+                <div className="auth-form">
+                  <AnimatedInput
+                    label="Email"
+                    name="username"
+                    type="email"
+                    value={username}
+                    onChange={e => setUsername(e.detail.value!)}
+                    icon={mailOutline}
+                    required
+                    errorMessage={errors.username}
+                    autoComplete="email"
+                  />
+                  
+                  <AnimatedInput
+                    label="Mot de passe"
+                    name="password"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.detail.value!)}
+                    icon={lockClosedOutline}
+                    required
+                    errorMessage={errors.password}
+                    autoComplete={isRegister ? 'new-password' : 'current-password'}
+                  />
+                  
+                  {isRegister && (
+                    <>
+                      <AnimatedInput
+                        label="Prénom"
+                        name="firstName"
+                        type="text"
+                        value={firstName}
+                        onChange={e => setFirstName(e.detail.value!)}
+                        icon={personOutline}
+                        errorMessage={errors.firstName}
+                      />
+                      
+                      <AnimatedInput
+                        label="Nom"
+                        name="lastName"
+                        type="text"
+                        value={lastName}
+                        onChange={e => setLastName(e.detail.value!)}
+                        icon={personOutline}
+                        errorMessage={errors.lastName}
+                      />
+                    </>
+                  )}
+                  
+                  <div className="form-actions">
+                    <AnimatedButton
+                      expand="block"
+                      size="large"
+                      onClick={handleAuth}
+                      icon={arrowForwardOutline}
+                      iconPosition="end"
+                      className="auth-button"
+                      loading={showLoading}
+                      pulse={!showLoading}
+                    >
+                      {isRegister ? 'Créer un compte' : 'Se connecter'}
+                    </AnimatedButton>
+                    
+                    <div className="auth-toggle">
+                      <IonText color="medium">
+                        {isRegister 
+                          ? 'Déjà un compte ?' 
+                          : 'Pas encore de compte ?'
+                        }
+                      </IonText>
+                      
+                      <button 
+                        className="toggle-button"
+                        onClick={toggleAuthMode}
+                      >
+                        {isRegister ? 'Se connecter' : 'S\'inscrire'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {errorDetails && !isProduction && (
+                    <div className="error-details animate-fade-in">
+                      <h3>Détails de l'erreur:</h3>
+                      <pre>{errorDetails}</pre>
+                    </div>
+                  )}
+                </div>
+              </GlassCard>
             </IonCol>
           </IonRow>
         </IonGrid>
-
+        
         <IonLoading
           isOpen={showLoading}
           message={'Veuillez patienter...'}
+          spinner="crescent"
         />
-
+        
         <IonAlert
           isOpen={showAlert}
           onDidDismiss={() => setShowAlert(false)}

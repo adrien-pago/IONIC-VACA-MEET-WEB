@@ -1,253 +1,450 @@
-# Procédure de Déploiement sur Émulateurs Mobile
+# Procédures Vaca Meet
 
-Ce document détaille les étapes nécessaires pour lancer l'application Vaca Meet sur des émulateurs Android et iOS.
+Ce dossier contient toutes les procédures et documentations nécessaires pour le développement, le déploiement et la maintenance de l'application Vaca Meet.
 
-## Partie 1: Déploiement sur Émulateur Android
+## 📋 Sommaire
 
-### Prérequis
+1. [Installation et Configuration](#installation-et-configuration)
+2. [Procédures de Développement](#procédures-de-développement)
+3. [Procédures de Déploiement](#procédures-de-déploiement)
+4. [Maintenance](#maintenance)
+5. [Résolution de Problèmes](#résolution-de-problèmes)
 
-- Android Studio installé
-- Node.js et npm installés
-- Ionic CLI installé (`npm install -g @ionic/cli`)
-- JDK 11 ou supérieur installé
-- Variables d'environnement correctement configurées (JAVA_HOME, ANDROID_HOME)
+## 📥 Installation et Configuration
 
-### Préparation de l'environnement Android
+### Configuration de l'Environnement de Développement
 
-1. **Ouvrir Android Studio**
+#### Prérequis Frontend
 
-2. **Préparation de l'application Ionic pour Android** :
-   ```bash
-   # Se positionner dans le dossier de l'application frontend
-   cd vaca-meet-app
+- Node.js (v14+)
+- npm (v6+) ou yarn (v1.22+)
+- Ionic CLI (`npm install -g @ionic/cli`)
+- Android Studio (pour le développement Android)
+- Xcode (pour le développement iOS, Mac uniquement)
 
-   # Ajouter la plateforme Android au projet Ionic
-   ionic capacitor add android
+```bash
+# Installation des outils globaux
+npm install -g @ionic/cli native-run cordova-res
 
-   # Compiler l'application pour Android
-   ionic capacitor build android
-   ```
-   Cette dernière commande construit l'application et synchronise les fichiers avec le projet Android.
-
-### Résolution de l'erreur de compatibilité Android Gradle Plugin
-
-Si vous rencontrez cette erreur dans Android Studio :
-```
-The project is using an incompatible version (AGP 8.7.2) of the Android Gradle plugin. Latest supported version is AGP 8.6.0
+# Vérification de l'installation
+ionic --version
 ```
 
-Suivez ces étapes pour résoudre le problème :
+#### Prérequis Backend
 
-1. **Ouvrir le fichier `android/build.gradle`** dans votre projet
+- PHP 8.1+
+- Composer
+- MySQL ou MariaDB
+- Symfony CLI
+- OpenSSL (pour la génération des clés JWT)
 
-2. **Localiser la ligne qui définit la version du plugin Gradle** :
-   ```gradle
-   classpath 'com.android.tools.build:gradle:8.7.2'  // Remplacer par la version compatible
-   ```
+```bash
+# Installation de Symfony CLI (Linux/macOS)
+curl -sS https://get.symfony.com/cli/installer | bash
 
-3. **Modifier la version pour utiliser celle compatible avec votre Android Studio** :
-   ```gradle
-   classpath 'com.android.tools.build:gradle:8.6.0'  // Version compatible avec votre Android Studio
-   ```
+# Vérification de l'installation
+symfony check:requirements
+```
 
-4. **Synchroniser le projet** :
-   - Cliquer sur "Sync Now" dans la notification qui apparaît, ou
-   - Dans le menu, sélectionner "File > Sync Project with Gradle Files"
+### Installation du Projet
 
-5. **Alternative** : Si vous préférez mettre à jour Android Studio plutôt que de rétrograder la version du plugin, vous pouvez télécharger la dernière version d'Android Studio depuis le site officiel.
+#### Frontend (Ionic React)
 
-### Configuration de l'émulateur Android
+```bash
+# Cloner le dépôt
+git clone https://github.com/votre-repo/IONIC-VACA-MEET-WEB.git
+cd IONIC-VACA-MEET-WEB/vaca-meet-app
 
-1. **Dans Android Studio, configurer un émulateur** :
-   - Ouvrir le projet Android généré (le dossier `android` dans le projet Ionic)
-   - Cliquer sur "AVD Manager" (Android Virtual Device Manager) dans la barre d'outils ou via le menu "Tools > AVD Manager"
-   - Cliquer sur "Create Virtual Device"
-   - Choisir un téléphone (par exemple "Pixel 5")
-   - Choisir une image système Android (de préférence API 30 ou plus récent)
-   - Personnaliser les autres options si nécessaire, puis cliquer sur "Finish"
+# Installer les dépendances
+npm install
 
-### Exécution de l'application sur l'émulateur Android
+# Configurer l'environnement
+cp .env.example .env.local
+# Éditer .env.local pour définir l'URL de l'API
 
-1. **Lancer l'émulateur** :
-   - Dans l'AVD Manager, cliquer sur le bouton "Play" à côté de l'émulateur créé
-   - Attendre que l'émulateur démarre complètement
+# Démarrer l'application en mode développement
+ionic serve
+```
 
-2. **Déployer l'application sur l'émulateur** :
+#### Backend (Symfony)
 
-   **Option 1 - Via Android Studio** :
-   - Une fois l'émulateur ouvert, cliquer sur le bouton "Run" (triangle vert) dans Android Studio
-   - Sélectionner l'émulateur en cours d'exécution
-   - L'application sera compilée et installée sur l'émulateur
+```bash
+# Accéder au dossier backend
+cd ../vaca-meet-api
 
-   **Option 2 - Via la ligne de commande** :
-   ```bash
-   ionic capacitor run android
-   ```
-   Cette commande construira l'application, la synchronisera avec le projet Android et l'exécutera sur l'émulateur actif.
+# Installer les dépendances
+composer install
 
-### Configuration de l'API pour l'émulateur Android
+# Configurer l'environnement
+cp .env .env.local
+# Éditer .env.local pour configurer la base de données et les clés JWT
 
-Pour que l'application puisse communiquer avec l'API backend, il faut adapter l'URL de l'API :
+# Créer la base de données
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
 
-1. **Éditer le fichier `src/services/authService.ts`** :
-   ```typescript
-   // Pour un émulateur Android, remplacer localhost par 10.0.2.2
-   const API_URL = 'http://10.0.2.2:8000/api';
-   ```
+# Générer les clés JWT
+mkdir -p config/jwt
+openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+# Choisir une passphrase et la noter
+openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 
-   Note : 10.0.2.2 est l'adresse spéciale qui permet à l'émulateur Android d'accéder à localhost de la machine hôte.
+# Configurer la passphrase dans .env.local
+# JWT_PASSPHRASE=votre_passphrase
 
-2. **Reconstruire et redéployer l'application** :
-   ```bash
-   ionic capacitor copy android
-   ionic capacitor run android
-   ```
+# Démarrer le serveur de développement
+symfony server:start
+```
 
-## Partie 2: Déploiement sur Émulateur iOS
+## 💻 Procédures de Développement
 
-### Prérequis (macOS uniquement)
+### Workflow de Développement Frontend
 
-- Un Mac avec macOS (obligatoire pour le développement iOS)
-- Xcode installé (disponible sur l'App Store)
-- Xcode Command Line Tools installés (`xcode-select --install`)
-- CocoaPods installé (`sudo gem install cocoapods`)
-- Node.js et npm installés
-- Ionic CLI installé (`npm install -g @ionic/cli`)
+1. **Création de Composants React**
 
-### Préparation de l'environnement iOS
+```bash
+# Créer un nouveau composant
+touch src/components/MyComponent.tsx
+touch src/components/MyComponent.css
+```
 
-1. **Ouvrir Terminal**
+Structure recommandée pour les composants:
 
-2. **Préparation de l'application Ionic pour iOS** :
-   ```bash
-   # Se positionner dans le dossier de l'application frontend
-   cd vaca-meet-app
+```typescript
+import React from 'react';
+import './MyComponent.css';
 
-   # Ajouter la plateforme iOS au projet Ionic
-   ionic capacitor add ios
+interface MyComponentProps {
+  // Props du composant
+}
 
-   # Compiler l'application pour iOS
-   ionic capacitor build ios
-   ```
-   Cette dernière commande construit l'application et ouvre automatiquement le projet dans Xcode.
-
-### Configuration dans Xcode
-
-1. **Dans Xcode** :
-   - S'assurer que le projet est correctement configuré (identifiant de bundle, équipe de développement)
-   - Cliquer sur le projet dans le navigateur de projet
-   - Sous l'onglet "Signing & Capabilities", sélectionner votre équipe de développement
-   - Si vous n'avez pas de compte développeur Apple, vous pouvez utiliser votre Apple ID personnel pour le développement local
-
-2. **Configurer un simulateur iOS** :
-   - Dans le menu supérieur, cliquer sur le menu déroulant à côté du bouton de lecture
-   - Sélectionner "Simulator" puis choisir un appareil iOS (iPhone ou iPad)
-   - Si aucun simulateur n'est disponible, cliquer sur "Add Additional Simulators..." et créer un nouveau simulateur
-
-### Exécution de l'application sur le simulateur iOS
-
-1. **Lancer l'application sur le simulateur** :
-   - Cliquer sur le bouton de lecture (triangle) en haut à gauche dans Xcode
-   - Attendre que l'application soit compilée et installée sur le simulateur
-
-   **Alternative via ligne de commande** :
-   ```bash
-   ionic capacitor run ios
-   ```
-   Cette commande construira l'application, la synchronisera avec le projet iOS et ouvrira Xcode.
-
-### Configuration de l'API pour le simulateur iOS
-
-Pour que l'application puisse communiquer avec l'API backend, il faut adapter l'URL de l'API :
-
-1. **Éditer le fichier `src/services/authService.ts`** :
-   ```typescript
-   // Pour un simulateur iOS, localhost fonctionne directement
-   const API_URL = 'http://localhost:8000/api';
-   ```
-
-   Note : Contrairement à Android, le simulateur iOS peut accéder directement à localhost de la machine hôte.
-
-2. **Reconstruire et redéployer l'application** :
-   ```bash
-   ionic capacitor copy ios
-   ionic capacitor run ios
-   ```
-
-### Résolution des problèmes courants pour iOS
-
-- **Erreurs de certificat** :
-  - S'assurer que votre Apple ID est correctement configuré dans Xcode
-  - Aller dans Xcode > Preferences > Accounts et vérifier que votre Apple ID est ajouté
-
-- **Problèmes avec CocoaPods** :
-  ```bash
-  cd ios/App
-  pod install
-  ```
-
-- **Erreurs de compilation** :
-  - Vérifier que Xcode est à jour
-  - Nettoyer le projet (Product > Clean Build Folder)
-  - Redémarrer Xcode
-
-## Résolution des problèmes courants (général)
-
-- **L'application ne se lance pas** : 
-  - Vérifier les erreurs dans la console de l'IDE ou dans le terminal
-  - S'assurer que toutes les dépendances sont installées
-
-- **Problèmes de connexion à l'API** : 
-  - Vérifier que l'URL de l'API est correctement configurée pour l'émulateur
-  - S'assurer que le serveur backend est en cours d'exécution
-  - Vérifier que le pare-feu ne bloque pas les connexions
-
-- **L'application se bloque** : 
-  - Vérifier les logs dans les outils de débogage
-  - Analyser les erreurs JavaScript dans la console
-
-## Mise à jour de l'application
-
-Pour mettre à jour l'application lors du développement :
-
-1. Apporter les modifications au code source
-2. Exécuter les commandes suivantes :
-
-   **Pour Android** :
-   ```bash
-   ionic capacitor copy android
-   ionic capacitor run android
-   ```
-
-   **Pour iOS** :
-   ```bash
-   ionic capacitor copy ios
-   ionic capacitor run ios
-   ```
-
-## Conseils pour le développement
-
-- **Pour Android** : Utiliser Chrome DevTools pour déboguer l'application
-  - Ouvrir Chrome et aller à `chrome://inspect`
-  - Sélectionner l'application sous "Remote Target"
-
-- **Pour iOS** : Utiliser Safari Developer Tools pour déboguer l'application
-  - Activer le menu Développement dans Safari (Préférences > Avancées > Afficher le menu Développement)
-  - Lancer l'application sur le simulateur
-  - Dans Safari, aller à Développement > Simulator > [Votre App]
-
-- **Live Reload** pour le développement plus rapide :
-  ```bash
-  # Pour Android
-  ionic capacitor run android -l --external
+const MyComponent: React.FC<MyComponentProps> = (props) => {
+  // Logique du composant
   
-  # Pour iOS
-  ionic capacitor run ios -l --external
-  ```
-  Cette option permettra de recharger automatiquement l'application lorsque des modifications sont apportées au code.
+  return (
+    <div className="my-component">
+      {/* Contenu du composant */}
+    </div>
+  );
+};
 
-## Notes importantes
+export default MyComponent;
+```
 
-- Assurez-vous que le backend Symfony est en cours d'exécution avant de lancer l'application
-- Le développement iOS nécessite un Mac; il n'est pas possible de développer pour iOS sur Windows ou Linux
-- Pour déployer sur des appareils physiques, des configurations supplémentaires sont nécessaires 
+2. **Création de Pages**
+
+```bash
+# Créer une nouvelle page
+mkdir -p src/pages/NewPage
+touch src/pages/NewPage/NewPage.tsx
+touch src/pages/NewPage/NewPage.css
+```
+
+3. **Intégration des Routes**
+
+Éditer `src/App.tsx` pour ajouter la nouvelle page:
+
+```typescript
+import NewPage from './pages/NewPage/NewPage';
+
+// Dans les routes
+<Route path="/new-page" component={NewPage} exact />
+```
+
+### Workflow de Développement Backend
+
+1. **Création d'Entités**
+
+```bash
+# Générer une nouvelle entité
+php bin/console make:entity
+
+# Générer une migration
+php bin/console make:migration
+
+# Appliquer la migration
+php bin/console doctrine:migrations:migrate
+```
+
+2. **Création de Contrôleurs**
+
+```bash
+# Générer un nouveau contrôleur
+php bin/console make:controller ApiController
+```
+
+Structure recommandée pour les contrôleurs API:
+
+```php
+<?php
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ApiController extends AbstractController
+{
+    /**
+     * @Route("/api/endpoint", name="api_endpoint", methods={"GET"})
+     */
+    public function endpoint(Request $request): JsonResponse
+    {
+        // Logique du contrôleur
+        
+        return $this->json([
+            'message' => 'Success',
+            'data' => $data,
+        ]);
+    }
+}
+```
+
+3. **Tests API**
+
+Utiliser Postman ou curl pour tester l'API:
+
+```bash
+# Exemple de requête d'authentification
+curl -X POST -H "Content-Type: application/json" -d '{"username":"user@example.com","password":"password123"}' http://localhost:8000/api/login
+```
+
+## 🚀 Procédures de Déploiement
+
+### Déploiement Frontend
+
+#### Build pour le Web
+
+```bash
+# Générer le build de production
+cd vaca-meet-app
+npm run build
+
+# Le résultat se trouve dans le dossier dist/
+```
+
+#### Build pour Android
+
+```bash
+# Générer le build de production
+ionic build --prod
+
+# Ajouter la plateforme Android (première fois uniquement)
+npx cap add android
+
+# Copier les fichiers build vers Android
+npx cap copy android
+
+# Mettre à jour les plugins natifs
+npx cap update android
+
+# Ouvrir Android Studio
+npx cap open android
+
+# Dans Android Studio:
+# - Build > Build Bundle(s) / APK(s) > Build APK(s)
+# - L'APK se trouve dans app/build/outputs/apk/debug/
+```
+
+### Déploiement Backend sur VPS
+
+#### Prérequis sur le Serveur
+
+- Nginx ou Apache
+- PHP 8.1+
+- MySQL ou MariaDB
+- Composer
+- Certificat SSL (Let's Encrypt recommandé)
+
+#### Procédure de Déploiement
+
+1. **Préparation du Serveur**
+
+```bash
+# Connexion SSH
+ssh user@your-server
+
+# Installation des dépendances
+sudo apt update
+sudo apt install nginx php8.1-fpm php8.1-cli php8.1-mysql php8.1-xml php8.1-mbstring php8.1-curl php8.1-zip mysql-server
+
+# Configuration de Nginx
+sudo nano /etc/nginx/sites-available/vaca-meet-api
+```
+
+Contenu du fichier de configuration Nginx:
+
+```nginx
+server {
+    listen 80;
+    server_name api.vaca-meet.fr;
+    root /var/www/vaca-meet-api/public;
+
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        internal;
+    }
+
+    location ~ \.php$ {
+        return 404;
+    }
+
+    error_log /var/log/nginx/vaca-meet-api_error.log;
+    access_log /var/log/nginx/vaca-meet-api_access.log;
+}
+```
+
+```bash
+# Activer la configuration
+sudo ln -s /etc/nginx/sites-available/vaca-meet-api /etc/nginx/sites-enabled/
+sudo systemctl reload nginx
+
+# Configurer HTTPS avec Certbot
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d api.vaca-meet.fr
+```
+
+2. **Déploiement du Code**
+
+```bash
+# Créer le dossier du projet
+sudo mkdir -p /var/www/vaca-meet-api
+sudo chown -R $USER:$USER /var/www/vaca-meet-api
+
+# Cloner le dépôt
+git clone https://github.com/votre-repo/IONIC-VACA-MEET-WEB.git /tmp/vaca-meet
+cp -r /tmp/vaca-meet/vaca-meet-api/* /var/www/vaca-meet-api/
+cd /var/www/vaca-meet-api
+
+# Installer les dépendances
+composer install --no-dev --optimize-autoloader
+
+# Configurer l'environnement
+cp .env .env.local
+nano .env.local  # Configurer les variables d'environnement
+
+# Configurer la base de données
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+
+# Générer les clés JWT
+mkdir -p config/jwt
+openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
+
+# Configurer les permissions
+sudo setfacl -R -m u:www-data:rwX -m u:$(whoami):rwX var
+sudo setfacl -dR -m u:www-data:rwX -m u:$(whoami):rwX var
+sudo chmod -R 777 config/jwt/
+```
+
+3. **Mise en Production**
+
+```bash
+# Vider le cache
+APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
+
+# Vérifier la configuration
+php bin/console doctrine:schema:validate
+```
+
+## 🔧 Maintenance
+
+### Mises à Jour Frontend
+
+```bash
+# Mise à jour des dépendances
+cd vaca-meet-app
+npm update
+
+# Vérification des vulnérabilités
+npm audit fix
+
+# Régénération des builds
+npm run build
+```
+
+### Mises à Jour Backend
+
+```bash
+# Mise à jour des dépendances
+cd vaca-meet-api
+composer update
+
+# Exécution des migrations
+php bin/console doctrine:migrations:migrate
+
+# Vider le cache
+php bin/console cache:clear
+```
+
+### Sauvegardes Base de Données
+
+```bash
+# Sauvegarde de la base de données
+mysqldump -u user -p vaca_meet_db > backup_$(date +%Y%m%d).sql
+
+# Restauration de la base de données
+mysql -u user -p vaca_meet_db < backup_file.sql
+```
+
+## 🔍 Résolution de Problèmes
+
+### Problèmes Courants Frontend
+
+1. **Erreurs CORS**
+   
+   Vérifier que le backend a les bons en-têtes CORS configurés:
+   
+   ```php
+   // Dans le fichier cors-handler.php
+   if ($request->getMethod() === 'OPTIONS') {
+       header('Access-Control-Allow-Origin: *');
+       header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+       header('Access-Control-Allow-Headers: Content-Type, Authorization');
+       exit(0);
+   }
+   ```
+
+2. **Problèmes d'Authentification JWT**
+   
+   - Vérifier que le token est correctement stocké
+   - Vérifier que le token est envoyé dans l'en-tête Authorization
+   - Vérifier la validité du token (expiration)
+
+### Problèmes Courants Backend
+
+1. **Erreurs de Permission JWT**
+   
+   Vérifier les permissions des fichiers JWT:
+   
+   ```bash
+   sudo chmod -R 777 config/jwt/
+   ```
+
+2. **Erreurs de Base de Données**
+   
+   Vérifier la connexion à la base de données:
+   
+   ```bash
+   php bin/console doctrine:schema:validate
+   ```
+
+### Logs et Monitoring
+
+- **Logs Frontend**: Disponibles dans la console du navigateur
+- **Logs Backend**: `/var/log/nginx/vaca-meet-api_error.log` et `var/log/dev.log` ou `var/log/prod.log`
+
+## 📞 Support
+
+Pour toute question ou problème, contacter l'équipe de développement à l'adresse: support@vaca-meet.fr

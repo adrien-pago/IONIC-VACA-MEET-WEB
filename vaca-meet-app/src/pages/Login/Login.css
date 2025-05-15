@@ -1,173 +1,214 @@
-/* Styles spécifiques à la page Login */
-.login-container {
+/* Styles modernes pour la page d'authentification */
+.auth-content {
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --background: transparent;
+}
+
+.full-height {
+  height: 100%;
+}
+
+/* Container du logo */
+.logo-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
+  align-items: center;
+  margin-bottom: 30px;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.login-container h2 {
-  margin-bottom: 24px;
+.auth-logo {
   color: var(--ion-color-primary);
+  font-size: 80px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 10px rgba(var(--ion-color-primary-rgb), 0.3));
 }
 
-.login-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  color: var(--ion-color-primary);
+.app-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
-.login-title {
-  color: var(--primary-color);
-  font-size: var(--font-size-xxlarge);
-  margin-bottom: var(--spacing-lg);
-  text-align: center;
+/* Carte d'authentification */
+.auth-card {
+  padding: 0 !important;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-delay: 0.2s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
 }
 
-.login-form {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.form-heading {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.form-heading h1 {
-  font-size: 2rem;
+.auth-title {
+  font-size: 28px;
   font-weight: 700;
   color: var(--ion-color-primary);
-  margin-bottom: 0.5rem;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 
-.form-heading p {
-  color: var(--ion-color-medium);
-  font-size: 1rem;
-}
-
-.form-input {
-  margin-bottom: 1rem;
-  --background: rgba(var(--ion-color-light-rgb), 0.7);
-  --border-radius: 8px;
-}
-
-.login-button {
-  margin-top: 2rem;
-  --border-radius: 8px;
-  font-weight: 600;
-  height: 48px;
-}
-
-.register-link {
-  margin-left: 5px;
-  font-weight: 500;
-}
-
-.error-message {
-  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
-  border-radius: 8px;
-  padding: 10px 15px;
-  margin-bottom: 1rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .form-input {
-    --background: rgba(var(--ion-color-dark-rgb), 0.6);
-  }
-}
-
-.login-form-container {
-  background-color: var(--light-color);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--box-shadow);
-  margin-top: var(--spacing-xl);
-}
-
-/* Animation pour le bouton de connexion */
-ion-button[type="submit"] {
-  --background: var(--ion-color-primary);
-  --background-hover: var(--ion-color-primary-shade);
-  --box-shadow: 0 4px 6px rgba(var(--ion-color-primary-rgb), 0.3);
-  transition: transform 0.2s ease;
-}
-
-ion-button[type="submit"]:active {
-  transform: scale(0.98);
-}
-
-/* Style pour les appareils mobiles en mode portrait */
-@media (max-width: 576px), (max-height: 576px) {
-  .login-container {
-    padding: 0 15px;
-  }
-  
-  .login-icon {
-    font-size: 48px;
-  }
-}
-
-/* Style pour les dispositifs plus petits */
-@media (max-height: 400px) {
-  .login-icon {
-    display: none;
-  }
-}
-
-ion-item {
-  margin-bottom: 15px;
-  --border-radius: 8px;
-}
-
-.forgot-password {
-  text-align: right;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-ion-button[expand="block"] {
-  margin-top: 30px;
-  --border-radius: 8px;
-  height: 48px;
-  font-weight: 600;
+.auth-subtitle {
   font-size: 16px;
+  color: var(--ion-color-medium);
+  margin-bottom: 32px;
+  font-weight: 400;
 }
 
+/* Formulaire */
+.auth-form {
+  margin-top: 20px;
+}
+
+.form-actions {
+  margin-top: 32px;
+}
+
+.auth-button {
+  margin-bottom: 20px;
+  height: 54px;
+}
+
+/* Bouton de basculement entre connexion/inscription */
 .auth-toggle {
-  margin-top: 20px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 0 8px;
+  font-size: 15px;
 }
 
-@media (min-width: 768px) {
-  .login-container {
-    margin-top: 60px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-  }
+.toggle-button {
+  background: none;
+  border: none;
+  color: var(--ion-color-primary);
+  font-weight: 600;
+  margin-left: 8px;
+  padding: 8px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  font-size: 15px;
 }
 
-/* Ajout des styles pour la carte de débogage des erreurs */
-.error-debug-card {
-  margin-top: 20px;
-  background-color: rgba(var(--ion-color-light-rgb), 0.8);
-  border-left: 4px solid var(--ion-color-danger);
+.toggle-button::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  width: calc(100% - 16px);
+  height: 2px;
+  background-color: var(--ion-color-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
 }
 
+.toggle-button:hover::after {
+  transform: scaleX(1);
+}
+
+/* Détails d'erreur */
 .error-details {
-  white-space: pre-wrap;
-  overflow-x: auto;
-  font-family: monospace;
+  margin-top: 24px;
+  padding: 16px;
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+  border-radius: var(--border-radius-md);
   font-size: 12px;
 }
 
+.error-details h3 {
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: var(--ion-color-danger);
+}
+
 .error-details pre {
+  white-space: pre-wrap;
   margin: 0;
-  padding: 8px;
-  background-color: rgba(var(--ion-color-medium-rgb), 0.1);
-  border-radius: 4px;
+  font-family: monospace;
+  overflow-x: auto;
+  color: var(--ion-color-danger-shade);
+}
+
+/* Animations */
+.animate-slide-up {
+  animation-name: slideUp;
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Adaptation pour les appareils */
+@media (max-width: 576px) {
+  .auth-logo {
+    font-size: 70px;
+  }
+  
+  .app-title {
+    font-size: 32px;
+  }
+  
+  .auth-card {
+    margin: 0 12px;
+  }
+}
+
+@media (max-height: 700px) {
+  .auth-logo {
+    font-size: 60px;
+  }
+  
+  .app-title {
+    font-size: 28px;
+  }
+  
+  .logo-container {
+    margin-bottom: 20px;
+  }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+  .auth-title {
+    color: var(--ion-color-primary-tint);
+  }
+  
+  .auth-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .error-details {
+    background-color: rgba(var(--ion-color-danger-rgb), 0.2);
+  }
+  
+  .error-details pre {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .toggle-button {
+    color: var(--ion-color-primary-tint);
+  }
 } 

@@ -1,0 +1,170 @@
+/* Styles pour la carte avec effet de verre */
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  background: transparent !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: none;
+  transition: all 0.3s ease;
+  margin: 16px 0;
+  border: none !important;
+}
+
+.glass-card-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.glass-card-content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card-content {
+  padding: 20px;
+}
+
+/* Variantes de couleurs */
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card-primary {
+  background: rgba(var(--ion-color-primary-rgb), 0.15) !important;
+  box-shadow: 0 4px 24px rgba(var(--ion-color-primary-rgb), 0.12);
+}
+
+.glass-card-secondary {
+  background: rgba(var(--ion-color-secondary-rgb), 0.15) !important;
+  box-shadow: 0 4px 24px rgba(var(--ion-color-secondary-rgb), 0.12);
+}
+
+.glass-card-tertiary {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ion-color-primary-rgb), 0.12) 0%,
+    rgba(var(--ion-color-secondary-rgb), 0.12) 100%
+  ) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card-dark {
+  background: rgba(40, 40, 40, 0.75) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.glass-card-medium {
+  background: rgba(var(--ion-color-medium-rgb), 0.2) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Carte interactive */
+.glass-card.interactive, .glass-card.clickable {
+  cursor: pointer;
+}
+
+.glass-card.interactive:hover, .glass-card.clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.glass-card.interactive.is-pressed, .glass-card.clickable.is-pressed {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay pour effet interactif */
+.glass-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.glass-card-highlight {
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 250%;
+  height: 250%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: rotate(30deg);
+}
+
+.glass-card.interactive:hover .glass-card-highlight {
+  opacity: 1;
+}
+
+/* Animation */
+.glass-card.animated {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Style pour le mode sombre */
+@media (prefers-color-scheme: dark) {
+  .glass-card-light {
+    background: rgba(45, 45, 45, 0.85) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  .glass-card-primary {
+    background: rgba(var(--ion-color-primary-rgb), 0.2) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+  
+  .glass-card-secondary {
+    background: rgba(var(--ion-color-secondary-rgb), 0.2) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+  
+  .glass-card-tertiary {
+    background: linear-gradient(
+      135deg,
+      rgba(var(--ion-color-primary-rgb), 0.18) 0%,
+      rgba(var(--ion-color-secondary-rgb), 0.18) 100%
+    ) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+  
+  .glass-card-dark {
+    background: rgba(25, 25, 25, 0.8) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  .glass-card-highlight {
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0) 70%
+    );
+  }
+} 

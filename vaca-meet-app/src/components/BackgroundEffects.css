@@ -1,0 +1,104 @@
+.background-effects {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particles-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+}
+
+.background-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(80px);
+  -webkit-backdrop-filter: blur(80px);
+  opacity: 0.2;
+}
+
+/* Variantes de couleurs */
+.background-purple .gradient-overlay {
+  background: radial-gradient(
+    circle at 10% 20%,
+    rgba(108, 99, 255, 0.25) 0%,
+    rgba(136, 87, 255, 0.05) 90%
+  );
+}
+
+.background-blue .gradient-overlay {
+  background: radial-gradient(
+    circle at 10% 20%,
+    rgba(66, 133, 244, 0.25) 0%,
+    rgba(66, 193, 244, 0.05) 90%
+  );
+}
+
+.background-gradient .gradient-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 99, 255, 0.25) 0%,
+    rgba(255, 101, 132, 0.15) 100%
+  );
+}
+
+/* Animation d'arrière-plan avec mode sombre */
+@media (prefers-color-scheme: dark) {
+  .background-effects::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(30, 30, 30, 0.8) 0%,
+      rgba(10, 10, 10, 0.95) 70%
+    );
+    z-index: -2;
+  }
+  
+  .background-purple .gradient-overlay {
+    background: radial-gradient(
+      circle at 10% 20%,
+      rgba(108, 99, 255, 0.2) 0%,
+      rgba(136, 87, 255, 0.03) 90%
+    );
+  }
+  
+  .background-blue .gradient-overlay {
+    background: radial-gradient(
+      circle at 10% 20%,
+      rgba(66, 133, 244, 0.2) 0%,
+      rgba(66, 193, 244, 0.03) 90%
+    );
+  }
+  
+  .background-gradient .gradient-overlay {
+    background: linear-gradient(
+      135deg,
+      rgba(108, 99, 255, 0.2) 0%,
+      rgba(255, 101, 132, 0.1) 100%
+    );
+  }
+} 

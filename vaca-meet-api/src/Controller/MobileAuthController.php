@@ -136,7 +136,7 @@ class MobileAuthController extends AbstractController
         }
     }
 
-    #[Route('/api/user', name: 'api_user_profile', methods: ['GET'])]
+    #[Route('/api/mobile/user', name: 'api_user_profile', methods: ['GET'])]
     public function userProfile(): JsonResponse
     {
         $user = $this->getUser();
@@ -149,5 +149,80 @@ class MobileAuthController extends AbstractController
             'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
             'message' => 'Profil récupéré avec succès'
         ]);
+    }
+
+    #[Route('/api/mobile/destinations', name: 'api_destinations_list', methods: ['GET'])]
+    public function getDestinations(): JsonResponse
+    {
+        try {
+            $users = $this->userRepository->findAll();
+            
+            $destinations = [];
+            foreach ($users as $user) {
+                $destinations[] = [
+                    'id' => $user->getId(),
+                    'username' => $user->getUsername()
+                ];
+            }
+            
+            return $this->json([
+                'destinations' => $destinations,
+                'message' => 'Liste des destinations récupérée avec succès'
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors de la récupération des destinations: ' . $e->getMessage());
+            return $this->json([
+                'message' => 'Erreur lors de la récupération des destinations'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/api/mobile/verify-password', name: 'api_verify_vacation_password', methods: ['POST'])]
+    public function verifyVacationPassword(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        if (!isset($data['userId']) || !isset($data['vacationPassword'])) {
+            return $this->json([
+                'message' => 'Données invalides ou incomplètes',
+                'success' => false
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        
+        $userId = $data['userId'];
+        $password = $data['vacationPassword'];
+        
+        // Dans un cas réel, vous vérifieriez avec une table ou un champ mdp_vacancier
+        // Pour cet exemple, nous utilisons une simulation
+        $success = $this->simulateVacationPasswordCheck($userId, $password);
+        
+        if ($success) {
+            return $this->json([
+                'message' => 'Mot de passe vacancier valide',
+                'success' => true
+            ]);
+        } else {
+            return $this->json([
+                'message' => 'Mot de passe vacancier invalide',
+                'success' => false
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+    }
+    
+    /**
+     * Méthode de simulation pour vérifier le mot de passe vacancier
+     * Cette méthode serait remplacée par une vraie vérification en base de données
+     */
+    private function simulateVacationPasswordCheck(int $userId, string $password): bool
+    {
+        // Simuler quelques mots de passe valides pour les tests
+        $validPasswords = [
+            1 => 'camping123',
+            2 => 'vacances2023',
+            3 => 'ete2023',
+            // Ajoutez d'autres combinaisons pour les tests
+        ];
+        
+        return isset($validPasswords[$userId]) && $validPasswords[$userId] === $password;
     }
 } 
