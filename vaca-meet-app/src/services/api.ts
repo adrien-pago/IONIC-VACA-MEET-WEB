@@ -12,12 +12,9 @@ const axiosConfig = {
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: config.requestTimeout,
-  // Désactiver l'alerte pour les certificats SSL auto-signés ou invalides
-  // Utile pour le débogage, à retirer en production finale
-  httpsAgent: new (require('axios/lib/adapters/xhr').getAdapter())({
-    rejectUnauthorized: false
-  })
+  timeout: config.requestTimeout
+  // Nous supprimons la configuration httpsAgent qui utilise require() 
+  // car require() n'est pas disponible dans le contexte du navigateur/WebView
 };
 
 console.log('Configuration API avancée:', axiosConfig);

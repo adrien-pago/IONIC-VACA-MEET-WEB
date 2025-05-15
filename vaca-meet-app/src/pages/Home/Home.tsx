@@ -18,9 +18,13 @@ import {
   IonSelectOption,
   IonAlert,
   IonLoading,
+  IonMenu,
+  IonList,
+  IonMenuButton,
+  IonMenuToggle,
   useIonRouter
 } from '@ionic/react';
-import { personCircleOutline, settingsOutline, logOutOutline, arrowForwardOutline } from 'ionicons/icons';
+import { personCircleOutline, menu, logOutOutline, arrowForwardOutline, homeOutline, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import api from '../../services/api';
 import AnimatedInput from '../../components/AnimatedInput';
@@ -56,6 +60,7 @@ const Home: React.FC = () => {
         setShowLoading(true);
         const userData = await authService.getUserProfile();
         setUser(userData);
+        console.log('Profil utilisateur chargé:', userData);
       } catch (error) {
         console.error('Erreur lors du chargement du profil:', error);
         setToastMessage('Impossible de charger votre profil');
@@ -71,11 +76,10 @@ const Home: React.FC = () => {
         const response = await api.get('/api/mobile/destinations');
         if (response.data && response.data.destinations) {
           setDestinations(response.data.destinations);
+          console.log('Destinations chargées:', response.data.destinations);
         }
       } catch (error) {
         console.error('Erreur lors du chargement des destinations:', error);
-        setToastMessage('Impossible de charger les destinations');
-        setShowToast(true);
       } finally {
         setShowLoading(false);
       }
@@ -96,7 +100,9 @@ const Home: React.FC = () => {
   };
 
   const navigateToProfile = () => {
-    router.push('/profile');
+    // Comme la page Profile n'existe pas encore, affichons un message à l'utilisateur
+    setToastMessage('La page de profil sera disponible prochainement');
+    setShowToast(true);
   };
 
   const handleDestinationSelection = (event: CustomEvent) => {
@@ -129,134 +135,153 @@ const Home: React.FC = () => {
       });
 
       if (response.data && response.data.success) {
-        setToastMessage('Mot de passe correct ! Redirection...');
+        // Commentons temporairement la redirection car la page camping-home n'existe pas encore
+        setToastMessage('La page du camping sera disponible prochainement.');
         setShowToast(true);
-        
-        // Rediriger vers la page du camping après un court délai
-        setTimeout(() => {
-          router.push('/camping-home');
-        }, 1500);
       } else {
         setPasswordError('Mot de passe incorrect');
       }
     } catch (error: any) {
       console.error('Erreur lors de la vérification du mot de passe:', error);
       setPasswordError('Mot de passe incorrect');
-      
-      if (error.response && error.response.data && error.response.data.message) {
-        setToastMessage(error.response.data.message);
-      } else {
-        setToastMessage('Erreur lors de la vérification du mot de passe');
-      }
-      setShowToast(true);
     } finally {
       setShowLoading(false);
     }
   };
 
   return (
-    <IonPage>
-      <BackgroundEffects variant="gradient" density="medium" />
-      
-      <IonHeader className="ion-no-border transparent-header">
-        <IonToolbar>
-          <div className="user-profile-header">
-            <div className="user-avatar">
+    <>
+      <IonMenu contentId="main-content">
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Menu</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="menu-content">
+          <div className="menu-header">
+            <div className="menu-avatar">
               <IonIcon icon={personCircleOutline} />
             </div>
-            <div className="user-info">
-              <h3>{user?.firstName} {user?.lastName}</h3>
-              <p>{user?.username}</p>
-            </div>
+            <h2>{user?.firstName} {user?.lastName}</h2>
+            <p>{user?.username}</p>
           </div>
           
-          <IonButtons slot="end">
-            <IonButton onClick={navigateToProfile}>
-              <IonIcon slot="icon-only" icon={settingsOutline} />
-            </IonButton>
-            <IonButton onClick={handleLogout}>
-              <IonIcon slot="icon-only" icon={logOutOutline} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+          <IonList>
+            <IonMenuToggle>
+              <IonItem routerLink="/home" detail={false}>
+                <IonIcon slot="start" icon={homeOutline} />
+                <IonLabel>Accueil</IonLabel>
+              </IonItem>
+            </IonMenuToggle>
+            
+            <IonMenuToggle>
+              <IonItem button onClick={navigateToProfile} detail={false}>
+                <IonIcon slot="start" icon={personOutline} />
+                <IonLabel>Compte</IonLabel>
+              </IonItem>
+            </IonMenuToggle>
+            
+            <IonMenuToggle>
+              <IonItem button onClick={handleLogout} detail={false}>
+                <IonIcon slot="start" icon={logOutOutline} />
+                <IonLabel>Déconnexion</IonLabel>
+              </IonItem>
+            </IonMenuToggle>
+          </IonList>
+        </IonContent>
+      </IonMenu>
       
-      <IonContent fullscreen className="ion-padding home-content">
-        <IonGrid>
-          <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeMd="8" sizeLg="6">
-              <div className={`welcome-container ${animation}`}>
-                <h1 className="welcome-title">Bienvenue sur Vaca Meet</h1>
-                <p className="welcome-subtitle">Votre compagnon de vacances idéal</p>
-              </div>
-              
-              <GlassCard
-                color="tertiary"
-                className={`destination-card ${animation}`}
-                animated={false}
-              >
-                <h2 className="section-title">Choisissez votre destination</h2>
-                
-                <div className="destination-form">
-                  <IonItem className="custom-select" lines="none">
-                    <IonLabel position="stacked">Destination</IonLabel>
-                    <IonSelect 
-                      interface="action-sheet" 
-                      cancelText="Annuler"
-                      placeholder="Sélectionnez une destination"
-                      onIonChange={handleDestinationSelection}
-                    >
-                      {destinations.map((destination) => (
-                        <IonSelectOption key={destination.id} value={destination.id}>
-                          {destination.username}
-                        </IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem>
-                  
-                  <AnimatedInput
-                    label="Mot de passe pour cette destination"
-                    name="vacationPassword"
-                    type="password"
-                    value={vacationPassword}
-                    onChange={handlePasswordChange}
-                    required
-                    errorMessage={passwordError}
-                  />
-                  
-                  <div className="form-actions">
-                    <AnimatedButton onClick={verifyVacationPassword} icon={arrowForwardOutline}>
-                      Let's Go
-                    </AnimatedButton>
-                  </div>
+      <IonPage id="main-content">
+        <BackgroundEffects variant="gradient" density="medium" />
+        
+        <IonHeader className="ion-no-border transparent-header">
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonMenuButton></IonMenuButton>
+            </IonButtons>
+            <IonTitle className="user-name-title">
+              {user?.firstName} {user?.lastName}
+            </IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        
+        <IonContent fullscreen className="ion-padding home-content">
+          <IonGrid>
+            <IonRow className="ion-justify-content-center">
+              <IonCol size="12" sizeMd="8" sizeLg="6">
+                <div className={`welcome-container ${animation}`}>
+                  <h1 className="welcome-title">Bienvenue sur Vaca Meet</h1>
+                  <p className="welcome-subtitle">Votre compagnon de vacances idéal</p>
                 </div>
-              </GlassCard>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-        
-        <IonLoading
-          isOpen={showLoading}
-          message="Veuillez patienter..."
-        />
-        
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={3000}
-          position="top"
-        />
-        
-        <IonAlert
-          isOpen={showAlert}
-          onDidDismiss={() => setShowAlert(false)}
-          header="Information"
-          message={alertMessage}
-          buttons={['OK']}
-        />
-      </IonContent>
-    </IonPage>
+                
+                <GlassCard
+                  color="tertiary"
+                  className={`destination-card ${animation}`}
+                  animated={false}
+                >
+                  <h2 className="section-title">Choisissez votre destination</h2>
+                  
+                  <div className="destination-form">
+                    <IonItem className="custom-select" lines="none">
+                      <IonLabel position="stacked">Destination</IonLabel>
+                      <IonSelect 
+                        interface="action-sheet" 
+                        cancelText="Annuler"
+                        placeholder="Sélectionnez une destination"
+                        onIonChange={handleDestinationSelection}
+                      >
+                        {destinations.map((destination) => (
+                          <IonSelectOption key={destination.id} value={destination.id}>
+                            {destination.username}
+                          </IonSelectOption>
+                        ))}
+                      </IonSelect>
+                    </IonItem>
+                    
+                    <AnimatedInput
+                      label="Mot de passe pour cette destination"
+                      name="vacationPassword"
+                      type="password"
+                      value={vacationPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      errorMessage={passwordError}
+                    />
+                    
+                    <div className="form-actions">
+                      <AnimatedButton onClick={verifyVacationPassword} icon={arrowForwardOutline}>
+                        Let's Go
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </GlassCard>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+          
+          <IonLoading
+            isOpen={showLoading}
+            message="Veuillez patienter..."
+          />
+          
+          <IonToast
+            isOpen={showToast}
+            onDidDismiss={() => setShowToast(false)}
+            message={toastMessage}
+            duration={3000}
+            position="top"
+          />
+          
+          <IonAlert
+            isOpen={showAlert}
+            onDidDismiss={() => setShowAlert(false)}
+            header="Information"
+            message={alertMessage}
+            buttons={['OK']}
+          />
+        </IonContent>
+      </IonPage>
+    </>
   );
 };
 

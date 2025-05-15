@@ -186,6 +186,7 @@ export class AuthService {
       
       const response = await axios.get(endpoint, requestConfig);
       
+      // Le backend renvoie directement les données utilisateur, pas besoin d'extraire user
       return response.data;
     } catch (error: any) {
       console.error('Erreur récupération profil détaillée:', {

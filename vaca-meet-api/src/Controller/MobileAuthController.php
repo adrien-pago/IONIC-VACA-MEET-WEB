@@ -146,8 +146,10 @@ class MobileAuthController extends AbstractController
         }
 
         return $this->json([
-            'user' => $this->serializer->normalize($user, null, ['groups' => 'user_mobile:read']),
-            'message' => 'Profil récupéré avec succès'
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName()
         ]);
     }
 
@@ -165,10 +167,7 @@ class MobileAuthController extends AbstractController
                 ];
             }
             
-            return $this->json([
-                'destinations' => $destinations,
-                'message' => 'Liste des destinations récupérée avec succès'
-            ]);
+            return $this->json(['destinations' => $destinations]);
         } catch (\Exception $e) {
             $this->logger->error('Erreur lors de la récupération des destinations: ' . $e->getMessage());
             return $this->json([
@@ -193,36 +192,6 @@ class MobileAuthController extends AbstractController
         $password = $data['vacationPassword'];
         
         // Dans un cas réel, vous vérifieriez avec une table ou un champ mdp_vacancier
-        // Pour cet exemple, nous utilisons une simulation
-        $success = $this->simulateVacationPasswordCheck($userId, $password);
-        
-        if ($success) {
-            return $this->json([
-                'message' => 'Mot de passe vacancier valide',
-                'success' => true
-            ]);
-        } else {
-            return $this->json([
-                'message' => 'Mot de passe vacancier invalide',
-                'success' => false
-            ], Response::HTTP_UNAUTHORIZED);
-        }
     }
     
-    /**
-     * Méthode de simulation pour vérifier le mot de passe vacancier
-     * Cette méthode serait remplacée par une vraie vérification en base de données
-     */
-    private function simulateVacationPasswordCheck(int $userId, string $password): bool
-    {
-        // Simuler quelques mots de passe valides pour les tests
-        $validPasswords = [
-            1 => 'camping123',
-            2 => 'vacances2023',
-            3 => 'ete2023',
-            // Ajoutez d'autres combinaisons pour les tests
-        ];
-        
-        return isset($validPasswords[$userId]) && $validPasswords[$userId] === $password;
-    }
 } 
