@@ -38,7 +38,7 @@ class MobileCampingController extends AbstractController
             }
             
             // Récupérer les informations du camping à partir de la base de données
-            $sql = "SELECT id, username, nom_camping FROM user WHERE id = :id";
+            $sql = "SELECT id, username FROM user WHERE id = :id";
             $stmt = $this->connection->prepare($sql);
             $stmt->bindValue('id', $id);
             $result = $stmt->executeQuery();
@@ -49,90 +49,21 @@ class MobileCampingController extends AbstractController
                 return $this->json(['message' => 'Camping non trouvé'], Response::HTTP_NOT_FOUND);
             }
             
-            // Données de test pour les animations
-            $animations = [
-                [
-                    'id' => 1,
-                    'title' => 'Soirée Dansante',
-                    'description' => 'Venez profiter d\'une soirée dansante sur la plage',
-                    'day' => 'Vendredi',
-                    'time' => '20h00'
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Tournoi de Pétanque',
-                    'description' => 'Participez à notre tournoi hebdomadaire de pétanque',
-                    'day' => 'Samedi',
-                    'time' => '15h00'
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'Aquagym',
-                    'description' => 'Séance d\'aquagym dans la piscine du camping',
-                    'day' => 'Mardi',
-                    'time' => '10h00'
-                ]
-            ];
-            
-            // Données de test pour les services
-            $services = [
-                [
-                    'id' => 1,
-                    'name' => 'Piscine',
-                    'description' => 'Grande piscine chauffée avec toboggan',
-                    'hours' => '9h00 - 19h00'
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'Restaurant',
-                    'description' => 'Restaurant avec spécialités locales',
-                    'hours' => '12h00 - 22h00'
-                ],
-                [
-                    'id' => 3,
-                    'name' => 'Mini-market',
-                    'description' => 'Épicerie avec produits de première nécessité',
-                    'hours' => '8h00 - 20h00'
-                ]
-            ];
-            
-            // Données de test pour les activités
-            $activities = [
-                [
-                    'id' => 1,
-                    'title' => 'Randonnée en groupe',
-                    'description' => 'Organisée par la famille Martin',
-                    'day' => 'Dimanche',
-                    'time' => '9h00',
-                    'location' => 'Départ accueil',
-                    'participants' => 8
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Barbecue partagé',
-                    'description' => 'Apportez vos grillades et boissons',
-                    'day' => 'Samedi',
-                    'time' => '19h00',
-                    'location' => 'Espace pique-nique',
-                    'participants' => 15
-                ]
-            ];
-            
-            // Créer la réponse avec les données de test
+            // Créer la réponse avec seulement les infos de base du camping
             $response = [
                 'camping' => [
                     'id' => $campingData['id'],
-                    'name' => $campingData['nom_camping'] ?? 'Camping ' . $campingData['username'],
+                    'name' => 'Camping ' . $campingData['username'],
                     'username' => $campingData['username']
                 ],
-                'animations' => $animations,
-                'services' => $services,
-                'activities' => $activities
+                'animations' => [],
+                'services' => [],
+                'activities' => []
             ];
             
             $this->logger->info('Informations du camping récupérées avec succès', [
                 'id' => $id,
-                'nom' => $campingData['nom_camping'] ?? 'Camping ' . $campingData['username']
+                'nom' => $campingData['username']
             ]);
             
             return $this->json($response);
