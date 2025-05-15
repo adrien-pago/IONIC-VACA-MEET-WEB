@@ -21,7 +21,6 @@ class UserMobile implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank]
-    #[Assert\Email]
     #[Groups(['user_mobile:read'])]
     private ?string $username = null;
 

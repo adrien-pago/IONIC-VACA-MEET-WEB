@@ -3,7 +3,7 @@ import config from './config';
 
 export class AuthService {
   private token: string | null = null;
-  private apiBaseUrl: string = 'https://mobile.vaca-meet.fr/api'; // Utilisation exclusive de l'URL de production
+  private apiBaseUrl: string = config.api.baseUrl; // Utilisation du baseUrl de la configuration
 
   constructor() {
     // Récupérer le token du localStorage lors de l'initialisation

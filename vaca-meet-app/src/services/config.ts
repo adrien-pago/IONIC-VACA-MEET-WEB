@@ -11,17 +11,17 @@ const config = {
   // API URLs
   api: {
     // Utiliser uniquement l'URL de production
-    baseUrl: 'https://mobile.vaca-meet.fr/api',
+    baseUrl: 'https://mobile.vaca-meet.fr',
     
     // Aucune URL alternative
     fallbackUrls: [],
     
     // Points de terminaison spécifiques
     endpoints: {
-      login: '/login_check',
-      register: '/register',
-      profile: '/user/profile',
-      test: '/test'
+      login: '/api/login',
+      register: '/api/register',
+      profile: '/api/mobile/user',
+      test: '/api/mobile/test'
     }
   },
   
@@ -78,7 +78,7 @@ export const testApiConnectivity = async () => {
     console.log('Configuration de la requête de test:', requestConfig);
     
     // Exécution de la requête
-    const response = await axios.get(`${config.api.baseUrl}/test`, requestConfig);
+    const response = await axios.get(`${config.api.baseUrl}${config.api.endpoints.test}`, requestConfig);
     
     console.log(`Réponse URL par défaut: status=${response.status}, data=`, response.data);
     

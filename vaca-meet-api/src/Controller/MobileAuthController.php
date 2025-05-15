@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class MobileAuthController extends AbstractController
 {
@@ -23,21 +24,35 @@ class MobileAuthController extends AbstractController
         private UserPasswordHasherInterface $passwordHasher,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
-        private JWTTokenManagerInterface $jwtManager
+        private JWTTokenManagerInterface $jwtManager,
+        private LoggerInterface $logger
     ) {
     }
 
     #[Route('/api/mobile/register', name: 'api_mobile_register', methods: ['POST'])]
+    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $rawContent = $request->getContent();
+        $this->logger->info('Contenu brut reçu: ' . $rawContent);
+        
+        $data = json_decode($rawContent, true);
+        $this->logger->info('Données décodées: ' . ($data ? json_encode($data) : 'null'));
 
         if (!$data) {
-            return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+            $this->logger->error('Données JSON invalides: impossible de décoder');
+            return $this->json(['message' => 'Données invalides ou format JSON incorrect'], Response::HTTP_BAD_REQUEST);
+        }
+        
+        // Vérifier les champs obligatoires
+        if (!isset($data['username']) || !isset($data['password'])) {
+            $this->logger->error('Données invalides: champs obligatoires manquants', ['fields' => array_keys($data)]);
+            return $this->json(['message' => 'Les champs username et password sont obligatoires'], Response::HTTP_BAD_REQUEST);
         }
 
         // Vérifier si l'username existe déjà
         if ($this->userRepository->findOneBy(['username' => $data['username']])) {
+            $this->logger->info('Nom d\'utilisateur déjà utilisé: ' . $data['username']);
             return $this->json(['message' => 'Ce nom d\'utilisateur est déjà utilisé'], Response::HTTP_CONFLICT);
         }
 
@@ -61,12 +76,14 @@ class MobileAuthController extends AbstractController
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
             $errorsString = (string) $errors;
+            $this->logger->error('Validation échouée: ' . $errorsString);
             return $this->json(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
         }
 
         // Enregistrer l'utilisateur
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+        $this->logger->info('Utilisateur créé avec succès: ' . $data['username']);
 
         // Générer le token JWT pour connexion automatique
         $token = $this->jwtManager->create($user);
