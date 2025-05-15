@@ -231,4 +231,41 @@ body {
       rgba(var(--ion-color-secondary-rgb), 0.1) 100%
     );
   }
+}
+
+/* Amélioration des animations de transition entre les pages */
+ion-router-outlet {
+  animation-duration: 300ms;
+}
+
+/* Transition plus fluide pour toute l'application */
+ion-content {
+  --background: transparent;
+}
+
+/* Animation de fondu plus élégante */
+ion-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Animation des cartes */
+ion-card {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Animation des boutons */
+ion-button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+ion-button:active {
+  transform: scale(0.97);
 } 

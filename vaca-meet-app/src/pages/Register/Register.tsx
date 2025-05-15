@@ -10,18 +10,20 @@ import {
   IonRow,
   IonIcon
 } from '@ionic/react';
-import { personCircleOutline, mailOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/icons';
+import { personCircleOutline, mailOutline, lockClosedOutline, arrowForwardOutline, personOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { AuthService } from '../../services/auth.service';
 import AnimatedInput from '../../components/AnimatedInput';
 import AnimatedButton from '../../components/AnimatedButton';
 import GlassCard from '../../components/GlassCard';
 import BackgroundEffects from '../../components/BackgroundEffects';
-import './Login.css';
+import '../Login/Login.css'; // Réutilisation des styles de Login
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showLoading, setShowLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -52,35 +54,46 @@ const Login: React.FC = () => {
     
     if (!username.trim()) {
       newErrors.username = 'Veuillez entrer votre email';
+    } else if (!/\S+@\S+\.\S+/.test(username)) {
+      newErrors.username = 'Veuillez entrer un email valide';
     }
     
     if (!password.trim()) {
       newErrors.password = 'Veuillez entrer votre mot de passe';
+    } else if (password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     if (!validateForm()) return;
     
     setShowLoading(true);
     setErrorDetails(null);
 
     try {
-      await authService.login({ username, password });
-      setAlertMessage('Connexion réussie !');
+      const userData = {
+        username,
+        password,
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined
+      };
+      
+      const response = await authService.register(userData);
+      setAlertMessage(response.message || 'Inscription réussie ! Veuillez vous connecter.');
       setShowAlert(true);
       
-      // Rediriger vers la page d'accueil après connexion
+      // Rediriger vers la page de connexion après inscription réussie
       setTimeout(() => {
-        router.push('/home', 'forward', 'replace');
-      }, 800);
+        goToLogin();
+      }, 1000);
     } catch (error: any) {
-      console.error('Erreur de connexion:', error);
+      console.error('Erreur d\'inscription:', error);
       
-      let errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+      let errorMessage = 'Erreur lors de l\'inscription. Veuillez réessayer.';
       let detailedError = '';
       
       if (error.response) {
@@ -90,6 +103,10 @@ const Login: React.FC = () => {
           if (error.response.data.message) {
             errorMessage = error.response.data.message;
             detailedError += `Message: ${error.response.data.message}\n`;
+          }
+          
+          if (error.response.data.errors) {
+            detailedError += `Erreurs: ${JSON.stringify(error.response.data.errors)}\n`;
           }
           
           detailedError += `Données: ${JSON.stringify(error.response.data)}`;
@@ -110,9 +127,9 @@ const Login: React.FC = () => {
     }
   };
 
-  const goToRegister = () => {
+  const goToLogin = () => {
     // Animation de transition moderne
-    router.push('/register', 'root');
+    router.push('/login', 'root');
   };
 
   return (
@@ -137,7 +154,7 @@ const Login: React.FC = () => {
                 animated={false}
               >
                 <h2 className="auth-title">
-                  Connexion
+                  Créer un compte
                 </h2>
                               
                 <div className="auth-form">
@@ -162,37 +179,57 @@ const Login: React.FC = () => {
                     icon={lockClosedOutline}
                     required
                     errorMessage={errors.password}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                  />
+                  
+                  <AnimatedInput
+                    label="Prénom"
+                    name="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={e => setFirstName(e.detail.value!)}
+                    icon={personOutline}
+                    errorMessage={errors.firstName}
+                  />
+                  
+                  <AnimatedInput
+                    label="Nom"
+                    name="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={e => setLastName(e.detail.value!)}
+                    icon={personOutline}
+                    errorMessage={errors.lastName}
                   />
                   
                   <div className="form-actions">
                     <AnimatedButton
                       expand="block"
                       size="large"
-                      onClick={handleLogin}
+                      onClick={handleRegister}
                       icon={arrowForwardOutline}
                       iconPosition="end"
                       className="auth-button"
                       loading={showLoading}
                       pulse={!showLoading}
                     >
-                      Se connecter
+                      Créer un compte
                     </AnimatedButton>
                     
                     <div className="auth-toggle">
                       <IonText color="medium">
-                        Pas encore de compte ?
+                        Déjà un compte ?
                       </IonText>
                       
                       <button 
                         className="toggle-button"
-                        onClick={goToRegister}
+                        onClick={goToLogin}
                       >
-                        S'inscrire
+                        Se connecter
                       </button>
                     </div>
                   </div>
-                  
+              
                 </div>
               </GlassCard>
             </IonCol>
@@ -201,12 +238,11 @@ const Login: React.FC = () => {
         
         <IonLoading 
           isOpen={showLoading}
-          message="Connexion en cours..."
+          message="Inscription en cours..."
         />
-        
       </IonContent>
     </IonPage>
   );
 };
 
-export default Login; 
+export default Register; 

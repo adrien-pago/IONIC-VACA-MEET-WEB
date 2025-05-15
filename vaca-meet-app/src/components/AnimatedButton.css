@@ -10,6 +10,14 @@
   text-transform: none;
   font-weight: 500;
   letter-spacing: 0.2px;
+  width: 100%;
+  margin: 0;
+}
+
+/* Style spécifique pour expand="block" */
+.animated-button[expand="block"] {
+  width: 100%;
+  display: block;
 }
 
 /* Effet d'élévation au survol */

@@ -1,0 +1,251 @@
+/* Styles spécifiques à la page Camping */
+.camping-content {
+  --padding-top: 1rem;
+  --padding-bottom: 3rem;
+  --background: transparent;
+}
+
+.camping-welcome-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  text-align: center;
+  background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.camping-title {
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+/* Styles pour les cartes */
+.animations-card,
+.services-card,
+.activities-card {
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.animations-card {
+  --card-background: rgba(var(--ion-color-primary-rgb), 0.15);
+  border-left: 4px solid var(--ion-color-primary);
+}
+
+.services-card {
+  --card-background: rgba(var(--ion-color-secondary-rgb), 0.15);
+  border-left: 4px solid var(--ion-color-secondary);
+}
+
+.activities-card {
+  --card-background: rgba(var(--ion-color-tertiary-rgb), 0.15);
+  border-left: 4px solid var(--ion-color-tertiary);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--ion-color-dark);
+  letter-spacing: -0.5px;
+}
+
+.section-title ion-icon {
+  margin-right: 0.5rem;
+  font-size: 1.4rem;
+}
+
+/* Animations */
+.animation-item,
+.activity-item {
+  --background: transparent;
+  --border-color: rgba(var(--ion-color-medium-rgb), 0.2);
+  --padding-start: 0;
+  margin-bottom: 0.5rem;
+}
+
+.animation-content,
+.activity-content {
+  width: 100%;
+  padding: 0.75rem 0;
+}
+
+.animation-title,
+.activity-title,
+.service-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--ion-color-dark);
+}
+
+.animation-description,
+.activity-description,
+.service-description {
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+  margin: 0.25rem 0;
+  line-height: 1.4;
+}
+
+.animation-details,
+.activity-details {
+  display: flex;
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-top: 0.5rem;
+}
+
+.animation-day,
+.activity-day {
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+.animation-time,
+.activity-time {
+  margin-right: 1rem;
+}
+
+.activity-location {
+  font-style: italic;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.activity-header ion-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+/* Services */
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.service-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-2px);
+}
+
+.service-hours {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Message when no data */
+.no-data-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-data-message {
+  color: var(--ion-color-medium);
+  font-style: italic;
+}
+
+/* Transparent lists */
+.transparent-list {
+  background: transparent;
+}
+
+/* Animation */
+.animations-card.animate-slide-up,
+.services-card.animate-slide-up,
+.activities-card.animate-slide-up {
+  animation: slideUpCards 0.6s ease-out forwards;
+}
+
+.animations-card.animate-slide-up {
+  animation-delay: 0.1s;
+}
+
+.services-card.animate-slide-up {
+  animation-delay: 0.2s;
+}
+
+.activities-card.animate-slide-up {
+  animation-delay: 0.3s;
+}
+
+@keyframes slideUpCards {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .camping-welcome-title {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .service-item {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .animation-title,
+  .activity-title,
+  .service-name {
+    color: var(--ion-color-light);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .camping-welcome-title {
+    font-size: 1.8rem;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .camping-welcome-title {
+    font-size: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .activity-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .activity-header ion-badge {
+    margin-top: 0.25rem;
+  }
+} 

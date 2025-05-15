@@ -1,11 +1,13 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Pages */
 import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
 import Home from './pages/Home/Home';
+import HomeCamping from './pages/HomeCamping/HomeCamping';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -40,14 +42,21 @@ import './theme/variables.css';
 /* Global styles */
 import './styles/global.css';
 
-setupIonicReact();
+// Configuration de l'animation préférée pour les transitions
+setupIonicReact({
+  animated: true,
+  mode: isPlatform('ios') ? 'ios' : 'md',
+  hardwareBackButton: true
+});
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonRouterOutlet>
+      <IonRouterOutlet animated={true} mode="md">
         <Route path="/login" component={Login} exact />
+        <Route path="/register" component={Register} exact />
         <Route path="/home" component={Home} exact />
+        <Route path="/camping/:id" component={HomeCamping} exact />
         <Route exact path="/">
           <Redirect to="/login" />
         </Route>

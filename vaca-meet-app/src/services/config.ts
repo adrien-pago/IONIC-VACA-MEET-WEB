@@ -23,7 +23,8 @@ const config = {
       profile: '/api/mobile/user',
       test: '/api/mobile/test',
       destinations: '/api/mobile/destinations',
-      verifyPassword: '/api/mobile/verify-password'
+      verifyPassword: '/api/mobile/verify-password',
+      camping: '/api/mobile/camping'
     }
   },
   

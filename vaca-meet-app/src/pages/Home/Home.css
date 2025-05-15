@@ -253,12 +253,12 @@ ion-item.profile-item {
 /* Header transparent */
 .transparent-header {
   --background: transparent;
-  --border-width: 0;
+  --border-color: transparent;
 }
 
 .transparent-header ion-toolbar {
   --background: rgba(255, 255, 255, 0.1);
-  --border-width: 0;
+  --border-style: none;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -501,69 +501,25 @@ ion-item.profile-item {
 /* Home page styles */
 .home-content {
   --padding-top: 0;
-  --padding-bottom: 2rem;
-}
-
-.transparent-header {
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
   --background: transparent;
-  --border-color: transparent;
 }
 
-.transparent-header ion-toolbar {
-  --background: rgba(255, 255, 255, 0.1);
-  --border-style: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.user-profile-header {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.user-avatar ion-icon {
-  font-size: 24px;
-  color: white;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-info h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-}
-
-.user-info p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+.full-height {
+  height: 100%;
 }
 
 .welcome-container {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.5s ease, transform 0.5s ease;
+  text-align: center;
 }
 
 .welcome-container.animate-slide-up {
@@ -572,18 +528,17 @@ ion-item.profile-item {
 }
 
 .welcome-title {
-  font-size: 2.2rem;
+  font-size: 36px;
   font-weight: 700;
+  margin: 0;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  line-height: 1.2;
-  background: linear-gradient(45deg, #ff7e5f, #feb47b, #ffcb80);
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
-  padding-bottom: 5px;
-  position: relative;
+  background-clip: text;
+  text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  filter: drop-shadow(0 4px 10px rgba(var(--ion-color-primary-rgb), 0.3));
 }
 
 .welcome-subtitle {
@@ -594,11 +549,27 @@ ion-item.profile-item {
 }
 
 .destination-card {
-  padding: 1.5rem;
+  padding: 25px !important;
   margin-bottom: 1.5rem;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.destination-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: -1;
 }
 
 .destination-card.animate-slide-up {
@@ -607,41 +578,94 @@ ion-item.profile-item {
 }
 
 .section-title {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: white;
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
   text-align: center;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.9) 50%, 
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .destination-form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  margin-top: 10px;
 }
 
-.custom-select {
-  --background: rgba(255, 255, 255, 0.1);
-  --border-radius: 12px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  margin-bottom: 1rem;
-}
-
-.custom-select ion-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.custom-select ion-select {
-  --placeholder-color: rgba(255, 255, 255, 0.5);
-  --placeholder-opacity: 1;
-  color: white;
+/* Styles spécifiques pour la combo box */
+.destination-select {
+  position: relative;
   width: 100%;
 }
 
+.custom-select {
+  --background: rgba(255, 255, 255, 0.25);
+  --border-radius: 15px;
+  --padding-start: 16px;
+  --padding-end: 50px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border-radius: 15px;
+  position: relative;
+}
+
+.custom-select::after {
+  content: '▼';
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.custom-select ion-select {
+  --placeholder-color: rgba(255, 255, 255, 0.8);
+  --placeholder-opacity: 1;
+  color: white;
+  width: 100%;
+  font-weight: 500;
+  --border-radius: 15px;
+  text-align: left;
+  padding-right: 30px;
+}
+
+/* Suppression de l'icône par défaut */
+ion-select::part(icon) {
+  display: none;
+}
+
+/* Augmente l'espacement du formulaire au début */
+.form-spacer {
+  height: 10px;
+}
+
+/* Boutons d'action */
 .form-actions {
   margin-top: 1.5rem;
   display: flex;
@@ -675,29 +699,62 @@ ion-item.profile-item {
   }
 }
 
-/* Menu styles */
-.menu-content {
-  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+/* Menu styles avec meilleur contraste et cohérence avec le reste de l'application */
+ion-menu {
+  --ion-background-color: transparent;
+  --width: 280px;
 }
 
+ion-menu ion-header ion-toolbar {
+  --background: rgba(0, 0, 0, 0.15);
+  --color: white;
+  --border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+ion-menu ion-content,
+.menu-content {
+  --background: transparent;
+}
+
+/* Background effet pour le menu */
+.menu-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(255, 101, 132, 0.15) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: -1;
+}
+
+/* Styles améliorés pour l'en-tête du menu */
 .menu-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 30px 20px;
+  text-align: center;
   background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .menu-avatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 15px;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .menu-avatar ion-icon {
@@ -706,39 +763,74 @@ ion-item.profile-item {
 }
 
 .menu-header h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
+  margin: 10px 0 5px;
   color: white;
-  margin: 0 0 0.3rem 0;
-  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .menu-header p {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
   margin: 0;
-  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 ion-menu ion-list {
-  padding: 0;
   background: transparent;
+  padding-top: 10px;
 }
 
 ion-menu ion-item {
-  --background: transparent;
-  --background-hover: rgba(255, 255, 255, 0.1);
-  --color: white;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --background: rgba(255, 255, 255, 0.15);
+  --background-hover: rgba(255, 255, 255, 0.25);
+  --background-activated: rgba(255, 255, 255, 0.3);
+  --background-focused: rgba(255, 255, 255, 0.3);
+  --color: #ffffff;
+  --border-color: rgba(255, 255, 255, 0.2);
   --padding-start: 20px;
   --padding-end: 20px;
   --min-height: 50px;
-  margin-bottom: 5px;
+  margin: 0 8px 8px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+ion-menu ion-item.active {
+  --background: rgba(255, 255, 255, 0.25);
+  border-left: 3px solid white;
 }
 
 ion-menu ion-item ion-icon {
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
   margin-right: 10px;
+  font-size: 20px;
+}
+
+ion-menu ion-item ion-label {
+  color: #ffffff;
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+/* Bouton de déconnexion spécial */
+ion-item[color="danger"] {
+  --background: rgba(235, 68, 90, 0.35);
+  --background-hover: rgba(235, 68, 90, 0.5);
+  margin-top: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu-content::before {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.4) 0%, rgba(255, 101, 132, 0.2) 100%);
+  }
+  
+  ion-menu ion-item {
+    --background: rgba(255, 255, 255, 0.08);
+  }
 }
 
 /* Navbar styles */
@@ -748,194 +840,9 @@ ion-menu ion-item ion-icon {
   color: white;
 }
 
-/* Home page styles */
-.home-content {
-  --padding-top: 0;
-  --padding-bottom: 2rem;
-}
-
-.transparent-header {
-  --background: transparent;
-  --border-color: transparent;
-}
-
-.transparent-header ion-toolbar {
-  --background: rgba(255, 255, 255, 0.1);
-  --border-style: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.user-profile-header {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.user-avatar ion-icon {
-  font-size: 24px;
-  color: white;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-info h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-}
-
-.user-info p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.welcome-container {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.welcome-container.animate-slide-up {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.welcome-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  line-height: 1.2;
-  background: linear-gradient(45deg, #ff7e5f, #feb47b, #ffcb80);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  padding-bottom: 5px;
-  position: relative;
-}
-
-.welcome-subtitle {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-}
-
-.destination-card {
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-}
-
-.destination-card.animate-slide-up {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.section-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: white;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.destination-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.custom-select {
-  --background: rgba(255, 255, 255, 0.1);
-  --border-radius: 12px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  margin-bottom: 1rem;
-}
-
-.custom-select ion-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.custom-select ion-select {
-  --placeholder-color: rgba(255, 255, 255, 0.5);
-  --placeholder-opacity: 1;
-  color: white;
-  width: 100%;
-}
-
-.form-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-}
-
-/* Animation classes */
-.animate-slide-up {
-  animation: slideUp 0.5s forwards;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 1.8rem;
-  }
-  
-  .welcome-subtitle {
-    font-size: 1rem;
-  }
-  
-  .menu-header {
-    padding: 1.5rem 1rem;
-  }
-  
-  .menu-avatar {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .menu-avatar ion-icon {
-    font-size: 40px;
-  }
+/* Amélioration du style du bouton de déconnexion */
+ion-button[color="medium"] ion-icon {
+  font-size: 20px;
 }
 
 /* Styles pour le message quand il n'y a pas de destinations */
@@ -953,7 +860,64 @@ ion-menu ion-item ion-icon {
   font-size: 16px;
 }
 
-/* Amélioration du style du bouton de déconnexion */
-ion-button[color="medium"] ion-icon {
-  font-size: 20px;
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-avatar ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Styles spécifiques pour améliorer la cohérence avec la page Login */
+ion-grid.full-height {
+  padding: 16px;
+}
+
+@media (max-width: 576px) {
+  .welcome-title {
+    font-size: 32px;
+  }
+}
+
+@media (max-height: 700px) {
+  .welcome-title {
+    font-size: 28px;
+  }
+  
+  .welcome-container {
+    margin-bottom: 20px;
+  }
 } 

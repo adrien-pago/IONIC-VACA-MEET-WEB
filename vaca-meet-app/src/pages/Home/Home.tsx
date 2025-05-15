@@ -191,8 +191,8 @@ const Home: React.FC = () => {
       });
       
       if (response.data && response.data.valid) {
-        setToastMessage('La page du camping sera disponible prochainement.');
-        setShowToast(true);
+        // Naviguer vers la page du camping
+        router.push(`/camping/${selectedDestination}`);
       } else {
         setPasswordError('Mot de passe incorrect');
       }
@@ -229,7 +229,7 @@ const Home: React.FC = () => {
           
           <IonList>
             <IonMenuToggle>
-              <IonItem routerLink="/home" detail={false}>
+              <IonItem routerLink="/home" detail={false} className="active">
                 <IonIcon slot="start" icon={homeOutline} />
                 <IonLabel>Accueil</IonLabel>
               </IonItem>
@@ -253,7 +253,7 @@ const Home: React.FC = () => {
       </IonMenu>
       
       <IonPage id="main-content">
-        <BackgroundEffects variant="gradient" density="medium" />
+        <BackgroundEffects variant="gradient" density="high" animate={false} />
         
         <IonHeader className="ion-no-border transparent-header">
           <IonToolbar>
@@ -264,7 +264,7 @@ const Home: React.FC = () => {
               {user?.firstName} {user?.lastName}
             </IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={handleLogout} color="medium">
+              <IonButton onClick={handleLogout} color="light">
                 <IonIcon slot="icon-only" icon={logOutOutline} />
               </IonButton>
             </IonButtons>
@@ -272,12 +272,11 @@ const Home: React.FC = () => {
         </IonHeader>
         
         <IonContent fullscreen className="ion-padding home-content">
-          <IonGrid>
-            <IonRow className="ion-justify-content-center">
-              <IonCol size="12" sizeMd="8" sizeLg="6">
+          <IonGrid className="full-height">
+            <IonRow className="ion-justify-content-center ion-align-items-center">
+              <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="5">
                 <div className={`welcome-container ${animation}`}>
-                  <h1 className="welcome-title">Bienvenue sur Vaca Meet</h1>
-                  <p className="welcome-subtitle">Votre compagnon de vacances idéal</p>
+                  <h1 className="welcome-title">Vaca Meet</h1>
                 </div>
                 
                 <GlassCard
@@ -290,13 +289,15 @@ const Home: React.FC = () => {
                   <div className="destination-form">
                     {destinations.length > 0 ? (
                       <>
+                        <div className="form-spacer"></div>
                         <IonItem className="custom-select" lines="none">
-                          <IonLabel position="stacked">Destination</IonLabel>
                           <IonSelect 
-                            interface="action-sheet" 
+                            interface="popover" 
                             cancelText="Annuler"
                             placeholder="Sélectionnez une destination"
                             onIonChange={handleDestinationSelection}
+                            className="destination-select"
+                            style={{ width: '100%' }}
                           >
                             {destinations.map((destination) => (
                               <IonSelectOption key={destination.id} value={destination.id}>
@@ -307,7 +308,7 @@ const Home: React.FC = () => {
                         </IonItem>
                         
                         <AnimatedInput
-                          label="Mot de passe pour cette destination"
+                          label="Mot de passe"
                           name="vacationPassword"
                           type="password"
                           value={vacationPassword}
@@ -348,14 +349,7 @@ const Home: React.FC = () => {
             duration={3000}
             position="top"
           />
-          
-          <IonAlert
-            isOpen={showAlert}
-            onDidDismiss={() => setShowAlert(false)}
-            header="Information"
-            message={alertMessage}
-            buttons={['OK']}
-          />
+   
         </IonContent>
       </IonPage>
     </>
