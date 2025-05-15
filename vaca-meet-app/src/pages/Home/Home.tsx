@@ -27,6 +27,7 @@ import {
 import { personCircleOutline, menu, logOutOutline, arrowForwardOutline, homeOutline, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import api from '../../services/api';
+import config from '../../services/config';
 import AnimatedInput from '../../components/AnimatedInput';
 import AnimatedButton from '../../components/AnimatedButton';
 import GlassCard from '../../components/GlassCard';
@@ -34,6 +35,11 @@ import BackgroundEffects from '../../components/BackgroundEffects';
 import './Home.css';
 
 interface Destination {
+  id: number;
+  username: string;
+}
+
+interface DestinationDetail {
   id: number;
   username: string;
 }
@@ -73,13 +79,39 @@ const Home: React.FC = () => {
     const fetchDestinations = async () => {
       try {
         setShowLoading(true);
-        const response = await api.get('/api/mobile/destinations');
+        console.log('Chargement des destinations...');
+        
+        const response = await api.get(config.api.endpoints.destinations);
+        console.log('Réponse API destinations:', response.data);
+        
         if (response.data && response.data.destinations) {
           setDestinations(response.data.destinations);
           console.log('Destinations chargées:', response.data.destinations);
+        } else {
+          throw new Error('Format de réponse invalide');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erreur lors du chargement des destinations:', error);
+        
+        // Afficher un message d'erreur à l'utilisateur
+        let errorMessage = 'Impossible de charger les destinations';
+        if (error.response && error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = `Erreur: ${error.message}`;
+        }
+        
+        setToastMessage(errorMessage);
+        setShowToast(true);
+        
+        // En cas d'erreur, utiliser des données d'exemple temporaires
+        const tempDestinations = [
+          { id: 1, username: 'Camping Les Flots Bleus' },
+          { id: 2, username: 'Camping Le Paradis' },
+          { id: 3, username: 'Camping Les Pins' }
+        ];
+        setDestinations(tempDestinations);
+        console.log('Utilisation de destinations temporaires:', tempDestinations);
       } finally {
         setShowLoading(false);
       }
@@ -129,13 +161,14 @@ const Home: React.FC = () => {
 
     try {
       setShowLoading(true);
-      const response = await api.post('/api/mobile/verify-password', {
-        userId: selectedDestination,
-        vacationPassword
+      
+      // Appel à l'API pour vérifier le mot de passe
+      const response = await api.post(config.api.endpoints.verifyPassword, {
+        destinationId: selectedDestination,
+        password: vacationPassword
       });
-
-      if (response.data && response.data.success) {
-        // Commentons temporairement la redirection car la page camping-home n'existe pas encore
+      
+      if (response.data && response.data.valid) {
         setToastMessage('La page du camping sera disponible prochainement.');
         setShowToast(true);
       } else {
@@ -143,7 +176,13 @@ const Home: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Erreur lors de la vérification du mot de passe:', error);
-      setPasswordError('Mot de passe incorrect');
+      
+      // Afficher un message d'erreur spécifique si disponible
+      if (error.response && error.response.data && error.response.data.message) {
+        setPasswordError(error.response.data.message);
+      } else {
+        setPasswordError('Mot de passe incorrect');
+      }
     } finally {
       setShowLoading(false);
     }

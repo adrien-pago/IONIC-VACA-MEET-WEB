@@ -21,7 +21,9 @@ const config = {
       login: '/api/login',
       register: '/api/register',
       profile: '/api/mobile/user',
-      test: '/api/mobile/test'
+      test: '/api/mobile/test',
+      destinations: '/api/mobile/destinations',
+      verifyPassword: '/api/mobile/verify-password'
     }
   },
   

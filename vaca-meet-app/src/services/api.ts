@@ -1,8 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import config from './config';
 
-// URL de production fixe
-const API_BASE_URL = 'https://mobile.vaca-meet.fr/api';
+// URL de production fixe - sans le préfixe "/api" pour éviter la duplication
+const API_BASE_URL = 'https://mobile.vaca-meet.fr';
 
 console.log('Service API initialisé avec URL de production:', API_BASE_URL);
 
