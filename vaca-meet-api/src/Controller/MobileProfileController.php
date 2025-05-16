@@ -36,34 +36,70 @@ class MobileProfileController extends AbstractController
             // Récupérer les données de la requête
             $data = json_decode($request->getContent(), true);
             
+            $this->logger->info('Données reçues pour mise à jour:', [
+                'userId' => $user->getId(),
+                'data' => $data
+            ]);
+            
             if (!$data) {
                 $this->logger->error('Données invalides ou manquantes');
                 return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
             }
             
             // Mettre à jour les informations de l'utilisateur
-            if (isset($data['firstName'])) {
+            // Enregistrer les valeurs actuelles pour le log
+            $oldValues = [
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'username' => $user->getUsername()
+            ];
+            
+            $hasChanges = false;
+            
+            if (isset($data['firstName']) && $data['firstName'] !== $user->getFirstName()) {
                 $user->setFirstName($data['firstName']);
+                $hasChanges = true;
+                $this->logger->info('Mise à jour prénom:', [
+                    'ancien' => $oldValues['firstName'],
+                    'nouveau' => $data['firstName']
+                ]);
             }
             
-            if (isset($data['lastName'])) {
+            if (isset($data['lastName']) && $data['lastName'] !== $user->getLastName()) {
                 $user->setLastName($data['lastName']);
+                $hasChanges = true;
+                $this->logger->info('Mise à jour nom:', [
+                    'ancien' => $oldValues['lastName'],
+                    'nouveau' => $data['lastName']
+                ]);
             }
             
             // Utiliser username au lieu de email (username correspond à l'email en base)
-            if (isset($data['username'])) {
+            if (isset($data['username']) && $data['username'] !== $user->getUsername()) {
                 $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
+                $hasChanges = true;
+                $this->logger->info('Mise à jour username:', [
+                    'ancien' => $oldValues['username'],
+                    'nouveau' => $data['username']
+                ]);
             }
             
-            // Persister les modifications
-            $this->entityManager->flush();
+            if (!$hasChanges) {
+                $this->logger->info('Aucune modification détectée, les valeurs sont identiques');
+            } else {
+                // Persister les modifications et forcer le flush
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+                $this->logger->info('Flush exécuté avec succès');
+            }
             
             $this->logger->info('Profil utilisateur mis à jour avec succès pour l\'utilisateur ' . $user->getId());
             
             // Retourner les informations mises à jour
             return $this->json([
                 'success' => true,
-                'message' => 'Profil mis à jour avec succès',
+                'message' => $hasChanges ? 'Profil mis à jour avec succès' : 'Aucune modification nécessaire',
+                'changes' => $hasChanges,
                 'user' => [
                     'id' => $user->getId(),
                     'username' => $user->getUsername(), // Username correspond à l'email
@@ -72,7 +108,9 @@ class MobileProfileController extends AbstractController
                 ]
             ]);
         } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la mise à jour du profil: ' . $e->getMessage());
+            $this->logger->error('Erreur lors de la mise à jour du profil: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return $this->json([
                 'success' => false,
