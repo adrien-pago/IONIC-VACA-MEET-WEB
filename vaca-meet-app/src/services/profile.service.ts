@@ -280,8 +280,8 @@ export class ProfileService {
         cleanData.lastName = data.lastName;
       }
       
-      if (data.email) {
-        cleanData.email = data.email;
+      if (data.username) {
+        cleanData.username = data.username;
       }
       
       console.log('Données nettoyées pour mise à jour du profil mobile:', cleanData);

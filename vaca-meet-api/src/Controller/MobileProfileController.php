@@ -52,7 +52,7 @@ class MobileProfileController extends AbstractController
             
             // Utiliser username au lieu de email (username correspond à l'email en base)
             if (isset($data['username'])) {
-                $user->setEmail($data['username']); // setEmail car username est stocké comme email en BDD
+                $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
             }
             
             // Persister les modifications
