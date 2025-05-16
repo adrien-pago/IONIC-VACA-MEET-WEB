@@ -4,16 +4,18 @@ import { ThemeType } from '../context/ThemeContext';
 
 export interface UserProfile {
   id: number;
-  username: string;
+  username: string; // Correspond à l'email en base de données
   firstName: string;
   lastName: string;
+  email?: string;    // Alias pour username pour plus de clarté
   theme?: ThemeType;
 }
 
 export interface ProfileUpdateData {
   firstName?: string;
   lastName?: string;
-  username?: string;
+  username?: string; // Correspond à l'email en base de données
+  email?: string;    // Alias pour username pour plus de clarté
   currentPassword?: string;
   newPassword?: string;
   theme?: ThemeType;
@@ -244,6 +246,66 @@ export class ProfileService {
         console.error('Erreur de requête (pas de réponse):', error.request);
       } else {
         console.error('Erreur:', error.message);
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Mettre à jour les informations du profil utilisateur mobile
+   * @param data Les données à mettre à jour
+   */
+  async updateMobileProfile(data: ProfileUpdateData): Promise<UserProfile> {
+    try {
+      // Vérifier si le token existe
+      const token = localStorage.getItem(config.storage.tokenKey);
+      if (!token) {
+        throw new Error('Non authentifié');
+      }
+      
+      // Configurer les en-têtes avec le token
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      console.log('Données brutes reçues pour mise à jour du profil mobile:', data);
+      
+      // Préparation des données à envoyer
+      const cleanData: Record<string, string> = {};
+      
+      if (data.firstName) {
+        cleanData.firstName = data.firstName;
+      }
+      
+      if (data.lastName) {
+        cleanData.lastName = data.lastName;
+      }
+      
+      if (data.email) {
+        cleanData.email = data.email;
+      }
+      
+      console.log('Données nettoyées pour mise à jour du profil mobile:', cleanData);
+      console.log('URL complète de mise à jour du profil mobile:', `${config.api.baseUrl}${config.api.endpoints.updateMobileProfile}`);
+      
+      const response = await api.post(config.api.endpoints.updateMobileProfile, cleanData);
+      console.log('Réponse du serveur pour mise à jour profil mobile:', response);
+      
+      if (response.data && response.data.user) {
+        return response.data.user;
+      } else {
+        throw new Error('Format de réponse invalide');
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la mise à jour du profil mobile:', error);
+      
+      // Afficher plus de détails sur l'erreur
+      if (error.response) {
+        console.error('Détails de l\'erreur:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        });
       }
       
       throw error;

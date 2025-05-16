@@ -50,8 +50,9 @@ class MobileProfileController extends AbstractController
                 $user->setLastName($data['lastName']);
             }
             
-            if (isset($data['email'])) {
-                $user->setEmail($data['email']);
+            // Utiliser username au lieu de email (username correspond à l'email en base)
+            if (isset($data['username'])) {
+                $user->setEmail($data['username']); // setEmail car username est stocké comme email en BDD
             }
             
             // Persister les modifications
@@ -65,10 +66,9 @@ class MobileProfileController extends AbstractController
                 'message' => 'Profil mis à jour avec succès',
                 'user' => [
                     'id' => $user->getId(),
-                    'username' => $user->getUsername(),
+                    'username' => $user->getUsername(), // Username correspond à l'email
                     'firstName' => $user->getFirstName(),
-                    'lastName' => $user->getLastName(),
-                    'email' => $user->getEmail()
+                    'lastName' => $user->getLastName()
                 ]
             ]);
         } catch (\Exception $e) {

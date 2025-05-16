@@ -23,6 +23,7 @@ const config = {
       profile: '/api/mobile/user',
       userProfile: '/api/mobile/user/profile',
       updateProfile: '/api/mobile/user/profile/direct',
+      updateMobileProfile: '/api/mobile/user/update',
       updatePassword: '/api/mobile/user/password',
       test: '/api/mobile/test',
       destinations: '/api/mobile/destinations',

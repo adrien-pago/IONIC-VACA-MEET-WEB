@@ -258,7 +258,7 @@ const Account: React.FC = () => {
         console.log('Détection de changements:', hasChanges, {
           'firstName (form/user)': `${formData.firstName}/${user.firstName}`,
           'lastName (form/user)': `${formData.lastName}/${user.lastName}`,
-          'username (form/user)': `${formData.username}/${user.username}`
+          'username/email (form/user)': `${formData.username}/${user.username}`
         });
         
         if (!hasChanges) {
@@ -270,19 +270,24 @@ const Account: React.FC = () => {
       const dataToSend = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        username: formData.username
+        email: formData.username // username correspond à email en base de données
       };
       
       console.log('Envoi des données pour mise à jour du profil:', dataToSend);
-      const updatedUser = await profileService.updateProfile(dataToSend);
+      // Utiliser la nouvelle méthode pour l'API mobile
+      const updatedUser = await profileService.updateMobileProfile(dataToSend);
       console.log('Réponse reçue après mise à jour:', updatedUser);
       
       // Mettre à jour l'état avec les données reçues du serveur
-      setUser(updatedUser);
+      setUser({
+        ...updatedUser,
+        username: updatedUser.email || updatedUser.username // S'assurer de conserver la cohérence
+      });
+      
       setFormData({
         firstName: updatedUser.firstName || '',
         lastName: updatedUser.lastName || '',
-        username: updatedUser.username || ''
+        username: updatedUser.email || updatedUser.username || ''
       });
       
       setToastMessage('Profil mis à jour avec succès');
