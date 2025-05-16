@@ -619,48 +619,51 @@ const Account: React.FC = () => {
                     <IonIcon icon={lockClosedOutline} /> Changer de mot de passe
                   </h2>
                   
-                  <div className="form-container">
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Mot de passe actuel</IonLabel>
+                  <div className="form-container modern-form">
+                    <div className="edit-form-item">
+                      <div className="edit-label">Mot de passe actuel</div>
                       <IonInput
                         type="password"
                         name="currentPassword"
                         value={passwordData.currentPassword}
                         onIonChange={handlePasswordChange}
+                        className="edit-input"
                       />
                       {errors.currentPassword && (
                         <IonText color="danger" className="error-message">{errors.currentPassword}</IonText>
                       )}
-                    </IonItem>
+                    </div>
                     
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Nouveau mot de passe</IonLabel>
+                    <div className="edit-form-item">
+                      <div className="edit-label">Nouveau mot de passe</div>
                       <IonInput
                         type="password"
                         name="newPassword"
                         value={passwordData.newPassword}
                         onIonChange={handlePasswordChange}
+                        className="edit-input"
                       />
                       {errors.newPassword && (
                         <IonText color="danger" className="error-message">{errors.newPassword}</IonText>
                       )}
-                    </IonItem>
+                    </div>
                     
-                    <IonItem className="form-item">
-                      <IonLabel position="floating">Confirmer le nouveau mot de passe</IonLabel>
+                    <div className="edit-form-item">
+                      <div className="edit-label">Confirmer le nouveau mot de passe</div>
                       <IonInput
                         type="password"
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onIonChange={handlePasswordChange}
+                        className="edit-input"
                       />
                       {errors.confirmPassword && (
                         <IonText color="danger" className="error-message">{errors.confirmPassword}</IonText>
                       )}
-                    </IonItem>
+                    </div>
                     
                     <div className="form-actions">
-                      <IonButton expand="block" onClick={changePassword}>
+                      <IonButton expand="block" onClick={changePassword} color="primary" className="save-button">
                         <IonIcon slot="start" icon={lockClosedOutline} />
                         Mettre à jour le mot de passe
                       </IonButton>

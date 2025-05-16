@@ -194,6 +194,8 @@ export class ProfileService {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       console.log('Mise à jour du mot de passe');
+      console.log('URL de mise à jour du mot de passe:', `${config.api.baseUrl}${config.api.endpoints.updatePassword}`);
+      
       const response = await api.put(config.api.endpoints.updatePassword, {
         currentPassword,
         newPassword
@@ -201,8 +203,22 @@ export class ProfileService {
       console.log('Réponse mise à jour mot de passe:', response.data);
       
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
+      
+      // Afficher plus de détails sur l'erreur
+      if (error.response) {
+        console.error('Détails de l\'erreur lors de la mise à jour du mot de passe:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data
+        });
+      } else if (error.request) {
+        console.error('Erreur de requête (pas de réponse):', error.request);
+      } else {
+        console.error('Erreur:', error.message);
+      }
+      
       throw error;
     }
   }

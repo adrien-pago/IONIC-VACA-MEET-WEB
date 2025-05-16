@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,7 +20,8 @@ class MobileProfileController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private UserPasswordHasherInterface $passwordHasher
     ) {
     }
 
@@ -209,6 +211,82 @@ class MobileProfileController extends AbstractController
             return $this->json([
                 'success' => false,
                 'message' => 'Erreur lors de la mise à jour du thème',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Endpoint pour mettre à jour le mot de passe utilisateur
+     */
+    #[Route('/api/mobile/user/password', name: 'api_mobile_user_password', methods: ['PUT'])]
+    public function updateUserPassword(Request $request): JsonResponse
+    {
+        $this->logger->info('Tentative de mise à jour du mot de passe');
+        
+        try {
+            // Récupérer l'utilisateur connecté
+            $user = $this->getUser();
+            
+            if (!$user instanceof UserMobile) {
+                $this->logger->error('Utilisateur non authentifié ou invalide');
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Récupérer les données de la requête
+            $data = json_decode($request->getContent(), true);
+            
+            // Vérifier que les données nécessaires sont présentes
+            if (!$data || !isset($data['currentPassword']) || !isset($data['newPassword'])) {
+                $this->logger->error('Données invalides ou incomplètes pour la mise à jour du mot de passe');
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Les mots de passe actuel et nouveau sont requis'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $currentPassword = $data['currentPassword'];
+            $newPassword = $data['newPassword'];
+            
+            // Vérifier que le mot de passe actuel est correct
+            if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $this->logger->error('Échec de vérification du mot de passe actuel');
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Le mot de passe actuel est incorrect'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Vérifier que le nouveau mot de passe est différent de l'ancien
+            if ($currentPassword === $newPassword) {
+                $this->logger->error('Le nouveau mot de passe est identique à l\'ancien');
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Le nouveau mot de passe doit être différent de l\'ancien'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            
+            // Hacher et définir le nouveau mot de passe
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            
+            // Persister les modifications
+            $this->entityManager->persist($user);
+            $this->logger->info('Mise à jour du mot de passe utilisateur en cours...');
+            $this->entityManager->flush();
+            
+            $this->logger->info('Mot de passe mis à jour avec succès');
+            
+            return $this->json([
+                'success' => true,
+                'message' => 'Mot de passe mis à jour avec succès'
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors de la mise à jour du mot de passe: ' . $e->getMessage());
+            
+            return $this->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du mot de passe',
                 'error' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
