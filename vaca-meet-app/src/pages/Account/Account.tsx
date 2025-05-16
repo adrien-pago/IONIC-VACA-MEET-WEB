@@ -588,14 +588,11 @@ const Account: React.FC = () => {
       <BackgroundEffects variant="gradient" density="high" animate={false} />
       
       <IonHeader className="ion-no-border transparent-header">
-        <IonToolbar className="ion-align-items-center">
-          <IonButtons slot="start">
-            <IonMenuButton menu="account-menu"></IonMenuButton>
-          </IonButtons>
-          <IonTitle className="ion-text-center account-title">Mon Compte</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={navigateBack}>
-              <IonIcon slot="icon-only" icon={arrowBackOutline} />
+        <IonToolbar className="aligned-toolbar">
+          <IonButtons slot="start" className="aligned-buttons">
+            <IonButton className="custom-back-button" onClick={navigateBack}>
+              <IonIcon slot="start" icon={arrowBackOutline} />
+              Retour
             </IonButton>
           </IonButtons>
         </IonToolbar>

@@ -1,0 +1,537 @@
+/* Styles pour la page ActivityCamping */
+.week-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour la barre d'outils avec séparateur */
+ion-toolbar {
+  position: relative;
+}
+
+ion-toolbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(var(--ion-color-medium-rgb), 0.2);
+  z-index: 9;
+}
+
+/* Alignement de la toolbar avec le contenu */
+.aligned-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.aligned-buttons {
+  margin-left: 16px;
+}
+
+@media (min-width: 768px) {
+  .aligned-buttons {
+    margin-left: calc((100% - 768px) / 2 + 16px);
+  }
+}
+
+@media (min-width: 992px) {
+  .aligned-buttons {
+    margin-left: calc((100% - 992px) / 2 + 16px);
+  }
+}
+
+/* Style pour le bouton de retour personnalisé */
+.custom-back-button {
+  --color: var(--ion-color-primary);
+  --padding-start: 0.4rem;
+  --padding-end: 0.75rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  position: relative;
+  overflow: visible;
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.3);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  height: 32px;
+  max-height: 32px;
+  margin-left: 0;
+  --background: rgba(var(--ion-color-primary-rgb), 0.08);
+}
+
+.custom-back-button::before {
+  display: none;
+}
+
+.custom-back-button:hover {
+  --background: rgba(var(--ion-color-primary-rgb), 0.15);
+  border-color: rgba(var(--ion-color-primary-rgb), 0.5);
+  box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
+.custom-back-button ion-icon {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.week-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--ion-color-primary);
+}
+
+/* Style pour la navigation des dates avec flèches */
+.date-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.week-date {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0.5rem;
+  white-space: nowrap;
+  background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-overflow: ellipsis;
+  max-width: calc(100% - 100px); /* Pour laisser de la place aux boutons */
+}
+
+.week-arrow-button {
+  --color: var(--ion-color-primary);
+  --color-activated: var(--ion-color-primary-shade);
+  --color-hover: var(--ion-color-primary-tint);
+  --background: transparent;
+  --background-hover: rgba(var(--ion-color-primary-rgb), 0.05);
+  --background-activated: rgba(var(--ion-color-primary-rgb), 0.1);
+  --border-radius: 50%;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  height: 40px;
+  width: 40px;
+  margin: 0;
+  transition: all 0.2s ease;
+}
+
+.week-arrow-button ion-icon {
+  font-size: 24px;
+  color: var(--ion-color-primary);
+}
+
+.week-arrow-button:hover {
+  transform: scale(1.1);
+}
+
+/* Styles pour le planning hebdomadaire */
+.schedule-card {
+  margin: 0;
+  background: #f0f6fc;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(200, 220, 240, 0.6);
+  position: relative;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.schedule-container {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ion-color-primary) transparent;
+  padding-bottom: 5px;
+}
+
+.schedule-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.schedule-container::-webkit-scrollbar-track {
+  background: rgba(var(--ion-color-medium-rgb), 0.1);
+  border-radius: 10px;
+}
+
+.schedule-container::-webkit-scrollbar-thumb {
+  background: var(--ion-color-primary);
+  border-radius: 10px;
+}
+
+/* En-tête du planning */
+.schedule-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #e0ecfa;
+  border-bottom: 1px solid #c8d8e8;
+}
+
+.time-column-header {
+  width: 80px;
+  min-width: 80px;
+  padding: 10px 5px;
+  font-weight: 600;
+  color: #4a7db5;
+  font-size: 0.9rem;
+  text-align: center;
+  border-right: 1px solid #d5e3f3;
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  background: #e0ecfa;
+}
+
+.days-header {
+  display: flex;
+  flex: 1;
+}
+
+.schedule-day-header {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 4px;
+  text-align: center;
+  font-weight: 600;
+  position: relative;
+  border-right: 1px solid #d5e3f3;
+}
+
+.schedule-day-header:last-child {
+  border-right: none;
+}
+
+.day-name {
+  font-size: 0.9rem;
+  color: #4a7db5;
+  font-weight: 600;
+  padding: 6px 0;
+}
+
+/* Surbrillance pour le jour actuel */
+.schedule-day-header.current-day .day-name {
+  color: #2368c5;
+  font-weight: 700;
+}
+
+.schedule-day-header.current-day::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: #2368c5;
+  border-radius: 2px;
+}
+
+/* Corps du planning */
+.schedule-body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.schedule-row {
+  display: flex;
+  border-bottom: 1px solid #d5e3f3;
+  position: relative;
+  background: #fff;
+}
+
+.schedule-row:nth-child(even) {
+  background: #f7faff;
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.time-slot {
+  width: 80px;
+  min-width: 80px;
+  padding: 10px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #566b85;
+  background: #f0f6fc;
+  border-right: 1px solid #d5e3f3;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.day-cells {
+  display: flex;
+  flex: 1;
+}
+
+.schedule-cell {
+  flex: 1;
+  min-width: 80px;
+  min-height: 50px;
+  border-right: 1px solid #d5e3f3;
+  position: relative;
+  padding: 2px;
+}
+
+.schedule-cell:last-child {
+  border-right: none;
+}
+
+/* Styles spéciaux pour la soirée */
+.evening-row {
+  border-top: 1px solid #c8d8e8;
+  background: #f2f8ff;
+}
+
+.evening-row .time-slot {
+  background: #e0ecfa;
+  color: #4a7db5;
+  font-weight: 600;
+}
+
+/* Styles pour les activités */
+.activity-item {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.activity-item:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Couleurs pour les activités */
+.activity-fitness {
+  background: #ff5a4c; /* Rouge */
+}
+
+.activity-meditation {
+  background: #2ecc85; /* Vert */
+}
+
+.activity-yoga {
+  background: #25d0b6; /* Turquoise */
+}
+
+.activity-water {
+  background: #38bdf8; /* Bleu clair */
+}
+
+.activity-sport {
+  background: #ff9452; /* Orange */
+}
+
+.activity-kids {
+  background: #ff32b1; /* Rose */
+}
+
+.activity-workshop {
+  background: #6c5dd3; /* Violet */
+}
+
+.activity-leisure {
+  background: #8e44ef; /* Violet foncé */
+}
+
+.activity-culture {
+  background: #ffca45; /* Jaune */
+}
+
+.activity-food {
+  background: #f9b233; /* Orange doré */
+}
+
+/* Styles responsifs */
+@media (max-width: 576px) {
+  .week-date {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  
+  .week-arrow-button {
+    height: 40px;
+    width: 40px;
+    --padding-start: 6px;
+    --padding-end: 6px;
+  }
+  
+  .week-arrow-button ion-icon {
+    font-size: 22px;
+  }
+  
+  .time-slot {
+    width: 60px;
+    min-width: 60px;
+    font-size: 0.7rem;
+    padding: 8px 3px;
+  }
+  
+  .time-column-header {
+    width: 60px;
+    min-width: 60px;
+    font-size: 0.8rem;
+  }
+  
+  .schedule-cell {
+    min-width: 65px;
+  }
+  
+  .day-name {
+    font-size: 0.8rem;
+  }
+  
+  .schedule-container {
+    margin: 0 -5px;
+    width: calc(100% + 10px);
+  }
+  
+  .activity-item {
+    padding: 4px 2px;
+    font-size: 0.65rem;
+  }
+}
+
+/* Correction pour les appareils plus petits */
+@media (max-width: 360px) {
+  .time-slot, .time-column-header {
+    width: 55px;
+    min-width: 55px;
+  }
+  
+  .schedule-cell {
+    min-width: 60px;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .schedule-card {
+    background: #172436;
+    border-color: rgba(80, 100, 140, 0.3);
+  }
+  
+  .schedule-header {
+    background: #1e2f44;
+    border-bottom-color: #2c3e55;
+  }
+  
+  .time-column-header {
+    color: #8ab1de;
+    border-right-color: #2c3e55;
+    background: #1e2f44;
+  }
+  
+  .day-name {
+    color: #8ab1de;
+  }
+  
+  .schedule-day-header {
+    border-right-color: #2c3e55;
+  }
+  
+  .schedule-row {
+    background: #1a2639;
+    border-bottom-color: #2c3e55;
+  }
+  
+  .schedule-row:nth-child(even) {
+    background: #1c2a3f;
+  }
+  
+  .time-slot {
+    background: #1e2f44;
+    color: #8ab1de;
+    border-right-color: #2c3e55;
+  }
+  
+  .schedule-cell {
+    border-right-color: #2c3e55;
+  }
+  
+  .evening-row {
+    background: #1d304a;
+    border-top-color: #2c3e55;
+  }
+  
+  .evening-row .time-slot {
+    background: #1e2f44;
+    color: #8ab1de;
+  }
+}
+
+/* Support pour les différents thèmes */
+:root.theme-blue .week-date {
+  background: linear-gradient(45deg, #4a7bff, #63e2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:root.theme-green .week-date {
+  background: linear-gradient(45deg, #28a745, #5cffaa);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:root.theme-minimal .week-selector {
+  background: transparent;
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.2);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+} 

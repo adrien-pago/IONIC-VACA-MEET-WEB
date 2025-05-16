@@ -9,6 +9,7 @@ import Register from './pages/Register/Register';
 import Home from './pages/Home/Home';
 import HomeCamping from './pages/HomeCamping/HomeCamping';
 import Account from './pages/Account/Account';
+import ActivityCamping from './pages/ActivityCamping/ActivityCamping';
 
 /* Thème Context Provider */
 import { ThemeProvider } from './context/ThemeContext';
@@ -63,6 +64,7 @@ const App: React.FC = () => (
           <Route path="/register" component={Register} exact />
           <Route path="/home" component={Home} exact />
           <Route path="/camping/:id" component={HomeCamping} exact />
+          <Route path="/activity-camping/:id" component={ActivityCamping} exact />
           <Route path="/account" component={Account} exact />
           <Route exact path="/">
             <Redirect to="/login" />

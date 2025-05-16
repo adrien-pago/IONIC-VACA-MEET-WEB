@@ -5,6 +5,61 @@
   --background: transparent;
 }
 
+/* Alignement de la toolbar avec le contenu */
+.aligned-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.aligned-buttons {
+  margin-left: 16px;
+}
+
+@media (min-width: 768px) {
+  .aligned-buttons {
+    margin-left: calc((100% - 768px) / 2 + 16px);
+  }
+}
+
+@media (min-width: 992px) {
+  .aligned-buttons {
+    margin-left: calc((100% - 992px) / 2 + 16px);
+  }
+}
+
+/* Style pour le bouton de retour personnalisé */
+.custom-back-button {
+  --color: var(--ion-color-primary);
+  --padding-start: 0.4rem;
+  --padding-end: 0.75rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  position: relative;
+  overflow: visible;
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.3);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  height: 32px;
+  max-height: 32px;
+  margin-left: 0;
+  --background: rgba(var(--ion-color-primary-rgb), 0.08);
+}
+
+.custom-back-button::before {
+  display: none;
+}
+
+.custom-back-button:hover {
+  --background: rgba(var(--ion-color-primary-rgb), 0.15);
+  border-color: rgba(var(--ion-color-primary-rgb), 0.5);
+  box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
+.custom-back-button ion-icon {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
 .account-welcome-title {
   font-size: 1.8rem;
   font-weight: 600;

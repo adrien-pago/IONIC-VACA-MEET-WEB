@@ -28,7 +28,7 @@ import {
   useIonRouter,
   IonAlert
 } from '@ionic/react';
-import { personCircleOutline, menu, logOutOutline, homeOutline, personOutline, peopleOutline, informationCircleOutline, calendarOutline, arrowBackOutline } from 'ionicons/icons';
+import { personCircleOutline, menu, logOutOutline, homeOutline, personOutline, peopleOutline, informationCircleOutline, calendarOutline, arrowBackOutline, arrowForwardOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { CampingService, CampingInfo } from '../../services/camping.service';
 import GlassCard from '../../components/GlassCard';
@@ -114,6 +114,10 @@ const HomeCamping: React.FC = () => {
 
   const navigateBack = () => {
     router.push('/home');
+  };
+  
+  const navigateToActivity = () => {
+    router.push(`/activity-camping/${id}`);
   };
 
   return (
@@ -205,36 +209,33 @@ const HomeCamping: React.FC = () => {
                   </h1>
                 </div>
                 
-                {/* Carte des animations du camping */}
+                {/* Carte des animations du camping avec lien vers ActivityCamping */}
                 <GlassCard
                   color="primary"
                   className={`animations-card ${animation}`}
                   animated={false}
+                  onClick={navigateToActivity}
                 >
-                  <h2 className="section-title">
-                    <IonIcon icon={calendarOutline} /> Animations du camping
-                  </h2>
+                  <div className="card-header-centered">
+                    <h2 className="section-title">
+                      <IonIcon icon={calendarOutline} /> Animations du camping
+                    </h2>
+                  </div>
                   
-                  {campingInfo && campingInfo.animations.length > 0 ? (
-                    <IonList lines="full" className="transparent-list">
-                      {campingInfo.animations.map(animation => (
-                        <IonItem key={animation.id} className="animation-item">
-                          <div className="animation-content">
-                            <h3 className="animation-title">{animation.title}</h3>
-                            <p className="animation-description">{animation.description}</p>
-                            <div className="animation-details">
-                              <span className="animation-day">{animation.day}</span>
-                              <span className="animation-time">{animation.time}</span>
-                            </div>
-                          </div>
-                        </IonItem>
-                      ))}
-                    </IonList>
-                  ) : (
-                    <div className="no-data-container">
-                      <p className="no-data-message">Aucune animation programmée pour le moment.</p>
-                    </div>
-                  )}
+                  <div className="centered-button-container">
+                    <IonButton 
+                      fill="solid" 
+                      shape="round"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Empêche le déclenchement du onClick du GlassCard parent
+                        navigateToActivity();
+                      }}
+                      className="centered-action-button"
+                    >
+                      Voir les activités que propose le camping
+                      <IonIcon slot="end" icon={arrowForwardOutline} />
+                    </IonButton>
+                  </div>
                 </GlassCard>
                 
                 {/* Carte des services du camping */}

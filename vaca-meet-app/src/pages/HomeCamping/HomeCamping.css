@@ -30,6 +30,149 @@
   margin-top: 2px;
 }
 
+/* Styles pour l'en-tête centrée et le bouton centré */
+.card-header-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.centered-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0 1rem 0;
+}
+
+.centered-action-button {
+  --border-radius: 0;
+  --background: transparent;
+  --color: var(--ion-color-light);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  height: 52px;
+  margin: 0;
+  --box-shadow: none;
+  position: relative;
+  overflow: visible;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  text-transform: none;
+}
+
+.centered-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  transform: scaleX(0.92);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.centered-action-button::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 30px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--ion-color-primary), transparent);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.centered-action-button ion-icon {
+  font-size: 18px;
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.centered-action-button:hover {
+  --color: white;
+  transform: translateY(-2px);
+}
+
+.centered-action-button:hover::before {
+  transform: scaleX(1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.centered-action-button:hover::after {
+  opacity: 1;
+}
+
+.centered-action-button:hover ion-icon {
+  transform: translateX(4px);
+}
+
+@media (max-width: 576px) {
+  .centered-action-button {
+    font-size: 14px;
+    height: 48px;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .centered-action-button {
+    --color: var(--ion-color-light);
+  }
+  
+  .centered-action-button::before {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .centered-action-button:hover::before {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Styles pour l'en-tête avec bouton d'action */
+.card-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.view-all-button {
+  --color: var(--ion-color-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.view-all-button:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Personnalisation des cartes pour les rendre cliquables */
+.animations-card {
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.animations-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
 /* Personnalisation de l'alerte de déconnexion */
 ion-alert.logout-alert {
   --width: 80%;
