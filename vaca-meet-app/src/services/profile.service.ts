@@ -132,12 +132,26 @@ export class ProfileService {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       console.log('Mise à jour du thème:', theme);
-      console.log('URL de mise à jour du thème:', `${config.api.baseUrl}${config.api.endpoints.updateProfile}`);
+      console.log('URL de mise à jour du thème:', `${config.api.baseUrl}${config.api.endpoints.updateTheme}`);
       
-      const response = await api.put(config.api.endpoints.updateProfile, { theme });
+      // Utiliser l'endpoint spécifique pour la mise à jour du thème
+      const response = await api.post(config.api.endpoints.updateTheme, { theme });
       console.log('Réponse mise à jour thème:', response.data);
       
-      return response.data;
+      if (response.data && response.data.user) {
+        return response.data.user;
+      } else if (response.data && response.data.success) {
+        // Créer un objet utilisateur minimal avec le thème mis à jour
+        return {
+          id: 0,
+          username: '',
+          firstName: '',
+          lastName: '',
+          theme: theme
+        };
+      } else {
+        throw new Error('Format de réponse invalide');
+      }
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du thème:', error);
       

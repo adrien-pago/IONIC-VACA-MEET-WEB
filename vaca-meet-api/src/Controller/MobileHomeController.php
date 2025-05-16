@@ -118,7 +118,8 @@ class MobileHomeController extends AbstractController
                 'id' => $user->getId(),
                 'username' => $user->getUsername(),
                 'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName()
+                'lastName' => $user->getLastName(),
+                'theme' => $user->getTheme()
             ];
             
             $this->logger->info('Profil utilisateur récupéré avec succès');

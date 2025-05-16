@@ -138,4 +138,79 @@ class MobileProfileController extends AbstractController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Endpoint pour mettre à jour uniquement le thème de l'utilisateur
+     */
+    #[Route('/api/mobile/user/update-theme', name: 'api_mobile_user_update_theme', methods: ['POST'])]
+    public function updateUserTheme(Request $request): JsonResponse
+    {
+        $this->logger->info('Mise à jour du thème utilisateur');
+        
+        try {
+            // Récupérer l'utilisateur connecté
+            $user = $this->getUser();
+            
+            if (!$user instanceof UserMobile) {
+                $this->logger->error('Utilisateur non authentifié ou invalide');
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Récupérer les données de la requête
+            $data = json_decode($request->getContent(), true);
+            $this->logger->info('Contenu brut de la requête pour thème: ' . $request->getContent());
+            
+            if (!$data || !isset($data['theme'])) {
+                $this->logger->error('Données invalides ou thème manquant');
+                return $this->json(['message' => 'Thème non spécifié'], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $theme = $data['theme'];
+            
+            // Valider le thème (valeurs autorisées: default, blue, green, minimal)
+            $validThemes = ['default', 'blue', 'green', 'minimal'];
+            if (!in_array($theme, $validThemes)) {
+                $this->logger->error('Thème invalide: ' . $theme);
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Thème invalide. Valeurs autorisées: default, blue, green, minimal'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            
+            // Mettre à jour le thème de l'utilisateur
+            $oldTheme = $user->getTheme();
+            $user->setTheme($theme);
+            
+            // Persister les modifications en base de données
+            $this->entityManager->persist($user);
+            $this->logger->info('Mise à jour du thème: ' . $oldTheme . ' => ' . $theme);
+            $this->entityManager->flush();
+            
+            // Rafraîchir l'entité pour obtenir les données à jour
+            $this->entityManager->refresh($user);
+            
+            $this->logger->info('Thème utilisateur mis à jour avec succès');
+            
+            // Retourner les informations mises à jour
+            return $this->json([
+                'success' => true,
+                'message' => 'Thème mis à jour avec succès',
+                'user' => [
+                    'id' => $user->getId(),
+                    'username' => $user->getUsername(),
+                    'firstName' => $user->getFirstName(),
+                    'lastName' => $user->getLastName(),
+                    'theme' => $user->getTheme()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors de la mise à jour du thème: ' . $e->getMessage());
+            
+            return $this->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du thème',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
