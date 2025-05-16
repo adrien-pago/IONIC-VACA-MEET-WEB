@@ -33,6 +33,9 @@ class MobileProfileController extends AbstractController
                 return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
             }
             
+            // Log de l'état initial de l'utilisateur
+            $this->logUserState($user, 'État initial');
+            
             // Récupérer les données de la requête
             $data = json_decode($request->getContent(), true);
             
@@ -89,31 +92,74 @@ class MobileProfileController extends AbstractController
             
             // Utiliser username au lieu de email (username correspond à l'email en base)
             if (isset($data['username']) && ($data['username'] !== $user->getUsername() || $forceUpdate)) {
-                $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
-                $hasChanges = true;
-                $this->logger->info('Mise à jour username:', [
-                    'ancien' => $oldValues['username'],
-                    'nouveau' => $data['username']
-                ]);
+                try {
+                    // Vérifier si le username existe déjà
+                    $userWithSameUsername = $this->entityManager
+                        ->getRepository(UserMobile::class)
+                        ->findOneBy(['username' => $data['username']]);
+                    
+                    if ($userWithSameUsername && $userWithSameUsername->getId() !== $user->getId()) {
+                        $this->logger->error('Impossible de mettre à jour le username car il existe déjà', [
+                            'username' => $data['username'],
+                            'userId' => $user->getId(),
+                            'existingUserId' => $userWithSameUsername->getId()
+                        ]);
+                        return $this->json([
+                            'success' => false,
+                            'message' => 'Ce nom d\'utilisateur est déjà utilisé par un autre compte',
+                            'field' => 'username'
+                        ], Response::HTTP_CONFLICT);
+                    }
+                    
+                    $oldUsername = $user->getUsername();
+                    $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
+                    $hasChanges = true;
+                    $this->logger->info('Mise à jour username:', [
+                        'ancien' => $oldUsername,
+                        'nouveau' => $data['username'],
+                        'userId' => $user->getId()
+                    ]);
+                } catch (\Exception $e) {
+                    $this->logger->error('Erreur lors de la mise à jour du username', [
+                        'message' => $e->getMessage(),
+                        'username' => $data['username'],
+                        'userId' => $user->getId()
+                    ]);
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de la mise à jour de l\'identifiant: ' . $e->getMessage(),
+                        'field' => 'username'
+                    ], Response::HTTP_BAD_REQUEST);
+                }
             }
             
             if (!$hasChanges) {
                 $this->logger->info('Aucune modification détectée, les valeurs sont identiques');
             } else {
-                // Persister les modifications et forcer le flush
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-                $this->logger->info('Flush exécuté avec succès');
-                
-                // Vérifier que les données ont bien été mises à jour
-                // Refresh l'entité pour s'assurer d'avoir les dernières valeurs
-                $this->entityManager->refresh($user);
-                $this->logger->info('Valeurs après mise à jour en base:', [
-                    'userId' => $user->getId(),
-                    'firstName' => $user->getFirstName(),
-                    'lastName' => $user->getLastName(),
-                    'username' => $user->getUsername()
-                ]);
+                try {
+                    // Persister les modifications et forcer le flush
+                    $this->entityManager->persist($user);
+                    $this->logger->info('Utilisateur persisté avant flush', [
+                        'userId' => $user->getId()
+                    ]);
+                    $this->entityManager->flush();
+                    $this->logger->info('Flush exécuté avec succès');
+                    
+                    // Vérifier que les données ont bien été mises à jour
+                    // Refresh l'entité pour s'assurer d'avoir les dernières valeurs
+                    $this->entityManager->refresh($user);
+                    $this->logUserState($user, 'État après refresh');
+                } catch (\Exception $e) {
+                    $this->logger->error('Erreur lors du flush des modifications:', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de l\'enregistrement des modifications: ' . $e->getMessage()
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
             }
             
             $this->logger->info('Profil utilisateur mis à jour avec succès pour l\'utilisateur ' . $user->getId());
@@ -141,5 +187,19 @@ class MobileProfileController extends AbstractController
                 'error' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Log l'état actuel de l'utilisateur
+     */
+    private function logUserState(UserMobile $user, string $label): void
+    {
+        $this->logger->info($label . ' - État de l\'utilisateur:', [
+            'userId' => $user->getId(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'username' => $user->getUsername(),
+            'roles' => $user->getRoles()
+        ]);
     }
 }
