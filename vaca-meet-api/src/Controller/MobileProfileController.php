@@ -44,6 +44,11 @@ class MobileProfileController extends AbstractController
             // Récupérer les données de la requête
             $data = json_decode($request->getContent(), true);
             
+            // Ajouter des logs détaillés pour le debugging
+            $this->logger->info('Contenu brut de la requête: ' . $request->getContent());
+            $this->logger->info('Données décodées: ' . json_encode($data));
+            $this->logger->info('Valeurs actuelles: firstName="' . $user->getFirstName() . '", lastName="' . $user->getLastName() . '"');
+            
             if (!$data) {
                 return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
             }
@@ -51,37 +56,42 @@ class MobileProfileController extends AbstractController
             // Mettre à jour les informations de l'utilisateur
             $hasChanges = false;
             
-            // Mise à jour du prénom si fourni et différent
-            if (isset($data['firstName']) && $data['firstName'] !== $user->getFirstName()) {
+            // Mise à jour du prénom si fourni
+            if (isset($data['firstName'])) {
+                $oldFirstName = $user->getFirstName();
                 $user->setFirstName($data['firstName']);
                 $hasChanges = true;
-                $this->logger->info('Mise à jour du prénom effectuée');
+                $this->logger->info('Mise à jour du prénom effectuée: de "' . $oldFirstName . '" à "' . $data['firstName'] . '"');
+            } else {
+                $this->logger->info('Pas de mise à jour du prénom: valeur non fournie');
             }
             
-            // Mise à jour du nom si fourni et différent
-            if (isset($data['lastName']) && $data['lastName'] !== $user->getLastName()) {
+            // Mise à jour du nom si fourni (forcer la mise à jour même si les valeurs semblent identiques)
+            if (isset($data['lastName'])) {
+                $oldLastName = $user->getLastName();
+                // Forcer la mise à jour du lastName, quelle que soit la valeur actuelle
                 $user->setLastName($data['lastName']);
                 $hasChanges = true;
-                $this->logger->info('Mise à jour du nom effectuée');
+                $this->logger->info('Mise à jour du nom effectuée (forcée): de "' . $oldLastName . '" à "' . $data['lastName'] . '"');
+                
+                // Comparaison pour débogage
+                $this->logger->info('Debug lastName: valeur fournie="' . $data['lastName'] . '", valeur actuelle avant update="' . $oldLastName . '"');
+                $this->logger->info('Type de lastName fourni: ' . gettype($data['lastName']) . ', type actuel: ' . gettype($oldLastName));
+                $this->logger->info('Les valeurs sont-elles égales? ' . ($data['lastName'] === $oldLastName ? 'Oui' : 'Non'));
+                $this->logger->info('Les valeurs sont-elles égales (==)? ' . ($data['lastName'] == $oldLastName ? 'Oui' : 'Non'));
+            } else {
+                $this->logger->info('Pas de mise à jour du nom: valeur non fournie dans la requête');
             }
             
-            // Si aucun changement n'est nécessaire, retourner une réponse appropriée
-            if (!$hasChanges) {
-                return $this->json([
-                    'success' => true,
-                    'message' => 'Aucune modification nécessaire',
-                    'user' => [
-                        'id' => $user->getId(),
-                        'username' => $user->getUsername(),
-                        'firstName' => $user->getFirstName(),
-                        'lastName' => $user->getLastName()
-                    ]
-                ]);
-            }
-            
-            // Persister les modifications en base de données
+            // Persister les modifications en base de données même si aucun changement n'a été détecté
             $this->entityManager->persist($user);
+            $this->logger->info('Utilisateur persisté, préparation du flush');
             $this->entityManager->flush();
+            $this->logger->info('Flush effectué');
+            
+            // Vérification après flush
+            $this->entityManager->refresh($user);
+            $this->logger->info('Valeurs après mise à jour et refresh: firstName="' . $user->getFirstName() . '", lastName="' . $user->getLastName() . '"');
             
             $this->logger->info('Profil utilisateur mis à jour avec succès');
             
