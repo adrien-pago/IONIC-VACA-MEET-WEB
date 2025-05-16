@@ -301,9 +301,23 @@ class MobileProfileController extends AbstractController
                 // Mettre à jour l'objet en mémoire
                 $user->setUsername($newUsername);
                 
+                // Vérification finale en base de données
+                $verifySQL = 'SELECT username FROM user_mobile WHERE id = :id';
+                $verifyStmt = $conn->prepare($verifySQL);
+                $verifyStmt->bindValue('id', $user->getId());
+                $verifyResult = $verifyStmt->executeQuery();
+                $verifiedUsername = $verifyResult->fetchOne();
+                
+                $this->logger->info('Vérification finale du username en base:', [
+                    'userId' => $user->getId(),
+                    'username' => $verifiedUsername,
+                    'match' => ($verifiedUsername === $newUsername)
+                ]);
+                
                 return $this->json([
                     'success' => true,
-                    'message' => 'Username mis à jour avec succès',
+                    'message' => 'Username mis à jour avec succès. Veuillez vous reconnecter car votre token JWT est désormais invalide.',
+                    'tokenNeedsRefresh' => true,
                     'user' => [
                         'id' => $user->getId(),
                         'username' => $newUsername,
