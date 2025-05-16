@@ -46,7 +46,15 @@ class MobileProfileController extends AbstractController
             
             // Ajouter des logs détaillés pour le debugging
             $this->logger->info('Contenu brut de la requête: ' . $request->getContent());
-            $this->logger->info('Données décodées: ' . json_encode($data));
+            
+            // IMPORTANT: Si le username est présent dans les données, on l'ignore intentionnellement
+            if (isset($data['username'])) {
+                $this->logger->info('Le champ username est présent mais sera ignoré: ' . $data['username']);
+                // On supprime le username des données pour éviter toute tentative de modification
+                unset($data['username']);
+            }
+            
+            $this->logger->info('Données traitées (sans username): ' . json_encode($data));
             $this->logger->info('Valeurs actuelles: firstName="' . $user->getFirstName() . '", lastName="' . $user->getLastName() . '"');
             
             if (!$data) {
@@ -83,7 +91,21 @@ class MobileProfileController extends AbstractController
                 $this->logger->info('Pas de mise à jour du nom: valeur non fournie dans la requête');
             }
             
-            // Persister les modifications en base de données même si aucun changement n'a été détecté
+            // Si aucun changement n'est nécessaire, retourner une réponse appropriée
+            if (!$hasChanges) {
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Aucune modification effectuée',
+                    'user' => [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                        'firstName' => $user->getFirstName(),
+                        'lastName' => $user->getLastName()
+                    ]
+                ]);
+            }
+            
+            // Persister les modifications en base de données
             $this->entityManager->persist($user);
             $this->logger->info('Utilisateur persisté, préparation du flush');
             $this->entityManager->flush();

@@ -269,7 +269,7 @@ export class ProfileService {
       
       console.log('Données brutes reçues pour mise à jour du profil mobile:', data);
       
-      // Préparation des données à envoyer
+      // Préparation des données à envoyer - IMPORTANT: ne jamais inclure username
       const cleanData: Record<string, string> = {};
       
       if (data.firstName) {
@@ -280,9 +280,7 @@ export class ProfileService {
         cleanData.lastName = data.lastName;
       }
       
-      if (data.username) {
-        cleanData.username = data.username;
-      }
+      // Le username est intentionnellement omis pour respecter les contraintes du backend
       
       console.log('Données nettoyées pour mise à jour du profil mobile:', cleanData);
       console.log('URL complète de mise à jour du profil mobile:', `${config.api.baseUrl}${config.api.endpoints.updateMobileProfile}`);

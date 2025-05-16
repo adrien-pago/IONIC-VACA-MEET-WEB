@@ -343,6 +343,62 @@ ion-segment-button {
   height: 48px;
 }
 
+/* Styles pour le champ email désactivé */
+.email-field-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.disabled-input {
+  opacity: 0.7;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.email-info-badge {
+  position: relative;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lock-icon {
+  color: var(--ion-color-medium);
+  font-size: 18px;
+}
+
+.email-help-text {
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+}
+
+.email-info-badge:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .info-value {

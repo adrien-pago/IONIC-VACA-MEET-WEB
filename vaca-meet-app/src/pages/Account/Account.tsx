@@ -203,13 +203,8 @@ const Account: React.FC = () => {
       isValid = false;
     }
 
-    if (!formData.username?.trim()) {
-      newErrors.username = 'Le nom d\'utilisateur est requis';
-      isValid = false;
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
-      isValid = false;
-    }
+    // On ne valide plus le username car il n'est pas modifiable
+    newErrors.username = '';
 
     setErrors(newErrors);
     return isValid;
@@ -252,25 +247,27 @@ const Account: React.FC = () => {
       if (user) {
         const hasChanges = 
           formData.firstName !== user.firstName || 
-          formData.lastName !== user.lastName || 
-          formData.username !== user.username;
+          formData.lastName !== user.lastName;
           
         console.log('Détection de changements:', hasChanges, {
           'firstName (form/user)': `${formData.firstName}/${user.firstName}`,
-          'lastName (form/user)': `${formData.lastName}/${user.lastName}`,
-          'username (form/user)': `${formData.username}/${user.username}` // username correspond à email en base
+          'lastName (form/user)': `${formData.lastName}/${user.lastName}`
         });
         
         if (!hasChanges) {
           console.warn('Aucun changement détecté dans les données!');
+          setShowLoading(false);
+          setToastMessage('Aucune modification à enregistrer');
+          setShowToast(true);
+          return;
         }
       }
       
-      // Créer une copie explicite des données à envoyer
+      // Créer une copie explicite des données à envoyer - IMPORTANT: ne pas inclure username
       const dataToSend = {
         firstName: formData.firstName,
-        lastName: formData.lastName,
-        username: formData.username // username correspond à email en base
+        lastName: formData.lastName
+        // username intentionnellement omis pour respecter les contraintes du backend
       };
       
       console.log('Envoi des données pour mise à jour du profil:', dataToSend);
@@ -284,7 +281,7 @@ const Account: React.FC = () => {
       setFormData({
         firstName: updatedUser.firstName || '',
         lastName: updatedUser.lastName || '',
-        username: updatedUser.username || ''
+        username: updatedUser.username || '' // Conserver le username inchangé
       });
       
       setToastMessage('Profil mis à jour avec succès');
@@ -458,23 +455,22 @@ const Account: React.FC = () => {
       
       <div className="edit-form-item">
         <div className="edit-label">Email</div>
-        <IonInput
-          name="username"
-          value={formData.username}
-          onIonChange={(e) => {
-            console.log('Changement d\'email:', e.detail);
-            if (e.detail.value !== undefined) {
-              setFormData({
-                ...formData,
-                username: e.detail.value || ''
-              });
-            }
-          }}
-          className="edit-input"
-        />
-        {errors.username && (
-          <IonText color="danger" className="error-message">{errors.username}</IonText>
-        )}
+        <div className="email-field-container">
+          <IonInput
+            name="username"
+            value={formData.username}
+            disabled={true}
+            readonly={true}
+            className="edit-input disabled-input"
+          />
+          <div className="email-info-badge">
+            <IonIcon icon={lockClosedOutline} className="lock-icon" />
+            <span className="tooltip-text">L'adresse email ne peut pas être modifiée</span>
+          </div>
+        </div>
+        <IonText color="medium" className="email-help-text">
+          L'adresse email ne peut pas être modifiée pour des raisons de sécurité.
+        </IonText>
       </div>
       
       <div className="form-actions">
