@@ -147,6 +147,12 @@ const Home: React.FC = () => {
     setTimeout(() => {
       setAnimation('animate-slide-up');
     }, 100);
+    
+    // Stocker l'information que l'utilisateur est sur la page Home
+    const pageValue = 'home';
+    sessionStorage.setItem('lastPage', pageValue);
+    localStorage.setItem('lastPage', pageValue);
+    console.log('Page Home: lastPage défini à "home" (session et local)');
   }, []);
 
   const handleLogout = () => {
@@ -235,7 +241,18 @@ const Home: React.FC = () => {
             </IonMenuToggle>
             
             <IonMenuToggle menu="home-menu">
-              <IonItem routerLink="/account" detail={false}>
+              <IonItem 
+                button
+                detail={false}
+                onClick={() => {
+                  // Stocker explicitement que l'on vient de la page Home avant de naviguer
+                  const sourceValue = 'home';
+                  sessionStorage.setItem('accountPageSource', sourceValue);
+                  localStorage.setItem('accountPageSource', sourceValue);
+                  console.log('Navigation vers Account depuis Home, source définie:', sourceValue);
+                  router.push('/account');
+                }}
+              >
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>
@@ -252,7 +269,7 @@ const Home: React.FC = () => {
       </IonMenu>
       
       <IonPage id="main-content">
-        <BackgroundEffects variant="gradient" density="high" animate={false} />
+        <BackgroundEffects variant="gradient" density="high" animate={false} useThemeColors={true} />
         
         <IonHeader className="ion-no-border transparent-header">
           <IonToolbar>
@@ -296,6 +313,9 @@ const Home: React.FC = () => {
                             placeholder="Sélectionnez une destination"
                             onIonChange={handleDestinationSelection}
                             className="destination-select"
+                            interfaceOptions={{
+                              cssClass: 'select-popover'
+                            }}
                             style={{ width: '100%' }}
                           >
                             {destinations.map((destination) => (
@@ -362,6 +382,7 @@ const Home: React.FC = () => {
             onDidDismiss={() => setShowLogoutAlert(false)}
             header="Déconnexion"
             message="Voulez-vous vraiment vous déconnecter ?"
+            cssClass="logout-alert"
             buttons={[
               {
                 text: 'Non',
@@ -370,7 +391,8 @@ const Home: React.FC = () => {
               },
               {
                 text: 'Oui',
-                handler: confirmLogout
+                handler: confirmLogout,
+                cssClass: 'primary'
               }
             ]}
           />

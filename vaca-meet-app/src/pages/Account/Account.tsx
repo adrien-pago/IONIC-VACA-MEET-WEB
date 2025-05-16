@@ -41,6 +41,7 @@ import { useTheme, ThemeType } from '../../context/ThemeContext';
 import GlassCard from '../../components/GlassCard';
 import BackgroundEffects from '../../components/BackgroundEffects';
 import './Account.css';
+import axios from 'axios';
 
 const Account: React.FC = () => {
   const { currentTheme, changeTheme } = useTheme();
@@ -86,6 +87,19 @@ const Account: React.FC = () => {
     setTimeout(() => {
       setAnimation('animate-slide-up');
     }, 100);
+    
+    // Stocker la référence à la page d'origine au chargement de la page Account
+    // Cela permet de conserver l'origine réelle de navigation même si sessionStorage est modifié ailleurs
+    const sourcePageSession = sessionStorage.getItem('lastPage');
+    const sourcePageLocal = localStorage.getItem('lastPage');
+    const sourcePage = sourcePageSession || sourcePageLocal;
+    
+    if (sourcePage) {
+      // Stocker cette référence dans une variable spécifique à cette page
+      sessionStorage.setItem('accountPageSource', sourcePage);
+      localStorage.setItem('accountPageSource', sourcePage);
+      console.log('Source de navigation Account enregistrée:', sourcePage);
+    }
   }, []);
 
   const loadUserProfile = async () => {
@@ -159,17 +173,37 @@ const Account: React.FC = () => {
   };
 
   const handlePasswordChange = (e: CustomEvent) => {
-    const { name, value } = e.detail;
-    setPasswordData({
-      ...passwordData,
-      [name]: value
-    });
-    
-    // Réinitialiser l'erreur pour ce champ
-    setErrors({
-      ...errors,
-      [name]: ''
-    });
+    try {
+      console.log('Événement de changement de mot de passe reçu:', e.detail);
+      
+      // Vérifier que les données nécessaires sont présentes
+      if (!e.detail || !e.detail.name) {
+        console.error('ERREUR: Événement de changement de mot de passe invalide', e);
+        return;
+      }
+      
+      const { name, value } = e.detail;
+      console.log(`Champ ${name} modifié, nouvelle longueur: ${value?.length || 0}`);
+      
+      // Mise à jour explicite pour éviter les problèmes de référence
+      const updatedData = { ...passwordData };
+      updatedData[name as keyof typeof passwordData] = value || '';
+      
+      console.log('Nouvelles données de mot de passe:', {
+        currentPassword: updatedData.currentPassword ? '****' : '',
+        newPassword: updatedData.newPassword ? '****' : '',
+        confirmPassword: updatedData.confirmPassword ? '****' : ''
+      });
+      
+      setPasswordData(updatedData);
+      
+      // Réinitialiser l'erreur pour ce champ
+      const updatedErrors = { ...errors };
+      updatedErrors[name as keyof typeof errors] = '';
+      setErrors(updatedErrors);
+    } catch (error) {
+      console.error('Erreur lors du traitement du changement de mot de passe:', error);
+    }
   };
 
   const handleThemeChange = (theme: ThemeType) => {
@@ -299,30 +333,37 @@ const Account: React.FC = () => {
 
   const changePassword = async () => {
     if (!validatePasswordForm()) {
-      console.log('Validation du formulaire échouée', errors);
+      console.log('Validation du formulaire de mot de passe échouée', errors);
       return;
     }
 
     try {
       setShowLoading(true);
-      console.log('Envoi de la demande de modification du mot de passe:', {
-        currentPassword: '****', // Masqué pour des raisons de sécurité
-        newPassword: '****', // Masqué pour des raisons de sécurité
-        longueurs: {
-          currentPassword: passwordData.currentPassword.length,
-          newPassword: passwordData.newPassword.length,
-          confirmPassword: passwordData.confirmPassword.length
+      console.log('Envoi de la demande de modification du mot de passe avec les longueurs:', {
+        currentPassword: passwordData.currentPassword.length,
+        newPassword: passwordData.newPassword.length
+      });
+      
+      // Utilisons directement l'API plutôt que de passer par le service
+      const token = localStorage.getItem(config.storage.tokenKey);
+      if (!token) {
+        throw new Error('Non authentifié');
+      }
+      
+      const url = `${config.api.baseUrl}${config.api.endpoints.updatePassword}`;
+      console.log('URL complète:', url);
+      
+      const response = await axios.post(url, {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
       
-      console.log('URL complète:', `${config.api.baseUrl}${config.api.endpoints.updatePassword}`);
-      
-      const result = await profileService.updatePassword(
-        passwordData.currentPassword,
-        passwordData.newPassword
-      );
-      
-      console.log('Réponse reçue après mise à jour du mot de passe:', result);
+      console.log('Réponse reçue après mise à jour du mot de passe:', response.data);
       
       setToastMessage('Mot de passe mis à jour avec succès');
       setShowToast(true);
@@ -336,7 +377,7 @@ const Account: React.FC = () => {
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
       
-      // Afficher plus de détails sur l'erreur
+      // Afficher des détails plus précis sur l'erreur
       if (error.response) {
         console.error('Détails de l\'erreur:', {
           status: error.response.status,
@@ -349,7 +390,6 @@ const Account: React.FC = () => {
             ...errors,
             currentPassword: 'Mot de passe actuel incorrect'
           });
-          setShowToast(false); // Éviter d'afficher un toast en plus du message d'erreur
         } else {
           setToastMessage(error.response.data?.message || 'Impossible de mettre à jour le mot de passe');
           setShowToast(true);
@@ -388,13 +428,10 @@ const Account: React.FC = () => {
         theme: updatedUser.theme || selectedTheme
       }) as UserProfile);
       
-      setToastMessage('Thème mis à jour avec succès');
-      setShowToast(true);
+      // Application silencieuse du thème sans message toast
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du thème:', error);
       // On garde le thème mis à jour localement même si l'API échoue
-      setToastMessage('Le thème a été appliqué localement, mais n\'a pas pu être enregistré sur le serveur');
-      setShowToast(true);
     } finally {
       setShowLoading(false);
     }
@@ -407,6 +444,36 @@ const Account: React.FC = () => {
   };
   
   const navigateBack = () => {
+    // Utiliser la source de navigation spécifique enregistrée au chargement de la page
+    const sourcePageSession = sessionStorage.getItem('accountPageSource');
+    const sourcePageLocal = localStorage.getItem('accountPageSource');
+    const sourcePage = sourcePageSession || sourcePageLocal;
+    
+    console.log('Navigation retour Account, source =', sourcePage);
+    
+    // Vérifier si sourcePage existe et contient bien une valeur
+    if (sourcePage && sourcePage.trim() !== '') {
+      if (sourcePage.startsWith('camping:')) {
+        // Si on vient d'une page camping, extraire l'ID et y retourner
+        const campingId = sourcePage.split(':')[1];
+        console.log('Détecté ID camping (source):', campingId);
+        if (campingId) {
+          console.log('Navigation vers camping/' + campingId);
+          
+          // On garde la navigation directe pour éviter les problèmes
+          router.push(`/camping/${campingId}`);
+          return;
+        }
+      } else if (sourcePage === 'home') {
+        // Si la dernière page est explicitement 'home'
+        console.log('Navigation vers home (source)');
+        router.push('/home');
+        return;
+      }
+    }
+    
+    // Si aucune condition n'est remplie ou si sourcePage est vide, retourner à l'accueil par défaut
+    console.log('Navigation par défaut vers home');
     router.push('/home');
   };
 
@@ -521,7 +588,7 @@ const Account: React.FC = () => {
       <BackgroundEffects variant="gradient" density="high" animate={false} />
       
       <IonHeader className="ion-no-border transparent-header">
-        <IonToolbar>
+        <IonToolbar className="ion-align-items-center">
           <IonButtons slot="start">
             <IonMenuButton menu="account-menu"></IonMenuButton>
           </IonButtons>
@@ -657,7 +724,19 @@ const Account: React.FC = () => {
                         type="password"
                         name="currentPassword"
                         value={passwordData.currentPassword}
-                        onIonChange={handlePasswordChange}
+                        onIonInput={(e: any) => {
+                          const value = e.target.value || '';
+                          setPasswordData({
+                            ...passwordData,
+                            currentPassword: value
+                          });
+                          if (errors.currentPassword) {
+                            setErrors({
+                              ...errors,
+                              currentPassword: ''
+                            });
+                          }
+                        }}
                         className="edit-input"
                       />
                       {errors.currentPassword && (
@@ -671,7 +750,19 @@ const Account: React.FC = () => {
                         type="password"
                         name="newPassword"
                         value={passwordData.newPassword}
-                        onIonChange={handlePasswordChange}
+                        onIonInput={(e: any) => {
+                          const value = e.target.value || '';
+                          setPasswordData({
+                            ...passwordData,
+                            newPassword: value
+                          });
+                          if (errors.newPassword) {
+                            setErrors({
+                              ...errors,
+                              newPassword: ''
+                            });
+                          }
+                        }}
                         className="edit-input"
                       />
                       {errors.newPassword && (
@@ -685,7 +776,19 @@ const Account: React.FC = () => {
                         type="password"
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
-                        onIonChange={handlePasswordChange}
+                        onIonInput={(e: any) => {
+                          const value = e.target.value || '';
+                          setPasswordData({
+                            ...passwordData,
+                            confirmPassword: value
+                          });
+                          if (errors.confirmPassword) {
+                            setErrors({
+                              ...errors,
+                              confirmPassword: ''
+                            });
+                          }
+                        }}
                         className="edit-input"
                       />
                       {errors.confirmPassword && (
@@ -719,13 +822,7 @@ const Account: React.FC = () => {
           position="top"
         />
         
-        <IonAlert
-          isOpen={showAlert}
-          onDidDismiss={() => setShowAlert(false)}
-          header="Information"
-          message={alertMessage}
-          buttons={['OK']}
-        />
+    
       </IonContent>
     </IonPage>
   );

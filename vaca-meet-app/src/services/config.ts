@@ -35,6 +35,10 @@ const config = {
   // Timeout des requêtes en ms (augmenté pour déboguer)
   requestTimeout: 30000, // 30 secondes pour déboguer
   
+  // Options de débogage
+  debug: {
+    verbose: isEmulator // Activer les logs verbeux en mode développement
+  },
   
   // Configuration du stockage local
   storage: {

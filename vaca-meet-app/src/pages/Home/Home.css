@@ -248,27 +248,25 @@ ion-item.profile-item {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Styles modernes pour la page d'accueil */
-
-/* Header transparent */
+/* Header transparent pour s'intégrer avec les backgrounds */
 .transparent-header {
   --background: transparent;
-  --border-color: transparent;
 }
 
 .transparent-header ion-toolbar {
-  --background: rgba(255, 255, 255, 0.1);
-  --border-style: none;
+  --background: rgba(0, 0, 0, 0.1);
+  --color: white;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* Dark mode header */
 @media (prefers-color-scheme: dark) {
   .transparent-header ion-toolbar {
-    --background: rgba(20, 20, 20, 0.7);
+    --background: rgba(0, 0, 0, 0.25);
   }
 }
+
+/* Styles modernes pour la page d'accueil */
 
 /* Grille principale */
 .home-grid {
@@ -612,52 +610,43 @@ ion-item.profile-item {
   margin-top: 10px;
 }
 
-/* Styles spécifiques pour la combo box */
-.destination-select {
-  position: relative;
-  width: 100%;
-}
-
+/* Styles personnalisés pour le select de destinations */
 .custom-select {
-  --background: rgba(255, 255, 255, 0.25);
-  --border-radius: 15px;
-  --padding-start: 16px;
-  --padding-end: 50px;
-  margin-top: 0;
-  margin-bottom: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  --background: rgba(255, 255, 255, 0.2);
+  --border-radius: 12px;
+  margin-bottom: 15px;
   overflow: hidden;
-  border-radius: 15px;
-  position: relative;
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.custom-select::after {
-  content: '▼';
-  position: absolute;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-  color: white;
-  font-size: 12px;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.custom-select ion-select {
-  --placeholder-color: rgba(255, 255, 255, 0.8);
-  --placeholder-opacity: 1;
-  color: white;
+.destination-select {
   width: 100%;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --placeholder-color: rgba(var(--ion-color-dark-rgb), 0.7);
+  --placeholder-opacity: 1;
   font-weight: 500;
-  --border-radius: 15px;
-  text-align: left;
-  padding-right: 30px;
 }
 
-/* Suppression de l'icône par défaut */
+/* Style pour le popover de sélection des destinations */
+.select-popover {
+  --width: 300px;
+  --max-width: 90vw;
+  --background: white;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+}
+
+/* Application du style aux éléments natifs de la liste déroulante */
+ion-select::part(text) {
+  padding: 10px 0;
+  font-weight: 500;
+}
+
 ion-select::part(icon) {
-  display: none;
+  opacity: 0.8;
+  color: var(--ion-color-primary);
 }
 
 /* Augmente l'espacement du formulaire au début */
@@ -688,6 +677,36 @@ ion-select::part(icon) {
   }
 }
 
+/* Styles pour les modales d'alerte */
+ion-alert.custom-alert {
+  --backdrop-opacity: 0.7;
+}
+
+/* Personnalisation de l'alerte de déconnexion */
+ion-alert.logout-alert {
+  --width: 80%;
+  --max-width: 400px;
+  --backdrop-opacity: 0.7;
+  --background: white;
+  --border-radius: 14px;
+}
+
+ion-alert.logout-alert::part(title) {
+  color: var(--ion-color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+ion-alert.logout-alert::part(message) {
+  color: var(--ion-color-medium);
+  font-size: 15px;
+}
+
+ion-alert.logout-alert::part(button) {
+  color: var(--ion-color-primary);
+  font-weight: 500;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .welcome-title {
@@ -699,137 +718,64 @@ ion-select::part(icon) {
   }
 }
 
-/* Menu styles avec meilleur contraste et cohérence avec le reste de l'application */
-ion-menu {
-  --ion-background-color: transparent;
-  --width: 280px;
+/* Dark mode pour le select et l'alerte */
+@media (prefers-color-scheme: dark) {
+  .custom-select {
+    --background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .destination-select {
+    --placeholder-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .select-popover {
+    --background: var(--ion-color-dark);
+  }
+  
+  ion-alert.logout-alert {
+    --background: var(--ion-color-dark);
+  }
+  
+  ion-alert.logout-alert::part(title) {
+    color: var(--ion-color-light);
+  }
+  
+  ion-alert.logout-alert::part(message) {
+    color: var(--ion-color-light-shade);
+  }
+  
+  ion-alert.logout-alert::part(button) {
+    color: var(--ion-color-primary-tint);
+  }
 }
 
-ion-menu ion-header ion-toolbar {
-  --background: rgba(0, 0, 0, 0.15);
-  --color: white;
-  --border-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+/* Thème minimal styles spécifiques */
+:root.theme-minimal .custom-select {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-ion-menu ion-content,
-.menu-content {
-  --background: transparent;
+:root.theme-minimal .destination-select {
+  --placeholder-color: rgba(0, 0, 0, 0.7);
 }
 
-/* Background effet pour le menu */
-.menu-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(255, 101, 132, 0.15) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: -1;
-}
-
-/* Styles améliorés pour l'en-tête du menu */
-.menu-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px 20px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.1);
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.menu-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-  border: 3px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.menu-avatar ion-icon {
-  font-size: 60px;
-  color: white;
-}
-
-.menu-header h2 {
-  margin: 10px 0 5px;
-  color: white;
-  font-size: 20px;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.menu-header p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-ion-menu ion-list {
-  background: transparent;
-  padding-top: 10px;
-}
-
-ion-menu ion-item {
-  --background: rgba(255, 255, 255, 0.15);
-  --background-hover: rgba(255, 255, 255, 0.25);
-  --background-activated: rgba(255, 255, 255, 0.3);
-  --background-focused: rgba(255, 255, 255, 0.3);
-  --color: #ffffff;
-  --border-color: rgba(255, 255, 255, 0.2);
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --min-height: 50px;
-  margin: 0 8px 8px 8px;
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-ion-menu ion-item.active {
-  --background: rgba(255, 255, 255, 0.25);
-  border-left: 3px solid white;
-}
-
-ion-menu ion-item ion-icon {
-  color: #ffffff;
-  margin-right: 10px;
-  font-size: 20px;
-}
-
-ion-menu ion-item ion-label {
-  color: #ffffff;
-  font-size: 16px;
-  margin-left: 5px;
-}
-
-/* Bouton de déconnexion spécial */
-ion-item[color="danger"] {
-  --background: rgba(235, 68, 90, 0.35);
-  --background-hover: rgba(235, 68, 90, 0.5);
-  margin-top: 20px;
+:root.theme-minimal ion-alert.logout-alert {
+  --background: white;
 }
 
 @media (prefers-color-scheme: dark) {
-  .menu-content::before {
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.4) 0%, rgba(255, 101, 132, 0.2) 100%);
+  :root.theme-minimal .custom-select {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
   
-  ion-menu ion-item {
-    --background: rgba(255, 255, 255, 0.08);
+  :root.theme-minimal .destination-select {
+    --placeholder-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  :root.theme-minimal ion-alert.logout-alert {
+    --background: #1c1c1c;
   }
 }
 

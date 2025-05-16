@@ -45,6 +45,7 @@ import './theme/variables.css';
 
 /* Global styles */
 import './styles/global.css';
+import './styles/menu.css';
 
 // Configuration de l'animation préférée pour les transitions
 setupIonicReact({

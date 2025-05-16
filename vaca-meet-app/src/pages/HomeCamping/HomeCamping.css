@@ -30,6 +30,59 @@
   margin-top: 2px;
 }
 
+/* Personnalisation de l'alerte de déconnexion */
+ion-alert.logout-alert {
+  --width: 80%;
+  --max-width: 400px;
+  --backdrop-opacity: 0.7;
+  --background: white;
+  --border-radius: 14px;
+}
+
+ion-alert.logout-alert::part(title) {
+  color: var(--ion-color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+ion-alert.logout-alert::part(message) {
+  color: var(--ion-color-medium);
+  font-size: 15px;
+}
+
+ion-alert.logout-alert::part(button) {
+  color: var(--ion-color-primary);
+  font-weight: 500;
+}
+
+/* Thème minimal styles pour l'alerte */
+:root.theme-minimal ion-alert.logout-alert {
+  --background: white;
+}
+
+/* Dark mode pour l'alerte */
+@media (prefers-color-scheme: dark) {
+  ion-alert.logout-alert {
+    --background: var(--ion-color-dark);
+  }
+  
+  ion-alert.logout-alert::part(title) {
+    color: var(--ion-color-light);
+  }
+  
+  ion-alert.logout-alert::part(message) {
+    color: var(--ion-color-light-shade);
+  }
+  
+  ion-alert.logout-alert::part(button) {
+    color: var(--ion-color-primary-tint);
+  }
+  
+  :root.theme-minimal ion-alert.logout-alert {
+    --background: #1c1c1c;
+  }
+}
+
 /* Styles pour les cartes */
 .animations-card,
 .services-card,

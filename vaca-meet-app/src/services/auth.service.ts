@@ -203,39 +203,4 @@ export class AuthService {
     }
   }
 
-  async test() {
-    try {
-      const endpoint = `${this.apiBaseUrl}${config.api.endpoints.test}`;
-      console.log('URL API test utilisée:', endpoint);
-      
-      // Configuration détaillée
-      const requestConfig = {
-        timeout: config.requestTimeout,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      };
-      
-      if (config.debug.verbose) {
-        console.log('Configuration requête test:', requestConfig);
-      }
-      
-      // Appel réel à l'API
-      const response = await axios.get(endpoint, requestConfig);
-      
-      return response.data;
-    } catch (error: any) {
-      console.error('Erreur test API détaillée:', {
-        message: error.message,
-        code: error.code,
-        name: error.name,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data
-      });
-      
-      throw error;
-    }
-  }
 } 

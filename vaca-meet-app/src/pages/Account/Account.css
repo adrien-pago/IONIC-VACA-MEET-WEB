@@ -17,10 +17,16 @@
 .account-title {
   font-weight: 600;
   font-size: 1.3rem;
-  width: 100%;
-  position: absolute;
+  position: relative;
   left: 0;
   text-align: center;
+  margin: 0;
+  width: 100%;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-2px);
 }
 
 .welcome-container {
@@ -96,18 +102,61 @@ ion-segment {
   --background: rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   padding: 3px;
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 ion-segment-button {
   --background-checked: var(--ion-color-primary);
   --color-checked: white;
-  --color: rgba(255, 255, 255, 0.8);
+  --color: rgba(var(--ion-color-dark-rgb), 0.7);
   --indicator-color: transparent;
   border-radius: 12px;
   min-height: 40px;
   text-transform: none;
   font-weight: 500;
   letter-spacing: 0;
+}
+
+/* Styles spécifiques pour le thème minimal */
+:root.theme-minimal ion-segment {
+  --background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+:root.theme-minimal ion-segment-button {
+  --background-checked: #333333;
+  --color-checked: white;
+  --color: #333333;
+  font-weight: 600;
+}
+
+:root.theme-minimal ion-segment-button.segment-button-checked {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles pour tous les thèmes en mode sombre */
+@media (prefers-color-scheme: dark) {
+  ion-segment {
+    --background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  ion-segment-button {
+    --color: rgba(255, 255, 255, 0.8);
+  }
+  
+  /* Styles spécifiques pour le thème minimal en mode sombre */
+  :root.theme-minimal ion-segment {
+    --background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  :root.theme-minimal ion-segment-button {
+    --background-checked: #ffffff;
+    --color-checked: #333333;
+    --color: #ffffff;
+  }
 }
 
 /* Card styles */

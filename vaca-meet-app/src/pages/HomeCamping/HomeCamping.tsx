@@ -81,6 +81,17 @@ const HomeCamping: React.FC = () => {
     };
 
     loadData();
+    
+    // Stocker l'information que l'utilisateur est sur la page HomeCamping avec l'ID du camping
+    if (id) {
+      const pageValue = `camping:${id}`;
+      sessionStorage.setItem('lastPage', pageValue);
+      
+      // Stocker également dans localStorage pour plus de persistance
+      localStorage.setItem('lastPage', pageValue);
+      
+      console.log('Page HomeCamping: lastPage défini à', pageValue);
+    }
   }, [id]);
 
   const handleLogout = () => {
@@ -138,7 +149,18 @@ const HomeCamping: React.FC = () => {
             </IonMenuToggle>
             
             <IonMenuToggle menu="camping-menu">
-              <IonItem routerLink="/account" detail={false}>
+              <IonItem 
+                button
+                detail={false}
+                onClick={() => {
+                  // Stocker explicitement que l'on vient de la page HomeCamping avant de naviguer
+                  const sourceValue = `camping:${id}`;
+                  sessionStorage.setItem('accountPageSource', sourceValue);
+                  localStorage.setItem('accountPageSource', sourceValue);
+                  console.log('Navigation vers Account depuis HomeCamping, source définie:', sourceValue);
+                  router.push('/account');
+                }}
+              >
                 <IonIcon slot="start" icon={personOutline} />
                 <IonLabel>Compte</IonLabel>
               </IonItem>
@@ -155,7 +177,7 @@ const HomeCamping: React.FC = () => {
       </IonMenu>
       
       <IonPage id="camping-content">
-        <BackgroundEffects variant="gradient" density="high" animate={false} />
+        <BackgroundEffects variant="gradient" density="high" animate={false} useThemeColors={true} />
         
         <IonHeader className="ion-no-border transparent-header">
           <IonToolbar>
@@ -301,6 +323,7 @@ const HomeCamping: React.FC = () => {
             onDidDismiss={() => setShowLogoutAlert(false)}
             header="Déconnexion"
             message="Voulez-vous vraiment vous déconnecter ?"
+            cssClass="logout-alert"
             buttons={[
               {
                 text: 'Non',
@@ -309,7 +332,8 @@ const HomeCamping: React.FC = () => {
               },
               {
                 text: 'Oui',
-                handler: confirmLogout
+                handler: confirmLogout,
+                cssClass: 'primary'
               }
             ]}
           />
