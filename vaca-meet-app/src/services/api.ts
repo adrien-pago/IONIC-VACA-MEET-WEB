@@ -11,6 +11,10 @@ const axiosConfig = {
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization, X-Request-With'
   },
   timeout: config.requestTimeout
   // Nous supprimons la configuration httpsAgent qui utilise require() 

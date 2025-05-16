@@ -196,13 +196,28 @@ export class ProfileService {
       console.log('Mise à jour du mot de passe');
       console.log('URL de mise à jour du mot de passe:', `${config.api.baseUrl}${config.api.endpoints.updatePassword}`);
       
-      const response = await api.put(config.api.endpoints.updatePassword, {
-        currentPassword,
-        newPassword
-      });
-      console.log('Réponse mise à jour mot de passe:', response.data);
-      
-      return response.data;
+      try {
+        // Essayer d'abord avec PUT (méthode standard)
+        console.log('Tentative avec PUT...');
+        const response = await api.put(config.api.endpoints.updatePassword, {
+          currentPassword,
+          newPassword
+        });
+        console.log('Réponse mise à jour mot de passe (PUT):', response.data);
+        
+        return response.data;
+      } catch (putError: any) {
+        // En cas d'erreur avec PUT, essayer avec POST
+        console.log('Échec avec PUT, tentative avec POST...', putError.message);
+        
+        const response = await api.post(config.api.endpoints.updatePassword, {
+          currentPassword,
+          newPassword
+        });
+        console.log('Réponse mise à jour mot de passe (POST):', response.data);
+        
+        return response.data;
+      }
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
       

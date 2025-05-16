@@ -36,6 +36,7 @@ import {
 import { personCircleOutline, saveOutline, lockClosedOutline, checkmarkCircleOutline, colorPaletteOutline, arrowBackOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService, ProfileUpdateData, UserProfile } from '../../services/profile.service';
+import config from '../../services/config';
 import { useTheme, ThemeType } from '../../context/ThemeContext';
 import GlassCard from '../../components/GlassCard';
 import BackgroundEffects from '../../components/BackgroundEffects';
@@ -297,14 +298,31 @@ const Account: React.FC = () => {
   };
 
   const changePassword = async () => {
-    if (!validatePasswordForm()) return;
+    if (!validatePasswordForm()) {
+      console.log('Validation du formulaire échouée', errors);
+      return;
+    }
 
     try {
       setShowLoading(true);
+      console.log('Envoi de la demande de modification du mot de passe:', {
+        currentPassword: '****', // Masqué pour des raisons de sécurité
+        newPassword: '****', // Masqué pour des raisons de sécurité
+        longueurs: {
+          currentPassword: passwordData.currentPassword.length,
+          newPassword: passwordData.newPassword.length,
+          confirmPassword: passwordData.confirmPassword.length
+        }
+      });
+      
+      console.log('URL complète:', `${config.api.baseUrl}${config.api.endpoints.updatePassword}`);
+      
       const result = await profileService.updatePassword(
         passwordData.currentPassword,
         passwordData.newPassword
       );
+      
+      console.log('Réponse reçue après mise à jour du mot de passe:', result);
       
       setToastMessage('Mot de passe mis à jour avec succès');
       setShowToast(true);
@@ -318,11 +336,24 @@ const Account: React.FC = () => {
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
       
-      if (error.response && error.response.status === 401) {
-        setErrors({
-          ...errors,
-          currentPassword: 'Mot de passe actuel incorrect'
+      // Afficher plus de détails sur l'erreur
+      if (error.response) {
+        console.error('Détails de l\'erreur:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data
         });
+        
+        if (error.response.status === 401) {
+          setErrors({
+            ...errors,
+            currentPassword: 'Mot de passe actuel incorrect'
+          });
+          setShowToast(false); // Éviter d'afficher un toast en plus du message d'erreur
+        } else {
+          setToastMessage(error.response.data?.message || 'Impossible de mettre à jour le mot de passe');
+          setShowToast(true);
+        }
       } else {
         setToastMessage(error.message || 'Impossible de mettre à jour le mot de passe');
         setShowToast(true);

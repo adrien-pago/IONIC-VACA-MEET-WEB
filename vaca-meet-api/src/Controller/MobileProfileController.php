@@ -219,7 +219,7 @@ class MobileProfileController extends AbstractController
     /**
      * Endpoint pour mettre à jour le mot de passe utilisateur
      */
-    #[Route('/api/mobile/user/password', name: 'api_mobile_user_password', methods: ['PUT'])]
+    #[Route('/api/mobile/user/password', name: 'api_mobile_user_password', methods: ['PUT', 'POST'])]
     public function updateUserPassword(Request $request): JsonResponse
     {
         $this->logger->info('Tentative de mise à jour du mot de passe');
@@ -235,10 +235,11 @@ class MobileProfileController extends AbstractController
             
             // Récupérer les données de la requête
             $data = json_decode($request->getContent(), true);
+            $this->logger->info('Contenu brut de la requête de mot de passe: ' . $request->getContent());
             
             // Vérifier que les données nécessaires sont présentes
             if (!$data || !isset($data['currentPassword']) || !isset($data['newPassword'])) {
-                $this->logger->error('Données invalides ou incomplètes pour la mise à jour du mot de passe');
+                $this->logger->error('Données invalides ou incomplètes pour la mise à jour du mot de passe: ' . json_encode($data));
                 return $this->json([
                     'success' => false,
                     'message' => 'Les mots de passe actuel et nouveau sont requis'
@@ -248,14 +249,18 @@ class MobileProfileController extends AbstractController
             $currentPassword = $data['currentPassword'];
             $newPassword = $data['newPassword'];
             
+            $this->logger->info('Vérification du mot de passe actuel pour l\'utilisateur ' . $user->getUsername());
+            
             // Vérifier que le mot de passe actuel est correct
             if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
-                $this->logger->error('Échec de vérification du mot de passe actuel');
+                $this->logger->error('Échec de vérification du mot de passe actuel pour ' . $user->getUsername());
                 return $this->json([
                     'success' => false,
                     'message' => 'Le mot de passe actuel est incorrect'
                 ], Response::HTTP_UNAUTHORIZED);
             }
+            
+            $this->logger->info('Mot de passe actuel validé avec succès');
             
             // Vérifier que le nouveau mot de passe est différent de l'ancien
             if ($currentPassword === $newPassword) {
@@ -275,14 +280,16 @@ class MobileProfileController extends AbstractController
             $this->logger->info('Mise à jour du mot de passe utilisateur en cours...');
             $this->entityManager->flush();
             
-            $this->logger->info('Mot de passe mis à jour avec succès');
+            $this->logger->info('Mot de passe mis à jour avec succès pour l\'utilisateur ' . $user->getUsername());
             
             return $this->json([
                 'success' => true,
                 'message' => 'Mot de passe mis à jour avec succès'
             ]);
         } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la mise à jour du mot de passe: ' . $e->getMessage());
+            $this->logger->error('Erreur lors de la mise à jour du mot de passe: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return $this->json([
                 'success' => false,

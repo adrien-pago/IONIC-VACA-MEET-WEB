@@ -35,7 +35,6 @@ const config = {
   // Timeout des requêtes en ms (augmenté pour déboguer)
   requestTimeout: 30000, // 30 secondes pour déboguer
   
-
   
   // Configuration du stockage local
   storage: {
