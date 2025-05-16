@@ -36,9 +36,21 @@ class MobileProfileController extends AbstractController
             // Récupérer les données de la requête
             $data = json_decode($request->getContent(), true);
             
+            $this->logger->info('Données brutes reçues:', [
+                'content' => $request->getContent(),
+                'parsed' => $data
+            ]);
+            
             $this->logger->info('Données reçues pour mise à jour:', [
                 'userId' => $user->getId(),
                 'data' => $data
+            ]);
+            
+            $this->logger->info('Valeurs actuelles en base:', [
+                'userId' => $user->getId(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'username' => $user->getUsername()
             ]);
             
             if (!$data) {
@@ -55,8 +67,9 @@ class MobileProfileController extends AbstractController
             ];
             
             $hasChanges = false;
+            $forceUpdate = true; // Force la mise à jour même si les valeurs sont identiques (pour test)
             
-            if (isset($data['firstName']) && $data['firstName'] !== $user->getFirstName()) {
+            if (isset($data['firstName']) && ($data['firstName'] !== $user->getFirstName() || $forceUpdate)) {
                 $user->setFirstName($data['firstName']);
                 $hasChanges = true;
                 $this->logger->info('Mise à jour prénom:', [
@@ -65,7 +78,7 @@ class MobileProfileController extends AbstractController
                 ]);
             }
             
-            if (isset($data['lastName']) && $data['lastName'] !== $user->getLastName()) {
+            if (isset($data['lastName']) && ($data['lastName'] !== $user->getLastName() || $forceUpdate)) {
                 $user->setLastName($data['lastName']);
                 $hasChanges = true;
                 $this->logger->info('Mise à jour nom:', [
@@ -75,7 +88,7 @@ class MobileProfileController extends AbstractController
             }
             
             // Utiliser username au lieu de email (username correspond à l'email en base)
-            if (isset($data['username']) && $data['username'] !== $user->getUsername()) {
+            if (isset($data['username']) && ($data['username'] !== $user->getUsername() || $forceUpdate)) {
                 $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
                 $hasChanges = true;
                 $this->logger->info('Mise à jour username:', [
@@ -91,6 +104,16 @@ class MobileProfileController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 $this->logger->info('Flush exécuté avec succès');
+                
+                // Vérifier que les données ont bien été mises à jour
+                // Refresh l'entité pour s'assurer d'avoir les dernières valeurs
+                $this->entityManager->refresh($user);
+                $this->logger->info('Valeurs après mise à jour en base:', [
+                    'userId' => $user->getId(),
+                    'firstName' => $user->getFirstName(),
+                    'lastName' => $user->getLastName(),
+                    'username' => $user->getUsername()
+                ]);
             }
             
             $this->logger->info('Profil utilisateur mis à jour avec succès pour l\'utilisateur ' . $user->getId());
