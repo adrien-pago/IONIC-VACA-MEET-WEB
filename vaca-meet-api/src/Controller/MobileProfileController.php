@@ -112,7 +112,16 @@ class MobileProfileController extends AbstractController
                     }
                     
                     $oldUsername = $user->getUsername();
-                    $user->setUsername($data['username']); // Utiliser setUsername car l'entité n'a pas de méthode setEmail
+                    $this->logger->info('Avant setUsername - Valeur actuelle:', [
+                        'username' => $user->getUsername()
+                    ]);
+                    
+                    $user->setUsername($data['username']); 
+                    
+                    $this->logger->info('Après setUsername - Nouvelle valeur:', [
+                        'username' => $user->getUsername()
+                    ]);
+                    
                     $hasChanges = true;
                     $this->logger->info('Mise à jour username:', [
                         'ancien' => $oldUsername,
@@ -149,6 +158,29 @@ class MobileProfileController extends AbstractController
                     // Refresh l'entité pour s'assurer d'avoir les dernières valeurs
                     $this->entityManager->refresh($user);
                     $this->logUserState($user, 'État après refresh');
+                    
+                    // Vérification directe en base de données pour le username
+                    if (isset($data['username'])) {
+                        try {
+                            $conn = $this->entityManager->getConnection();
+                            $sql = 'SELECT username FROM user_mobile WHERE id = :id';
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bindValue('id', $user->getId());
+                            $result = $stmt->executeQuery();
+                            $dbUsername = $result->fetchOne();
+                            
+                            $this->logger->info('Vérification directe du username en base de données:', [
+                                'userId' => $user->getId(),
+                                'usernameEnvoyé' => $data['username'],
+                                'usernameObjet' => $user->getUsername(),
+                                'usernameDB' => $dbUsername
+                            ]);
+                        } catch (\Exception $e) {
+                            $this->logger->error('Erreur lors de la vérification directe en base:', [
+                                'message' => $e->getMessage()
+                            ]);
+                        }
+                    }
                 } catch (\Exception $e) {
                     $this->logger->error('Erreur lors du flush des modifications:', [
                         'message' => $e->getMessage(),
@@ -185,6 +217,120 @@ class MobileProfileController extends AbstractController
                 'success' => false,
                 'message' => 'Erreur lors de la mise à jour du profil',
                 'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Endpoint spécifique pour mettre à jour uniquement le username
+     */
+    #[Route('/api/mobile/user/update-username', name: 'api_mobile_user_update_username', methods: ['POST'])]
+    public function updateUsername(Request $request): JsonResponse
+    {
+        $this->logger->info('Tentative de mise à jour du username');
+        
+        try {
+            // Récupérer l'utilisateur connecté
+            $user = $this->getUser();
+            
+            if (!$user instanceof UserMobile) {
+                $this->logger->error('Utilisateur non authentifié ou invalide');
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
+            }
+            
+            // Récupérer les données de la requête
+            $data = json_decode($request->getContent(), true);
+            
+            if (!$data || !isset($data['username'])) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Le champ username est requis'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $newUsername = $data['username'];
+            $oldUsername = $user->getUsername();
+            
+            // Vérifier si le username est identique
+            if ($newUsername === $oldUsername) {
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Le username est déjà à jour',
+                    'user' => [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                        'firstName' => $user->getFirstName(),
+                        'lastName' => $user->getLastName()
+                    ]
+                ]);
+            }
+            
+            // Vérifier si le username existe déjà
+            $userWithSameUsername = $this->entityManager
+                ->getRepository(UserMobile::class)
+                ->findOneBy(['username' => $newUsername]);
+                
+            if ($userWithSameUsername && $userWithSameUsername->getId() !== $user->getId()) {
+                $this->logger->error('Username déjà utilisé par un autre compte', [
+                    'username' => $newUsername,
+                    'userId' => $user->getId(),
+                    'existingUserId' => $userWithSameUsername->getId()
+                ]);
+                
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Ce nom d\'utilisateur est déjà utilisé par un autre compte'
+                ], Response::HTTP_CONFLICT);
+            }
+            
+            // Mettre à jour directement en base de données
+            $conn = $this->entityManager->getConnection();
+            $sql = 'UPDATE user_mobile SET username = :username WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue('id', $user->getId());
+            $stmt->bindValue('username', $newUsername);
+            $result = $stmt->executeStatement();
+            
+            if ($result > 0) {
+                $this->logger->info('Username mis à jour avec succès en base de données', [
+                    'userId' => $user->getId(),
+                    'ancien' => $oldUsername,
+                    'nouveau' => $newUsername
+                ]);
+                
+                // Mettre à jour l'objet en mémoire
+                $user->setUsername($newUsername);
+                
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Username mis à jour avec succès',
+                    'user' => [
+                        'id' => $user->getId(),
+                        'username' => $newUsername,
+                        'firstName' => $user->getFirstName(),
+                        'lastName' => $user->getLastName()
+                    ]
+                ]);
+            } else {
+                $this->logger->error('Échec de la mise à jour du username en base de données', [
+                    'userId' => $user->getId(),
+                    'username' => $newUsername
+                ]);
+                
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Échec de la mise à jour du username'
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors de la mise à jour du username', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return $this->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du username: ' . $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
