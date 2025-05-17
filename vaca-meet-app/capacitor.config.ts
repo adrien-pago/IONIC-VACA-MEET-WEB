@@ -1,13 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'vaca-meet-app',
-  webDir: 'dist',
-  server: {
-    androidScheme: 'http',
-    cleartext: true
-  }
+  appId: 'com.vacameet.app',
+  appName: 'Vaca Meet',
+  webDir: 'dist'
 };
 
 export default config;

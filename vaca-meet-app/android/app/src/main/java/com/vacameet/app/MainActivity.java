@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.vacameet.app;
 
 import com.getcapacitor.BridgeActivity;
 
