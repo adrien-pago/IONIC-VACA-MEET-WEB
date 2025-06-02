@@ -255,35 +255,37 @@ const ActivityCamping: React.FC = () => {
               
               {/* Planning hebdomadaire */}
               <IonCard className="schedule-card">
-                <div className="schedule-container">
-                  {/* En-tête des jours */}
-                  <div className="schedule-header">
-                    <div className="time-column-header">Horaire</div>
-                    <div className="days-header">
-                      {generateDayHeaders()}
-                    </div>
-                  </div>
-                  
-                  {/* Corps du planning avec les heures et cellules */}
-                  <div className="schedule-body">
-                    {TIME_SLOTS.map((timeSlot, timeIndex) => (
-                      <div key={timeSlot} className={`schedule-row ${timeSlot === 'Soirée' ? 'evening-row' : ''}`}>
-                        <div className="time-slot">{timeSlot}</div>
-                        <div className="day-cells">
-                          {DAYS_OF_WEEK.map((day, dayIndex) => {
-                            const activity = getActivityForCell(dayIndex, timeIndex);
-                            return (
-                              <div 
-                                key={`${timeSlot}-${day}`} 
-                                className={`schedule-cell ${timeSlot === 'Soirée' ? 'evening-cell' : ''}`}
-                              >
-                                {activity && renderActivity(activity)}
-                              </div>
-                            );
-                          })}
-                        </div>
+                <div className="schedule-scroll-wrapper">
+                  <div className="schedule-container">
+                    {/* En-tête des jours */}
+                    <div className="schedule-header">
+                      <div className="time-column-header">Horaire</div>
+                      <div className="days-header">
+                        {generateDayHeaders()}
                       </div>
-                    ))}
+                    </div>
+                    
+                    {/* Corps du planning avec les heures et cellules */}
+                    <div className="schedule-body">
+                      {TIME_SLOTS.map((timeSlot, timeIndex) => (
+                        <div key={timeSlot} className={`schedule-row ${timeSlot === 'Soirée' ? 'evening-row' : ''}`}>
+                          <div className="time-slot">{timeSlot}</div>
+                          <div className="day-cells">
+                            {DAYS_OF_WEEK.map((day, dayIndex) => {
+                              const activity = getActivityForCell(dayIndex, timeIndex);
+                              return (
+                                <div 
+                                  key={`${timeSlot}-${day}`} 
+                                  className={`schedule-cell ${timeSlot === 'Soirée' ? 'evening-cell' : ''}`}
+                                >
+                                  {activity && renderActivity(activity)}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </IonCard>

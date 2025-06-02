@@ -160,13 +160,23 @@ ion-toolbar::after {
   }
 }
 
-.schedule-container {
+/* Scroll horizontal pour le planning */
+.schedule-scroll-wrapper {
   overflow-x: auto;
-  width: 100%;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--ion-color-primary) transparent;
-  padding-bottom: 5px;
+  width: 100%;
+}
+
+.schedule-container {
+  min-width: 700px; /* Ajuste selon le nombre de colonnes */
+}
+
+/* Colonne horaire sticky */
+.time-column-header, .time-slot {
+  position: sticky;
+  left: 0;
+  background: #e0ecfa;
+  z-index: 2;
 }
 
 .schedule-container::-webkit-scrollbar {
