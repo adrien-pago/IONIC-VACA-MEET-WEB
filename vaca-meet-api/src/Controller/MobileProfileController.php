@@ -284,4 +284,59 @@ class MobileProfileController extends AbstractController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Endpoint pour uploader la photo de profil de l'utilisateur mobile
+     */
+    #[Route('/api/mobile/user/upload-profile-picture', name: 'api_mobile_user_upload_profile_picture', methods: ['POST'])]
+    public function uploadProfilePicture(Request $request): JsonResponse
+    {
+        $this->logger->info('Upload de la photo de profil utilisateur mobile');
+        try {
+            $user = $this->getUser();
+            if (!$user instanceof UserMobile) {
+                $this->logger->error('Utilisateur non authentifié ou invalide');
+                return $this->json(['message' => 'Utilisateur non trouvé'], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $file = $request->files->get('file');
+            if (!$file) {
+                return $this->json(['message' => 'Aucun fichier reçu'], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Vérifier le type MIME
+            $allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMime)) {
+                return $this->json(['message' => 'Format de fichier non supporté'], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Générer un nom de fichier unique
+            $ext = $file->guessExtension();
+            $filename = sprintf('user_%d_%d.%s', $user->getId(), time(), $ext);
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/profiles/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $file->move($uploadDir, $filename);
+            $relativePath = '/uploads/profiles/' . $filename;
+
+            // Mettre à jour l'utilisateur
+            $user->setProfilePicture($relativePath);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Photo de profil mise à jour',
+                'profilePicture' => $relativePath,
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur upload photo de profil: ' . $e->getMessage());
+            return $this->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'upload de la photo',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -42,6 +42,10 @@ class UserMobile implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user_mobile:read'])]
     private ?string $theme = 'default';
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_mobile:read'])]
+    private ?string $profilePicture = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -145,6 +149,17 @@ class UserMobile implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->theme = $theme;
 
+        return $this;
+    }
+
+    public function getProfilePicture(): ?string
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(?string $profilePicture): static
+    {
+        $this->profilePicture = $profilePicture;
         return $this;
     }
 }
