@@ -102,7 +102,8 @@ class MobileProfileController extends AbstractController
                         'id' => $user->getId(),
                         'username' => $user->getUsername(),
                         'firstName' => $user->getFirstName(),
-                        'lastName' => $user->getLastName()
+                        'lastName' => $user->getLastName(),
+                        'profilePicture' => $user->getProfilePicture(),
                     ]
                 ]);
             }
@@ -127,7 +128,8 @@ class MobileProfileController extends AbstractController
                     'id' => $user->getId(),
                     'username' => $user->getUsername(),
                     'firstName' => $user->getFirstName(),
-                    'lastName' => $user->getLastName()
+                    'lastName' => $user->getLastName(),
+                    'profilePicture' => $user->getProfilePicture(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -202,7 +204,8 @@ class MobileProfileController extends AbstractController
                     'username' => $user->getUsername(),
                     'firstName' => $user->getFirstName(),
                     'lastName' => $user->getLastName(),
-                    'theme' => $user->getTheme()
+                    'theme' => $user->getTheme(),
+                    'profilePicture' => $user->getProfilePicture(),
                 ]
             ]);
         } catch (\Exception $e) {
