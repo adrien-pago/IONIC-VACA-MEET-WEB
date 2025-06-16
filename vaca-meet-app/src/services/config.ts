@@ -10,8 +10,8 @@ const isProduction = !isEmulator;
 const config = {
   // API URLs
   api: {
-    // Utiliser uniquement l'URL de production
-    baseUrl: 'https://mobile.vaca-meet.fr',
+    // URL de base selon l'environnement
+    baseUrl: isEmulator ? 'http://localhost:8000' : 'https://mobile.vaca-meet.fr',
     
     // Aucune URL alternative
     fallbackUrls: [],
@@ -53,6 +53,5 @@ const config = {
     buildType: process.env.NODE_ENV
   }
 };
-
 
 export default config; 
