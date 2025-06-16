@@ -11,7 +11,7 @@ const config = {
   // API URLs
   api: {
     // URL de base selon l'environnement
-    baseUrl: isEmulator ? 'http://localhost:8000' : 'https://mobile.vaca-meet.fr',
+    baseUrl: 'https://mobile.vaca-meet.fr',
     
     // Aucune URL alternative
     fallbackUrls: [],
