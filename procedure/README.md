@@ -236,6 +236,7 @@ npx cap add android
 
 # Copier les fichiers build vers Android
 npx cap copy android
+npx cap sync android
 
 # Mettre à jour les plugins natifs
 npx cap update android
