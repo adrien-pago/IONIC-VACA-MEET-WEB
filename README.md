@@ -159,7 +159,12 @@ npm run build
 
 # Build Android
 npx cap add android
+
+#Copy and Sync
 npx cap copy android
+npx cap sync android
+
+#Open Android
 npx cap open android
 ```
 
